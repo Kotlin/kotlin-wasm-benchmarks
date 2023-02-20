@@ -1,0 +1,8 @@
+/out/
+/.idea
+/build
+/.gradle
+/kotlin-js-store
+/kotlin-compiler
+/.teamcity/target
+/.teamcity/.idea
