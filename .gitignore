@@ -6,3 +6,5 @@
 /kotlin-compiler
 /.teamcity/target
 /.teamcity/.idea
+/buildSrc/build
+buildSrc/.gradle
