@@ -352,6 +352,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
             name = "wasmBenchmark_v8"
             tasks = ":wasmFastMicroBenchmark :wasmSlowMicroBenchmark :wasmFastMacroBenchmark :wasmSlowMacroBenchmark"
             gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+            executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
         }
         gradle {
             name = "wasmBenchmark_sm"
@@ -362,6 +363,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
             name = "wasmOptBenchmark_v8"
             tasks = ":wasmOptFastMicroBenchmark :wasmOptSlowMicroBenchmark :wasmOptFastMacroBenchmark :wasmOptSlowMacroBenchmark"
             gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+            executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
         }
         gradle {
             name = "wasmOptBenchmark_sm"
@@ -372,6 +374,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
             name = "jsBenchmark_v8"
             tasks = ":jsFastMicroBenchmark :jsSlowMicroBenchmark :jsFastMacroBenchmark :jsSlowMacroBenchmark"
             gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+            executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
         }
         gradle {
             name = "jsBenchmark_sm"
@@ -382,6 +385,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
             name = "reportAllTargetsToTC"
             tasks = ":reportAllTargetsToTC"
             gradleParams = "-Pkotlin_version=%kotlin-version%"
+            executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
         }
     }
 
