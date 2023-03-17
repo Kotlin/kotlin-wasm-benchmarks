@@ -312,7 +312,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
     name = "Main"
 
     artifactRules = "build/reports/benchmarks => reports"
-    publishArtifacts = PublishMode.SUCCESSFUL
+    publishArtifacts = PublishMode.NORMALLY_FINISHED
 
     params {
         param("kotlin-version", "%dep.Kotlin_KotlinDev_CompilerDistAndMavenArtifacts.build.number%")
