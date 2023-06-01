@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrCompilation
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 import org.jetbrains.kotlin.gradle.targets.js.d8.D8RootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
+import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin
 
 buildscript {
     repositories {
@@ -31,19 +32,21 @@ apply {
 }
 
 with(NodeJsRootPlugin.apply(rootProject)) {
-    nodeVersion = "19.0.0-nightly202206017ad5b420ae"
-    nodeDownloadBaseUrl = "https://nodejs.org/download/nightly/"
+    nodeVersion = "20.2.0"
 }
 
+with(BinaryenRootPlugin.apply(rootProject)) {
+    version = "112"
+}
+
+with(D8RootPlugin.apply(rootProject)) {
+    version = "11.5.99"
+}
 
 allprojects.forEach {
     it.tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
         args.add("--ignore-engines")
     }
-}
-
-with(D8RootPlugin.apply(rootProject)) {
-    version = "11.3.106"
 }
 
 repositories {
@@ -194,7 +197,7 @@ benchmark {
             reportFormat = "csv"
             mode = "avgt"
             advanced("jsUseBridge", true)
-            includes.add("microBenchmarks")
+            includes.add("microBenchmarks.ClassBaselineBenchmark.allocateList")
             excludes.addAll(slowMicroBenchmarks)
         }
         with(create("slowMicro")) {
@@ -264,7 +267,7 @@ val currentOsType = run {
     OsType(osName, osArch)
 }
 
-val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2023/05/2023-05-03-21-41-03-mozilla-central"
+val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2023/05/2023-05-12-09-49-14-mozilla-central"
 val jsShellSuffix = when (currentOsType) {
     OsType(OsName.LINUX, OsArch.X86_32) -> "linux-i686"
     OsType(OsName.LINUX, OsArch.X86_64) -> "linux-x86_64"
