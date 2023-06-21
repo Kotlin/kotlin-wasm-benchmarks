@@ -197,7 +197,7 @@ benchmark {
             reportFormat = "csv"
             mode = "avgt"
             advanced("jsUseBridge", true)
-            includes.add("microBenchmarks.ClassBaselineBenchmark.allocateList")
+            includes.add("microBenchmarks")
             excludes.addAll(slowMicroBenchmarks)
         }
         with(create("slowMicro")) {
