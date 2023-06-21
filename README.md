@@ -14,17 +14,24 @@ To perform benchmarks it uses [kotlinx-benchmarks](https://github.com/Kotlin/kot
 # Build and Run
 Specify Kotlin version in `gradle.properties` file or use additional gradle argument `-Pkotlin_version=1.8.0`.
 
-### To run benchmarks with Wasm:
+### To run All benchmarks in V8:
+`./gradlew benchmark`
+
+### To run All Kotlin/Wasm benchmarks in V8:
 
 `./gradlew wasmBenchmark`
 
-### To run benchmarks with [Binaryen](https://github.com/WebAssembly/binaryen) optimised Wasm:
+### To run All Kotlin/Wasm benchmarks with binaries optimized by [Binaryen](https://github.com/WebAssembly/binaryen) in V8:
 
 `./gradlew wasmOptBenchmark`
 
-### To run benchmarks with JS:
+### To run All Kotlin/JS benchmarks in V8:
 
 `./gradlew jsBenchmark`
+
+### To see all tasks:
+
+`./gradlew tasks`
 
 ### Result output is located in `build/reports` directory.
 
