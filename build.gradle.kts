@@ -52,6 +52,7 @@ allprojects.forEach {
 repositories {
     mavenCentral()
     maven(uri("./kotlin-compiler"))
+    maven(uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap/"))
 }
 
 val distinguishAttribute = Attribute.of("kotlinx-benchmark-distinguishAttribute", String::class.java)
