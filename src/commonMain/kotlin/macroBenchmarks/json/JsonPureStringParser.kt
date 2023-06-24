@@ -136,15 +136,18 @@ class JsonPureStringParser(private val input: String) {
     private fun readStringInternal(): String {
         read()
         startCapture()
-        while (current != "\"") {
-            if (current == "\\") {
+        do {
+            val current1 = current // does it really help?
+            if (current1 == s) break
+
+            if (current1 == s1) {
                 pauseCapture()
                 readEscape()
                 startCapture()
             } else {
                 read()
             }
-        }
+        } while (true) // don't generate br_if here
         val string = endCapture()
         read()
         return string
@@ -231,11 +234,11 @@ class JsonPureStringParser(private val input: String) {
     }
 
     private fun read() {
-        if ("\n" == current) {
-            line++
+        if (n == current) {
+            line+=1
             column = 0
         }
-        index++
+        index+=1
         current = if (index < input.length) {
             input.substring(index, index + 1)
         } else {
@@ -256,7 +259,7 @@ class JsonPureStringParser(private val input: String) {
     private fun endCapture(): String {
         val end = if (current == null) index else index - 1
         val captured: String
-        if ("" == captureBuffer) {
+        if (captureBuffer.isEmpty()) { //does it help?
             captured = input.substring(captureStart, end + 1)
         } else {
             captureBuffer += input.substring(captureStart, end + 1)
@@ -274,9 +277,25 @@ class JsonPureStringParser(private val input: String) {
         ParseException(message, index, line, column - 1)
 
     private val isWhiteSpace: Boolean
-        get() = " " == current || "\t" == current || "\n" == current || "\r" == current
+        get() =
+            when (current) {
+                null -> false
+                " ", "\t", "\n", "\r" -> true
+                else -> false
+            }
+    
     private val isDigit: Boolean
-        get() = "0" == current || "1" == current || "2" == current || "3" == current || "4" == current || "5" == current || "6" == current || "7" == current || "8" == current || "9" == current
+        // bad IR is generated for ||?
+        get() =
+            when (current) {
+                null -> false
+                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" -> true
+                else -> false
+            }
     private val isEndOfText: Boolean
         get() = current == null
 }
+
+val s = "\""
+val s1 = "\\"
+val n = "\n"

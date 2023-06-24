@@ -28,7 +28,10 @@ package macroBenchmarks.som
  * - does not use an explicit array bounds check, because Java already does
  * that. Don't see a point in doing it twice.
  */
-open class Vector<E> constructor(size: Int = 50) {
+
+inline fun <E> Vector() = Vector<E>(50)
+
+open class Vector<E> constructor(size: Int) { //
     private var storage: Array<Any?> = arrayOfNulls(size)
     private var firstIdx = 0
     private var lastIdx = 0
