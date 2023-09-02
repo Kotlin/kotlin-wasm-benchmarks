@@ -15,11 +15,15 @@ import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin
 buildscript {
     repositories {
         gradlePluginPortal()
+        maven(uri("./kotlin-compiler"))
     }
 
+    val kotlin_version: String by project
+
     dependencies {
-        classpath(files("./kotlinx-benchmarks/kotlinx-benchmark-plugin-0.4.7.jar"))
+        classpath(files("./kotlinx-benchmarks/kotlinx-benchmark-plugin-0.5.0.jar"))
         classpath("com.squareup:kotlinpoet:1.3.0")
+        classpath("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version")
     }
 }
 
@@ -78,26 +82,26 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.4.7.jar"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar"))
             }
         }
 
         val wasmMain by getting {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-0.4.7.klib"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasmjs-0.5.0.klib"))
             }
         }
 
         val wasmOptMain by getting {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-0.4.7.klib"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasmjs-0.5.0.klib"))
                 kotlin.srcDirs("$rootDir/src")
             }
         }
 
         val jsMain by getting {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-jsir-0.4.7.klib"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-jsir-0.5.0.klib"))
             }
         }
     }
@@ -167,8 +171,8 @@ benchmark {
         with(create("slowMacro")) {
             iterations = 1
             warmups = 5
-            iterationTime = 0
-            iterationTimeUnit = "millis"
+            iterationTime = 1
+            iterationTimeUnit = "nanos"
             outputTimeUnit = "millis"
             reportFormat = "csv"
             mode = "avgt"
@@ -197,14 +201,14 @@ benchmark {
             reportFormat = "csv"
             mode = "avgt"
             advanced("jsUseBridge", true)
-            includes.add("microBenchmarks.ClassBaselineBenchmark.allocateList")
+            includes.add("microBenchmarks")
             excludes.addAll(slowMicroBenchmarks)
         }
         with(create("slowMicro")) {
             iterations = 1
             warmups = 5
-            iterationTime = 0
-            iterationTimeUnit = "millis"
+            iterationTime = 1
+            iterationTimeUnit = "nanos"
             outputTimeUnit = "millis"
             reportFormat = "csv"
             mode = "avgt"
@@ -372,7 +376,7 @@ afterEvaluate {
         }
         if (compilation != null) {
             target.extension.configurations.forEach { config ->
-                val benchmarkCompilation = compilation.target.compilations.maybeCreate(BenchmarksPlugin.BENCHMARK_COMPILATION_NAME) as KotlinJsCompilation
+                val benchmarkCompilation = compilation.target.compilations.maybeCreate(target.name + BenchmarksPlugin.BENCHMARK_COMPILATION_SUFFIX) as KotlinJsCompilation
                 createJsEngineBenchmarkExecTask(config, target, benchmarkCompilation)
             }
         }
