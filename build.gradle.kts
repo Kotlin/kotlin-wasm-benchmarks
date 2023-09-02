@@ -62,7 +62,7 @@ kotlin {
         //d8()
         nodejs()
     }
-    wasm {
+    wasm("wasm") {
         d8()
         attributes.attribute(distinguishAttribute, "wasm")
         //nodejs()
