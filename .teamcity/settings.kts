@@ -6,6 +6,7 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
 import jetbrains.buildServer.configs.kotlin.buildTypeChartsOrder
 import jetbrains.buildServer.configs.kotlin.buildTypeCustomChart
+import jetbrains.buildServer.configs.kotlin.triggers.schedule
 
 /*
 The settings script is an entry point for defining a TeamCity
@@ -313,7 +314,19 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
     publishArtifacts = PublishMode.SUCCESSFUL
 
     params {
-        param("kotlin-version", "%dep.Kotlin_KotlinDev_CompilerDistAndMavenArtifacts.build.number%")
+        param("kotlin-version", "%dep.Kotlin_KotlinDev_Artifacts.build.number%")
+    }
+
+    triggers {
+        schedule {
+            schedulingPolicy = daily {
+                hour = 3
+            }
+            triggerBuild = onWatchedBuildChange {
+                buildType = "Kotlin_KotlinDev_Artifacts"
+                promoteWatchedBuild = false
+            }
+        }
     }
 
     vcs {
@@ -368,7 +381,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
     }
 
     dependencies {
-        artifacts(AbsoluteId("Kotlin_KotlinDev_CompilerDistAndMavenArtifacts")) {
+        artifacts(AbsoluteId("Kotlin_KotlinDev_Artifacts")) {
             buildRule = lastSuccessful()
             artifactRules = "maven.zip!**=>kotlin-compiler"
         }
