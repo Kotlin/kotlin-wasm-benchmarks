@@ -36,15 +36,16 @@ apply {
 }
 
 with(NodeJsRootPlugin.apply(rootProject)) {
-    nodeVersion = "20.2.0"
+    nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
+    nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
 }
 
 with(BinaryenRootPlugin.apply(rootProject)) {
-    version = "114"
+    version = "116"
 }
 
 with(D8RootPlugin.apply(rootProject)) {
-    version = "11.5.99"
+    version = "11.9.125"
 }
 
 allprojects.forEach {
@@ -272,7 +273,7 @@ val currentOsType = run {
     OsType(osName, osArch)
 }
 
-val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2023/05/2023-05-12-09-49-14-mozilla-central"
+val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2023/09/2023-09-21-09-13-27-mozilla-central"
 val jsShellSuffix = when (currentOsType) {
     OsType(OsName.LINUX, OsArch.X86_32) -> "linux-i686"
     OsType(OsName.LINUX, OsArch.X86_64) -> "linux-x86_64"
