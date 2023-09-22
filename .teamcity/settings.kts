@@ -314,7 +314,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
     publishArtifacts = PublishMode.SUCCESSFUL
 
     params {
-        param("kotlin-version", "%dep.Kotlin_KotlinDev_Artifacts.build.number%")
+        param("kotlin-version", "%dep.Kotlin_KotlinDev_CompilerDistAndMavenArtifacts.build.number%")
     }
 
     triggers {
@@ -323,7 +323,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
                 hour = 3
             }
             triggerBuild = onWatchedBuildChange {
-                buildType = "Kotlin_KotlinDev_Artifacts"
+                buildType = "Kotlin_KotlinDev_CompilerDistAndMavenArtifacts"
                 promoteWatchedBuild = false
             }
         }
@@ -381,7 +381,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
     }
 
     dependencies {
-        artifacts(AbsoluteId("Kotlin_KotlinDev_Artifacts")) {
+        artifacts(AbsoluteId("Kotlin_KotlinDev_CompilerDistAndMavenArtifacts")) {
             buildRule = lastSuccessful()
             artifactRules = "maven.zip!**=>kotlin-compiler"
         }
