@@ -1,5 +1,4 @@
 import kotlinx.benchmark.gradle.*
-import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
@@ -11,6 +10,7 @@ import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 import org.jetbrains.kotlin.gradle.targets.js.d8.D8RootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 buildscript {
     repositories {
@@ -68,13 +68,15 @@ kotlin {
         //d8()
         nodejs()
     }
-    wasm("wasm") {
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs("wasm") {
         d8()
         attributes.attribute(distinguishAttribute, "wasm")
         //nodejs()
     }
 
-    wasm("wasmOpt") {
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs("wasmOpt") {
         d8()
         //nodejs()
         applyBinaryen()
@@ -109,53 +111,7 @@ kotlin {
     }
 }
 
-fun reportToTC(csvFile: File, targetName: String) {
-    csvFile.readLines().forEachIndexed { i, line ->
-        if (i == 0) return@forEachIndexed
-        val dataLine = line.split(',')
-        val benchmarkName = dataLine[0].replace("\"", "")
-        val score = dataLine[4]
-        val valueTypeKey = "${targetName}_$benchmarkName"
-        println("##teamcity[buildStatisticValue key='$valueTypeKey' value='$score']")
-    }
-}
-
-
 val reportAllTargetsToTC = tasks.register("reportAllTargetsToTC")
-fun createReportTargetToTC(reportDir: File, targetName: String) {
-    val teamcityReport by tasks.register("${targetName}ReportResultsForTC") {
-        doLast {
-            val fileName = "${targetName}.csv"
-            fileTree(reportDir).visit {
-                if (file.isFile && file.name == fileName) {
-                    reportToTC(file, targetName)
-                }
-            }
-        }
-    }
-    reportAllTargetsToTC.configure {
-        dependsOn(teamcityReport)
-    }
-}
-
-fun registerReportBundleSizes(bundleSizeList: List<String>) {
-    val teamcityReport = tasks.register("reportBundleSizes") {
-        doLast {
-            for (target in bundleSizeList) {
-                val compileSyncDir = project.buildDir.resolve("compileSync").resolve(target)
-                val score = compileSyncDir.walk().sumOf {
-                    val isBundleFile = it.extension.let { ext -> ext == "js" || ext == "wasm" || ext == "mjs" }
-                    if (isBundleFile) it.length() else 0
-                }
-                val valueTypeKey = "${target}_bundleSize"
-                println("##teamcity[buildStatisticValue key='$valueTypeKey' value='$score']")
-            }
-        }
-    }
-    reportAllTargetsToTC.configure {
-        dependsOn(teamcityReport)
-    }
-}
 
 benchmark {
     configurations {
@@ -165,7 +121,7 @@ benchmark {
             iterationTime = 50
             iterationTimeUnit = "millis"
             outputTimeUnit = "millis"
-            reportFormat = "csv"
+            reportFormat = "json"
             mode = "avgt"
             advanced("jsUseBridge", true)
             includes.add("macroBenchmarks.MacroBenchmarksFast")
@@ -176,7 +132,7 @@ benchmark {
             iterationTime = 1
             iterationTimeUnit = "nanos"
             outputTimeUnit = "millis"
-            reportFormat = "csv"
+            reportFormat = "json"
             mode = "avgt"
             advanced("jsUseBridge", true)
             includes.add("macroBenchmarks.MacroBenchmarksSlow")
@@ -200,7 +156,7 @@ benchmark {
             iterationTime = 50
             iterationTimeUnit = "millis"
             outputTimeUnit = "millis"
-            reportFormat = "csv"
+            reportFormat = "json"
             mode = "avgt"
             advanced("jsUseBridge", true)
             includes.add("microBenchmarks")
@@ -212,7 +168,7 @@ benchmark {
             iterationTime = 1
             iterationTimeUnit = "nanos"
             outputTimeUnit = "millis"
-            reportFormat = "csv"
+            reportFormat = "json"
             mode = "avgt"
             advanced("jsUseBridge", true)
             includes.addAll(slowMicroBenchmarks)
@@ -222,56 +178,39 @@ benchmark {
     val reportDir = project.buildDir.resolve(reportsDir)
     targets {
         val bundleSizeList = mutableListOf<String>()
+        val reportTasks = mutableListOf<TaskProvider<Task>>()
         register("wasm") {
-            createReportTargetToTC(reportDir, name)
+            reportTasks.add(createReportTargetToTC(reportDir, name))
             bundleSizeList.add(name)
-            createReportTargetToTC(reportDir, "jsShell_${name}")
-            bundleSizeList.add("jsShell_${name}")
+            reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
+            bundleSizeList.add("jsShell_$name")
         }
         register("wasmOpt") {
-            createReportTargetToTC(reportDir, name)
+            reportTasks.add(createReportTargetToTC(reportDir, name))
             bundleSizeList.add(name)
-            createReportTargetToTC(reportDir, "jsShell_${name}")
-            bundleSizeList.add("jsShell_${name}")
+            reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
+            bundleSizeList.add("jsShell_$name")
         }
         register("js") {
             (this as JsBenchmarkTarget).jsBenchmarksExecutor = JsBenchmarksExecutor.BuiltIn
-            createReportTargetToTC(reportDir, name)
+            reportTasks.add(createReportTargetToTC(reportDir, name))
             bundleSizeList.add(name)
-            createReportTargetToTC(reportDir, "jsShell_${name}")
-            bundleSizeList.add("jsShell_${name}")
+            reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
+            bundleSizeList.add("jsShell_$name")
         }
-        registerReportBundleSizes(bundleSizeList)
+
+        reportTasks.add(registerReportBundleSizes(bundleSizeList))
+
+        reportAllTargetsToTC.configure {
+            reportTasks.forEach {
+                dependsOn(it)
+            }
+        }
     }
 }
 
 
 /////////////////////////
-
-enum class OsName { WINDOWS, MAC, LINUX, UNKNOWN }
-enum class OsArch { X86_32, X86_64, ARM64, UNKNOWN }
-data class OsType(val name: OsName, val arch: OsArch)
-
-val currentOsType = run {
-    val gradleOs = OperatingSystem.current()
-    val osName = when {
-        gradleOs.isMacOsX -> OsName.MAC
-        gradleOs.isWindows -> OsName.WINDOWS
-        gradleOs.isLinux -> OsName.LINUX
-        else -> OsName.UNKNOWN
-    }
-
-    val osArch = when (providers.systemProperty("sun.arch.data.model").forUseAtConfigurationTime().get()) {
-        "32" -> OsArch.X86_32
-        "64" -> when (providers.systemProperty("os.arch").forUseAtConfigurationTime().get().lowercase()) {
-            "aarch64" -> OsArch.ARM64
-            else -> OsArch.X86_64
-        }
-        else -> OsArch.UNKNOWN
-    }
-
-    OsType(osName, osArch)
-}
 
 val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2023/09/2023-09-21-09-13-27-mozilla-central"
 val jsShellSuffix = when (currentOsType) {
