@@ -97,7 +97,7 @@ kotlin {
         val wasmOptMain by getting {
             dependencies {
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasmjs-0.5.0.klib"))
-                kotlin.srcDirs("$rootDir/src")
+                kotlin.srcDirs("$rootDir/src/wasmMain")
             }
         }
 
