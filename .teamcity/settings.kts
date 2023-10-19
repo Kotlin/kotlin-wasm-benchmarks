@@ -319,8 +319,9 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
 
     triggers {
         schedule {
-            schedulingPolicy = daily {
-                hour = 3
+            schedulingPolicy = cron {
+                hours = "1"
+                minutes = "0"
             }
             triggerBuild = onWatchedBuildChange {
                 buildType = "Kotlin_KotlinDev_CompilerDistAndMavenArtifacts"
