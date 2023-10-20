@@ -6,6 +6,7 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.buildSteps.sshExec
 import jetbrains.buildServer.configs.kotlin.buildTypeChartsOrder
 import jetbrains.buildServer.configs.kotlin.buildTypeCustomChart
+import jetbrains.buildServer.configs.kotlin.triggers.ScheduleTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.schedule
 
 /*
@@ -319,14 +320,17 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
 
     triggers {
         schedule {
-            schedulingPolicy = cron {
-                hours = "1"
-                minutes = "0"
+            schedulingPolicy = daily {
+                hour = 0
             }
-//            triggerBuild = onWatchedBuildChange {
-//                buildType = "Kotlin_KotlinDev_CompilerDistAndMavenArtifacts"
-//                promoteWatchedBuild = false
-//            }
+            branchFilter = "+:<default>"
+            triggerBuild = onWatchedBuildChange {
+                buildType = "Kotlin_KotlinDev_CompilerDistAndMavenArtifacts"
+                watchedBuildRule = ScheduleTrigger.WatchedBuildRule.LAST_SUCCESSFUL
+                promoteWatchedBuild = false
+            }
+            withPendingChangesOnly = false
+            param("cronExpression_hour", "1")
         }
     }
 
