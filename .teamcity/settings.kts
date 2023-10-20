@@ -323,10 +323,10 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
                 hours = "1"
                 minutes = "0"
             }
-            triggerBuild = onWatchedBuildChange {
-                buildType = "Kotlin_KotlinDev_CompilerDistAndMavenArtifacts"
-                promoteWatchedBuild = false
-            }
+//            triggerBuild = onWatchedBuildChange {
+//                buildType = "Kotlin_KotlinDev_CompilerDistAndMavenArtifacts"
+//                promoteWatchedBuild = false
+//            }
         }
     }
 
