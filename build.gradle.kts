@@ -36,16 +36,15 @@ apply {
 }
 
 with(NodeJsRootPlugin.apply(rootProject)) {
-    nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
-    nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
+    nodeVersion = "21.1.0"
 }
 
 with(BinaryenRootPlugin.apply(rootProject)) {
-    version = "116"
+    version = "114"
 }
 
 with(D8RootPlugin.apply(rootProject)) {
-    version = "11.9.125"
+    version = "11.8.172"
 }
 
 allprojects.forEach {
@@ -69,14 +68,14 @@ kotlin {
         nodejs()
     }
     @OptIn(ExperimentalWasmDsl::class)
-    wasmJs("wasm") {
+    wasm("wasm") {
         d8()
         attributes.attribute(distinguishAttribute, "wasm")
         //nodejs()
     }
 
     @OptIn(ExperimentalWasmDsl::class)
-    wasmJs("wasmOpt") {
+    wasm("wasmOpt") {
         d8()
         //nodejs()
         applyBinaryen()
@@ -212,7 +211,7 @@ benchmark {
 
 /////////////////////////
 
-val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2023/09/2023-09-21-09-13-27-mozilla-central"
+val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2023/05/2023-05-12-09-49-14-mozilla-central"
 val jsShellSuffix = when (currentOsType) {
     OsType(OsName.LINUX, OsArch.X86_32) -> "linux-i686"
     OsType(OsName.LINUX, OsArch.X86_64) -> "linux-x86_64"
