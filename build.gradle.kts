@@ -40,7 +40,7 @@ with(NodeJsRootPlugin.apply(rootProject)) {
 }
 
 with(BinaryenRootPlugin.apply(rootProject)) {
-    version = "114"
+    version = "111"
 }
 
 with(D8RootPlugin.apply(rootProject)) {
