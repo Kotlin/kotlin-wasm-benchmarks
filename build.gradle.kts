@@ -5,12 +5,11 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmSubTargetContainerDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.JsIrBinary
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrCompilation
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 import org.jetbrains.kotlin.gradle.targets.js.d8.D8RootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 
 buildscript {
     repositories {
@@ -92,13 +91,13 @@ kotlin {
 
         val wasmMain by getting {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasmjs-0.5.0.klib"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
             }
         }
 
         val wasmOptMain by getting {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasmjs-0.5.0.klib"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
                 kotlin.srcDirs("$rootDir/src/wasmMain")
             }
         }
@@ -257,7 +256,7 @@ fun Project.getExecutableFile(compilation: KotlinJsCompilation): Provider<Regula
 fun Project.createJsShellExec(
     config: BenchmarkConfiguration,
     target: BenchmarkTarget,
-    compilation: KotlinJsIrCompilation,
+    compilation: KotlinJsCompilation,
     taskName: String
 ): TaskProvider<Exec> = tasks.register(taskName, Exec::class) {
     dependsOn(compilation.runtimeDependencyFiles)
@@ -301,7 +300,7 @@ fun Project.createJsEngineBenchmarkExecTask(
     val taskName = "jsShell_${target.name}${config.capitalizedName()}${BenchmarksPlugin.BENCHMARK_EXEC_SUFFIX}"
     val compilationTarget = compilation.target
     if (compilationTarget is KotlinWasmSubTargetContainerDsl) {
-        check(compilation is KotlinJsIrCompilation) { "Legacy Kotlin/JS is does not supported by JsShell engine" }
+        check(compilation is KotlinJsCompilation) { "Legacy Kotlin/JS is does not supported by JsShell engine" }
         val execTask = createJsShellExec(config, target, compilation, taskName)
         tasks.getByName(config.prefixName(BenchmarksPlugin.RUN_BENCHMARKS_TASKNAME)).dependsOn(execTask)
     }
