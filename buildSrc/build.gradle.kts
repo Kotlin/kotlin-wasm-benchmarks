@@ -3,13 +3,13 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-serialization:1.9.20-RC")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:1.9.20")
     }
 }
 
 plugins {
     `kotlin-dsl`
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.20-RC"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.20"
 }
 
 repositories {
