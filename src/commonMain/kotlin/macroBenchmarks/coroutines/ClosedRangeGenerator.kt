@@ -6,7 +6,7 @@ class ClosedRangeGenerator(
     private val step: Int
 ) : AbstractGenerator<Int>() {
     override suspend fun generatorBody() {
-        for (i in IntProgression.fromClosedRange(rangeStart, rangeEnd, step)) {
+        for (i in rangeStart..rangeEnd step step) {
             yieldValue(i)
         }
     }
