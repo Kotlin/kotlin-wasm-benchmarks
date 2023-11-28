@@ -52,6 +52,16 @@ class MacroBenchmarksSlow : MacroBenchmarksBase() {
     fun mandelbrot() {
         runBenchmark(Mandelbrot())
     }
+
+    @Benchmark
+    fun coroutineIteration() {
+        runBenchmark(Coroutines.Iteration())
+    }
+
+    @Benchmark
+    fun coroutineRecursion() {
+        runBenchmark(Coroutines.Recursion())
+    }
 }
 
 @State(Scope.Benchmark)
