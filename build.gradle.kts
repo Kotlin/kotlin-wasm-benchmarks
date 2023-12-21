@@ -245,15 +245,6 @@ fun tryGetBinary(compilation: KotlinJsCompilation, mode: KotlinJsBinaryMode): Js
         ?.executable(compilation)
         ?.first { it.mode == mode } as? JsIrBinary
 
-fun Project.getExecutableFile(compilation: KotlinJsCompilation): Provider<RegularFile> {
-    val executableFile = tryGetBinary(compilation, KotlinJsBinaryMode.PRODUCTION)?.let { binary ->
-        val outputFile = binary.linkTask.flatMap { it.outputFileProperty }
-        val destinationDir = binary.linkSyncTask.map { it.destinationDir }
-        destinationDir.zip(outputFile) { dir, file -> dir.resolve(file.name) }
-    } ?: compilation.compileKotlinTaskProvider.flatMap { it.outputFileProperty }
-    return project.layout.file(executableFile)
-}
-
 fun Project.createJsShellExec(
     config: BenchmarkConfiguration,
     target: BenchmarkTarget,
@@ -272,10 +263,10 @@ fun Project.createJsShellExec(
     newArgs.add("--wasm-gc")
     newArgs.add("--wasm-function-references")
 
-    tryGetBinary(compilation, KotlinJsBinaryMode.DEVELOPMENT)?.let { dependsOn(it.linkSyncTask) }
-    tryGetBinary(compilation, KotlinJsBinaryMode.PRODUCTION)?.let { dependsOn(it.linkSyncTask) }
+    val productionBinary = tryGetBinary(compilation, KotlinJsBinaryMode.PRODUCTION) ?: error("Not found production binary")
+    dependsOn(productionBinary.linkSyncTask)
 
-    val inputFile = getExecutableFile(compilation)
+    val inputFile = productionBinary.mainFile
     dependsOn(inputFile)
     val inputFileAsFile = inputFile.get().asFile
     workingDir = inputFileAsFile.parentFile
