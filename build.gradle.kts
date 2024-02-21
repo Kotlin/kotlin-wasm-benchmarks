@@ -1,5 +1,5 @@
 import kotlinx.benchmark.gradle.*
-import org.jetbrains.kotlin.de.undercouch.gradle.tasks.download.Download
+import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
@@ -29,6 +29,7 @@ buildscript {
 
 plugins {
     kotlin("multiplatform")
+    id("de.undercouch.download") version "5.5.0"
 }
 
 apply {
