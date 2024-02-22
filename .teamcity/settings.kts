@@ -315,7 +315,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
         build/reports/benchmarks => reports
         viz => viz
         """.trimIndent()
-    publishArtifacts = PublishMode.NORMALLY_FINISHED
+    publishArtifacts = PublishMode.ALWAYS
 
     params {
         param("kotlin-version", "%dep.Kotlin_KotlinDev_CompilerDistAndMavenArtifacts.build.number%")
