@@ -311,7 +311,10 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
     id("Main")
     name = "Main"
 
-    artifactRules = "build/reports/benchmarks => reports"
+    artifactRules = """
+        build/reports/benchmarks => reports
+        viz => viz
+        """.trimIndent()
     publishArtifacts = PublishMode.SUCCESSFUL
 
     params {
