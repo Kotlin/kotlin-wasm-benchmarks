@@ -353,39 +353,39 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
         }
         gradle {
             name = "wasmBenchmark_v8"
-            tasks = ":wasmFastMicroBenchmark :wasmSlowMicroBenchmark :wasmFastMacroBenchmark :wasmSlowMacroBenchmark"
+            tasks = ":wasmFastMicroBenchmark :wasmSlowMicroBenchmark"
             gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
         }
-        gradle {
-            name = "wasmBenchmark_sm"
-            tasks = ":jsShell_wasmFastMicroBenchmark :jsShell_wasmSlowMicroBenchmark :jsShell_wasmFastMacroBenchmark :jsShell_wasmSlowMacroBenchmark"
-            gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
-        }
-        gradle {
-            name = "wasmOptBenchmark_v8"
-            tasks = ":wasmOptFastMicroBenchmark :wasmOptSlowMicroBenchmark :wasmOptFastMacroBenchmark :wasmOptSlowMacroBenchmark"
-            gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
-        }
-        gradle {
-            name = "wasmOptBenchmark_sm"
-            tasks = ":jsShell_wasmOptFastMicroBenchmark :jsShell_wasmOptSlowMicroBenchmark :jsShell_wasmOptFastMacroBenchmark :jsShell_wasmOptSlowMacroBenchmark"
-            gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
-        }
-        gradle {
-            name = "jsBenchmark_v8"
-            tasks = ":jsFastMicroBenchmark :jsSlowMicroBenchmark :jsFastMacroBenchmark :jsSlowMacroBenchmark"
-            gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
-        }
-        gradle {
-            name = "jsBenchmark_sm"
-            tasks = ":jsShell_jsFastMicroBenchmark :jsShell_jsSlowMicroBenchmark :jsShell_jsFastMacroBenchmark :jsShell_jsSlowMacroBenchmark"
-            gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
-        }
-        gradle {
-            name = "reportAllTargetsToTC"
-            tasks = ":reportAllTargetsToTC"
-            gradleParams = "-Pkotlin_version=%kotlin-version%"
-        }
+        // gradle {
+        //     name = "wasmBenchmark_sm"
+        //     tasks = ":jsShell_wasmFastMicroBenchmark :jsShell_wasmSlowMicroBenchmark :jsShell_wasmFastMacroBenchmark :jsShell_wasmSlowMacroBenchmark"
+        //     gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+        // }
+        // gradle {
+        //     name = "wasmOptBenchmark_v8"
+        //     tasks = ":wasmOptFastMicroBenchmark :wasmOptSlowMicroBenchmark :wasmOptFastMacroBenchmark :wasmOptSlowMacroBenchmark"
+        //     gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+        // }
+        // gradle {
+        //     name = "wasmOptBenchmark_sm"
+        //     tasks = ":jsShell_wasmOptFastMicroBenchmark :jsShell_wasmOptSlowMicroBenchmark :jsShell_wasmOptFastMacroBenchmark :jsShell_wasmOptSlowMacroBenchmark"
+        //     gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+        // }
+        // gradle {
+        //     name = "jsBenchmark_v8"
+        //     tasks = ":jsFastMicroBenchmark :jsSlowMicroBenchmark :jsFastMacroBenchmark :jsSlowMacroBenchmark"
+        //     gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+        // }
+        // gradle {
+        //     name = "jsBenchmark_sm"
+        //     tasks = ":jsShell_jsFastMicroBenchmark :jsShell_jsSlowMicroBenchmark :jsShell_jsFastMacroBenchmark :jsShell_jsSlowMacroBenchmark"
+        //     gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+        // }
+        // gradle {
+        //     name = "reportAllTargetsToTC"
+        //     tasks = ":reportAllTargetsToTC"
+        //     gradleParams = "-Pkotlin_version=%kotlin-version%"
+        // }
     }
 
     dependencies {
