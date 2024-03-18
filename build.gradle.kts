@@ -1,5 +1,6 @@
 import kotlinx.benchmark.gradle.*
 import de.undercouch.gradle.tasks.download.Download
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
@@ -313,4 +314,8 @@ afterEvaluate {
             }
         }
     }
+}
+
+tasks.withType<KotlinJsCompile> {
+    compilerOptions.freeCompilerArgs.add("-Xskip-prerelease-check")
 }
