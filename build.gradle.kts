@@ -213,7 +213,7 @@ benchmark {
 
 /////////////////////////
 
-val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2023/09/2023-09-21-09-13-27-mozilla-central"
+val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2024/04/2024-04-23-09-45-21-mozilla-central"
 val jsShellSuffix = when (currentOsType) {
     OsType(OsName.LINUX, OsArch.X86_32) -> "linux-i686"
     OsType(OsName.LINUX, OsArch.X86_64) -> "linux-x86_64"
@@ -269,9 +269,6 @@ fun Project.createJsShellExec(
 
     val newArgs = mutableListOf<String>()
     executable = File(unzipJsShell.get().destinationDir, "js").absolutePath
-
-    newArgs.add("--wasm-gc")
-    newArgs.add("--wasm-function-references")
 
     tryGetBinary(compilation, KotlinJsBinaryMode.DEVELOPMENT)?.let { dependsOn(it.linkSyncTask) }
     tryGetBinary(compilation, KotlinJsBinaryMode.PRODUCTION)?.let { dependsOn(it.linkSyncTask) }
