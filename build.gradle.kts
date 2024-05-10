@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 
 buildscript {
     repositories {
@@ -319,3 +320,6 @@ afterEvaluate {
 tasks.withType<KotlinJsCompile> {
     compilerOptions.freeCompilerArgs.add("-Xskip-prerelease-check")
 }
+
+rootProject.the<YarnRootExtension>().yarnLockMismatchReport =
+    org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport.NONE
