@@ -92,7 +92,10 @@ class LinkedListWithAtomicsBenchmark {
     }
 
     @Benchmark
-    tailrec fun ensureNext(current: ChunkBuffer = list.head): ChunkBuffer? {
+    fun ensureNext(): ChunkBuffer? =
+        ensureNext(list.head)
+
+    private tailrec fun ensureNext(current: ChunkBuffer): ChunkBuffer? {
         return when (val next = current.next) {
             null -> null
             else -> {
