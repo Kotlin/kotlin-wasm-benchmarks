@@ -32,15 +32,14 @@ private fun reportToTC(jsonFile: File, targetName: String) {
     }
 }
 
-fun Project.registerReportBundleSizes(bundleSizeList: List<String>): TaskProvider<Task> = tasks.register("reportBundleSizes") {
+fun Project.registerReportBundleSizes(bundleDirsList: List<Pair<String, File>>): TaskProvider<Task> = tasks.register("reportBundleSizes") {
     doLast {
-        for (target in bundleSizeList) {
-            val compileSyncDir = project.buildDir.resolve("compileSync").resolve(target)
-            val score = compileSyncDir.walk().sumOf {
+        for (bundleDir in bundleDirsList) {
+            val score = bundleDir.second.walk().sumOf {
                 val isBundleFile = it.extension.let { ext -> ext == "js" || ext == "wasm" || ext == "mjs" }
                 if (isBundleFile) it.length() else 0
             }
-            val valueTypeKey = "${target}_bundleSize"
+            val valueTypeKey = "${bundleDir.first}_bundleSize"
             println("##teamcity[buildStatisticValue key='$valueTypeKey' value='$score']")
         }
     }
