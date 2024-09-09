@@ -1,5 +1,8 @@
+@file:OptIn(KotlinxBenchmarkPluginInternalApi::class)
+
 import kotlinx.benchmark.gradle.*
 import de.undercouch.gradle.tasks.download.Download
+import kotlinx.benchmark.gradle.internal.KotlinxBenchmarkPluginInternalApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
@@ -9,7 +12,6 @@ import org.jetbrains.kotlin.gradle.targets.js.ir.JsIrBinary
 import org.jetbrains.kotlin.gradle.targets.js.d8.D8RootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 
@@ -62,27 +64,16 @@ repositories {
     maven(uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap/"))
 }
 
-val distinguishAttribute = Attribute.of("kotlinx-benchmark-distinguishAttribute", String::class.java)
-
 kotlin {
     js(IR) {
         this as KotlinJsIrTarget
         //d8()
         nodejs()
     }
-    @OptIn(ExperimentalWasmDsl::class)
+
     wasmJs("wasm") {
         d8()
-        attributes.attribute(distinguishAttribute, "wasm")
         //nodejs()
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs("wasmOpt") {
-        d8()
-        //nodejs()
-        applyBinaryen()
-        attributes.attribute(distinguishAttribute, "wasmOpt")
     }
 
     sourceSets {
@@ -95,13 +86,6 @@ kotlin {
         val wasmMain by getting {
             dependencies {
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
-            }
-        }
-
-        val wasmOptMain by getting {
-            dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
-                kotlin.srcDirs("$rootDir/src/wasmMain")
             }
         }
 
@@ -178,27 +162,39 @@ benchmark {
     }
 
     val reportDir = project.buildDir.resolve(reportsDir)
+    val compileSyncDir = project.buildDir.resolve("compileSync")
     targets {
-        val bundleSizeList = mutableListOf<String>()
+        val bundleSizeList = mutableListOf<Pair<String, File>>()
         val reportTasks = mutableListOf<TaskProvider<Task>>()
         register("wasm") {
             reportTasks.add(createReportTargetToTC(reportDir, name))
-            bundleSizeList.add(name)
             reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
-            bundleSizeList.add("jsShell_$name")
+
+            val wasmCompileSyncDir = compileSyncDir
+                .resolve("wasm")
+                .resolve("wasmBenchmark")
+                .resolve("wasmBenchmarkDevelopmentExecutable")
+                .resolve("kotlin")
+            bundleSizeList.add("wasm" to wasmCompileSyncDir)
         }
         register("wasmOpt") {
             reportTasks.add(createReportTargetToTC(reportDir, name))
-            bundleSizeList.add(name)
             reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
-            bundleSizeList.add("jsShell_$name")
+            val wasmCompileSyncDir = compileSyncDir
+                .resolve("wasm")
+                .resolve("wasmBenchmark")
+                .resolve("wasmBenchmarkProductionExecutable")
+                .resolve("optimized")
+            bundleSizeList.add("wasmOpt" to wasmCompileSyncDir)
         }
         register("js") {
             (this as JsBenchmarkTarget).jsBenchmarksExecutor = JsBenchmarksExecutor.BuiltIn
             reportTasks.add(createReportTargetToTC(reportDir, name))
-            bundleSizeList.add(name)
             reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
-            bundleSizeList.add("jsShell_$name")
+            val wasmCompileSyncDir = compileSyncDir
+                .resolve("js")
+                .resolve("jsBenchmark")
+            bundleSizeList.add("js" to wasmCompileSyncDir)
         }
 
         reportTasks.add(registerReportBundleSizes(bundleSizeList))
@@ -245,13 +241,15 @@ fun tryGetBinary(compilation: KotlinJsCompilation, mode: KotlinJsBinaryMode): Js
     (compilation.target as? KotlinJsIrTarget)
         ?.binaries
         ?.executable(compilation)
-        ?.first { it.mode == mode } as? JsIrBinary
+        ?.first { it.mode == mode }
 
 fun Project.createJsShellExec(
     config: BenchmarkConfiguration,
     target: BenchmarkTarget,
     compilation: KotlinJsCompilation,
-    taskName: String
+    taskName: String,
+    mode: KotlinJsBinaryMode,
+    fileNamePostfix: String,
 ): TaskProvider<Exec> = tasks.register(taskName, Exec::class) {
     dependsOn(compilation.runtimeDependencyFiles)
     dependsOn(unzipJsShell)
@@ -265,7 +263,7 @@ fun Project.createJsShellExec(
     newArgs.add("--wasm-gc")
     newArgs.add("--wasm-function-references")
 
-    val productionBinary = tryGetBinary(compilation, KotlinJsBinaryMode.PRODUCTION) ?: error("Not found production binary")
+    val productionBinary = tryGetBinary(compilation, mode) ?: error("Not found production binary")
     dependsOn(productionBinary.linkSyncTask)
 
     val inputFile = productionBinary.mainFile
@@ -277,10 +275,9 @@ fun Project.createJsShellExec(
     } else {
         newArgs.add("--file=${inputFileAsFile.absolutePath}")
     }
-    val reportFile = setupReporting(target, config)
-    val jsShellReportFile = File(reportFile.parentFile, "jsShell_" + reportFile.name)
+    val reportFile = setupReporting(target, config, "jsShell_", fileNamePostfix)
     newArgs.add("--")
-    newArgs.add(writeParameters(target.name, jsShellReportFile, traceFormat(), config).absolutePath)
+    newArgs.add(writeParameters(target.name, reportFile, traceFormat(), config).absolutePath)
     args = newArgs
     standardOutput = ConsoleAndFilesOutputStream()
 }
@@ -289,13 +286,14 @@ fun Project.createJsShellExec(
 fun Project.createJsEngineBenchmarkExecTask(
     config: BenchmarkConfiguration,
     target: BenchmarkTarget,
-    compilation: KotlinJsCompilation
+    compilation: KotlinJsCompilation,
+    mode: KotlinJsBinaryMode,
 ) {
-    val taskName = "jsShell_${target.name}${config.capitalizedName()}${BenchmarksPlugin.BENCHMARK_EXEC_SUFFIX}"
+    val postfix = if (mode == KotlinJsBinaryMode.DEVELOPMENT) "" else "Opt"
+    val taskName = "jsShell_${target.name}$postfix${config.capitalizedName()}${BenchmarksPlugin.BENCHMARK_EXEC_SUFFIX}"
     val compilationTarget = compilation.target
     if (compilationTarget is KotlinWasmSubTargetContainerDsl) {
-        check(compilation is KotlinJsCompilation) { "Legacy Kotlin/JS is does not supported by JsShell engine" }
-        val execTask = createJsShellExec(config, target, compilation, taskName)
+        val execTask = createJsShellExec(config, target, compilation, taskName, mode, postfix)
         tasks.getByName(config.prefixName(BenchmarksPlugin.RUN_BENCHMARKS_TASKNAME)).dependsOn(execTask)
     }
 }
@@ -311,7 +309,8 @@ afterEvaluate {
         if (compilation != null) {
             target.extension.configurations.forEach { config ->
                 val benchmarkCompilation = compilation.target.compilations.maybeCreate(target.name + BenchmarksPlugin.BENCHMARK_COMPILATION_SUFFIX) as KotlinJsCompilation
-                createJsEngineBenchmarkExecTask(config, target, benchmarkCompilation)
+                createJsEngineBenchmarkExecTask(config, target, benchmarkCompilation, KotlinJsBinaryMode.PRODUCTION)
+                createJsEngineBenchmarkExecTask(config, target, benchmarkCompilation, KotlinJsBinaryMode.DEVELOPMENT)
             }
         }
     }
