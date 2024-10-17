@@ -1,18 +1,22 @@
-@file:OptIn(KotlinxBenchmarkPluginInternalApi::class)
+@file:OptIn(KotlinxBenchmarkPluginInternalApi::class, ExperimentalWasmDsl::class)
 
 import kotlinx.benchmark.gradle.*
 import de.undercouch.gradle.tasks.download.Download
 import kotlinx.benchmark.gradle.internal.KotlinxBenchmarkPluginInternalApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
+import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmSubTargetContainerDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.JsIrBinary
-import org.jetbrains.kotlin.gradle.targets.js.d8.D8RootPlugin
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
+import org.jetbrains.kotlin.gradle.targets.js.d8.D8Plugin
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin
+import org.jetbrains.kotlin.gradle.targets.js.d8.D8EnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 
 buildscript {
@@ -39,18 +43,17 @@ apply {
     plugin<BenchmarksPlugin>()
 }
 
-with(NodeJsRootPlugin.apply(rootProject)) {
-    nodeVersion = "21.0.0-v8-canary202309167e82ab1fa2"
-    nodeDownloadBaseUrl = "https://nodejs.org/download/v8-canary"
+apply<NodeJsPlugin>()
+the<NodeJsEnvSpec>().apply {
+    version.set("21.0.0-v8-canary202309167e82ab1fa2")
+    downloadBaseUrl.set("https://nodejs.org/download/v8-canary")
 }
 
-with(BinaryenRootPlugin.apply(rootProject)) {
-    version = "116"
-}
+apply<BinaryenRootPlugin>()
+the<BinaryenRootEnvSpec>().version.set("116")
 
-with(D8RootPlugin.apply(rootProject)) {
-    version = "11.9.125"
-}
+apply<D8Plugin>()
+the<D8EnvSpec>().version.set("11.9.125")
 
 allprojects.forEach {
     it.tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
