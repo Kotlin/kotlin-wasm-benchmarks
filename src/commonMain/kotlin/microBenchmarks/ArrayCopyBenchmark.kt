@@ -60,17 +60,17 @@ class ArrayCopyBenchmark {
         }
     }
 
-    private lateinit var array: CustomArray<Int>
-    private var end = 0
-    @Setup
-    fun setup() {
-        array = CustomArray()
-        end = 2 * BENCHMARK_SIZE
-    }
+    // private lateinit var array: CustomArray<Int>
+    private val end = 2 * BENCHMARK_SIZE
+    // @Setup
+    // fun setup() {
+    //     // array = CustomArray()
+    //     // end = 2 * BENCHMARK_SIZE
+    // }
 
     @Benchmark
     fun copyInSameArray(): CustomArray<Int> {
-        val array = array
+        val array = CustomArray<Int>()
         val end = end
         var i = 0
         while (i < end) {
