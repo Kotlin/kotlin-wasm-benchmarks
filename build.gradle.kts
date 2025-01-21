@@ -45,15 +45,14 @@ apply {
 
 apply<NodeJsPlugin>()
 the<NodeJsEnvSpec>().apply {
-    version.set("21.0.0-v8-canary202309167e82ab1fa2")
-    downloadBaseUrl.set("https://nodejs.org/download/v8-canary")
+    version.set("23.6.0")
 }
 
 apply<BinaryenRootPlugin>()
-the<BinaryenRootEnvSpec>().version.set("116")
+the<BinaryenRootEnvSpec>().version.set("121")
 
 apply<D8Plugin>()
-the<D8EnvSpec>().version.set("11.9.125")
+the<D8EnvSpec>().version.set("13.4.61")
 
 allprojects.forEach {
     it.tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
@@ -68,7 +67,7 @@ repositories {
 }
 
 kotlin {
-    js(IR) {
+    js {
         this as KotlinJsIrTarget
         //d8()
         nodejs()
@@ -94,7 +93,7 @@ kotlin {
 
         val jsMain by getting {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-jsir-0.5.0.klib"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-js-0.5.0.klib"))
             }
         }
     }
@@ -213,7 +212,7 @@ benchmark {
 
 /////////////////////////
 
-val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/nightly/2023/09/2023-09-21-09-13-27-mozilla-central"
+val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/releases/134.0.2/jsshell"
 val jsShellSuffix = when (currentOsType) {
     OsType(OsName.LINUX, OsArch.X86_32) -> "linux-i686"
     OsType(OsName.LINUX, OsArch.X86_64) -> "linux-x86_64"
@@ -262,9 +261,6 @@ fun Project.createJsShellExec(
 
     val newArgs = mutableListOf<String>()
     executable = File(unzipJsShell.get().destinationDir, "js").absolutePath
-
-    newArgs.add("--wasm-gc")
-    newArgs.add("--wasm-function-references")
 
     val productionBinary = tryGetBinary(compilation, mode) ?: error("Not found production binary")
     dependsOn(productionBinary.linkSyncTask)
