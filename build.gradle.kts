@@ -50,9 +50,17 @@ the<NodeJsEnvSpec>().apply {
 
 apply<BinaryenRootPlugin>()
 the<BinaryenRootEnvSpec>().version.set("121")
+the<BinaryenRootEnvSpec>().version
 
 apply<D8Plugin>()
 the<D8EnvSpec>().version.set("13.4.61")
+
+afterEvaluate {
+    tasks.withType<org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenExec>().forEach {
+        it.executable = "${project.projectDir}/binaryen/bin/wasm-opt"
+        it.binaryenArgs += "--enable-multivalue"
+    }
+}
 
 allprojects.forEach {
     it.tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
