@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
+import org.jetbrains.kotlin.gradle.targets.js.ir.*
 
 buildscript {
     repositories {
@@ -239,16 +240,23 @@ val unzipJsShell = tasks.register("jsShellUnzip", Copy::class) {
     into(unpackedDir)
 }
 
-fun tryGetBinary(compilation: KotlinJsCompilation, mode: KotlinJsBinaryMode): JsIrBinary? =
-    (compilation.target as? KotlinJsIrTarget)
-        ?.binaries
-        ?.executable(compilation)
-        ?.first { it.mode == mode }
+fun Project.getExecutableFile(compilation: KotlinJsIrCompilation, mode: KotlinJsBinaryMode): Provider<RegularFile> {
+    val kotlinTarget = compilation.target as KotlinJsIrTarget
+    val binary = kotlinTarget.binaries.executable(compilation)
+        .first { it.mode == mode } as JsIrBinary
+    val extension = if (kotlinTarget.platformType == KotlinPlatformType.wasm) "mjs" else "js"
+    val outputFileName = binary.linkTask.flatMap { task ->
+        task.compilerOptions.moduleName.map { "$it.$extension" }
+    }
+    val destinationDir = binary.linkSyncTask.flatMap { it.destinationDirectory }
+    val executableFile = destinationDir.zip(outputFileName) { dir, fileName -> dir.resolve(fileName) }
+    return project.layout.file(executableFile)
+}
 
 fun Project.createJsShellExec(
     config: BenchmarkConfiguration,
     target: BenchmarkTarget,
-    compilation: KotlinJsCompilation,
+    compilation: KotlinJsIrCompilation,
     taskName: String,
     mode: KotlinJsBinaryMode,
     fileNamePostfix: String,
@@ -262,12 +270,10 @@ fun Project.createJsShellExec(
     val newArgs = mutableListOf<String>()
     executable = File(unzipJsShell.get().destinationDir, "js").absolutePath
 
-    val productionBinary = tryGetBinary(compilation, mode) ?: error("Not found production binary")
-    dependsOn(productionBinary.linkSyncTask)
+    val productionBinary = getExecutableFile(compilation, mode) ?: error("Not found production binary")
+    dependsOn(productionBinary)
 
-    val inputFile = productionBinary.mainFile
-    dependsOn(inputFile)
-    val inputFileAsFile = inputFile.get().asFile
+    val inputFileAsFile = productionBinary.get().asFile
     workingDir = inputFileAsFile.parentFile
     if (compilation.target.platformType == KotlinPlatformType.wasm) {
         newArgs.add("--module=${inputFileAsFile.absolutePath}")
@@ -285,7 +291,7 @@ fun Project.createJsShellExec(
 fun Project.createJsEngineBenchmarkExecTask(
     config: BenchmarkConfiguration,
     target: BenchmarkTarget,
-    compilation: KotlinJsCompilation,
+    compilation: KotlinJsIrCompilation,
     mode: KotlinJsBinaryMode,
 ) {
     val postfix = if (mode == KotlinJsBinaryMode.DEVELOPMENT) "" else "Opt"
@@ -307,7 +313,7 @@ afterEvaluate {
         }
         if (compilation != null) {
             target.extension.configurations.forEach { config ->
-                val benchmarkCompilation = compilation.target.compilations.maybeCreate(target.name + BenchmarksPlugin.BENCHMARK_COMPILATION_SUFFIX) as KotlinJsCompilation
+                val benchmarkCompilation = compilation.target.compilations.maybeCreate(target.name + BenchmarksPlugin.BENCHMARK_COMPILATION_SUFFIX) as KotlinJsIrCompilation
                 createJsEngineBenchmarkExecTask(config, target, benchmarkCompilation, KotlinJsBinaryMode.PRODUCTION)
                 createJsEngineBenchmarkExecTask(config, target, benchmarkCompilation, KotlinJsBinaryMode.DEVELOPMENT)
             }
