@@ -50,7 +50,7 @@ the<NodeJsEnvSpec>().apply {
 }
 
 apply<BinaryenRootPlugin>()
-the<BinaryenRootEnvSpec>().version.set("122")
+the<BinaryenRootEnvSpec>().version.set("123")
 
 apply<D8Plugin>()
 the<D8EnvSpec>().version.set("13.4.61")
