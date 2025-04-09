@@ -36,7 +36,7 @@ class ArithmeticBenchmark {
         var i = 1
         var j = 1
         while (i < BENCHMARK_SIZE) {
-            j += (i shl 1234) / 42 / j / 42 / j / 42 / j
+            j += (i shl 1234) / 42 / i / 42 / j / 42 / i
             i++
         }
         return j
@@ -58,7 +58,7 @@ class ArithmeticBenchmark {
         var i = 1
         var j = 1
         while (i < BENCHMARK_SIZE) {
-            j += (i shl 1234) % 42 % j % 42 % j % 42 % j
+            j += (i shl 1234) % 42 % i % 42 % j % 42 % i
             i++
         }
         return j
