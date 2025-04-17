@@ -109,7 +109,7 @@ class ArithmeticBenchmark {
     }
 
     @Benchmark
-    fun double_division(): Float {
+    fun double_division(): Double {
         var i = 1
         var j = 1.0
         while (i < BENCHMARK_SIZE) {
