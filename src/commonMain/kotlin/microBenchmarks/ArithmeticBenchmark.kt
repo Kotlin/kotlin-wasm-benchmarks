@@ -63,4 +63,92 @@ class ArithmeticBenchmark {
         }
         return j
     }
+
+    @Benchmark
+    fun float_division(): Float {
+        var i = 1
+        var j = 1f
+        while (i < BENCHMARK_SIZE) {
+            j += (i shl 1234).toFloat() / i / j / i / j / i / j
+            i++
+        }
+        return j
+    }
+
+    @Benchmark
+    fun float_division_constant(): Float {
+        var i = 1
+        var j = 1f
+        while (i < BENCHMARK_SIZE) {
+            j += (i shl 1234).toFloat() / 42 / i / 42 / j / 42 / i
+            i++
+        }
+        return j
+    }
+
+    @Benchmark
+    fun float_reminder(): Float {
+        var i = 1
+        var j = 1f
+        while (i < BENCHMARK_SIZE) {
+            j += (i shl 1234).toFloat() % i % j % i % j % i % j
+            i++
+        }
+        return j
+    }
+
+    @Benchmark
+    fun float_reminder_constant(): Float {
+        var i = 1
+        var j = 1f
+        while (i < BENCHMARK_SIZE) {
+            j += (i shl 1234).toFloat() % 42 % i % 42 % j % 42 % i
+            i++
+        }
+        return j
+    }
+
+    @Benchmark
+    fun double_division(): Float {
+        var i = 1
+        var j = 1.0
+        while (i < BENCHMARK_SIZE) {
+            j += (i shl 1234).toFloat() / i / j / i / j / i / j
+            i++
+        }
+        return j
+    }
+
+    @Benchmark
+    fun double_division_constant(): Double {
+        var i = 1
+        var j = 1.0
+        while (i < BENCHMARK_SIZE) {
+            j += (i shl 1234).toDouble() / 42 / i / 42 / j / 42 / i
+            i++
+        }
+        return j
+    }
+
+    @Benchmark
+    fun double_reminder(): Double {
+        var i = 1
+        var j = 1.0
+        while (i < BENCHMARK_SIZE) {
+            j += (i shl 1234).toDouble() % i % j % i % j % i % j
+            i++
+        }
+        return j
+    }
+
+    @Benchmark
+    fun double_reminder_constant(): Double {
+        var i = 1
+        var j = 1.0
+        while (i < BENCHMARK_SIZE) {
+            j += (i shl 1234).toDouble() % 42 % i % 42 % j % 42 % i
+            i++
+        }
+        return j
+    }
 }
