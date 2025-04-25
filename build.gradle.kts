@@ -3,20 +3,17 @@
 import kotlinx.benchmark.gradle.*
 import de.undercouch.gradle.tasks.download.Download
 import kotlinx.benchmark.gradle.internal.KotlinxBenchmarkPluginInternalApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
-import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmSubTargetContainerDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.JsIrBinary
-import org.jetbrains.kotlin.gradle.targets.js.d8.D8Plugin
+import org.jetbrains.kotlin.gradle.targets.js.d8.D8RootPlugin
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin
-import org.jetbrains.kotlin.gradle.targets.js.d8.D8EnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.ir.*
 
@@ -44,16 +41,18 @@ apply {
     plugin<BenchmarksPlugin>()
 }
 
-apply<NodeJsPlugin>()
-the<NodeJsEnvSpec>().apply {
-    version.set("23.6.0")
+with(NodeJsRootPlugin.apply(rootProject)) {
+    version = "23.6.0"
 }
 
-apply<BinaryenRootPlugin>()
-the<BinaryenRootEnvSpec>().version.set("123")
+with(BinaryenRootPlugin.apply(rootProject)) {
+    this.version = "123"
+}
 
-apply<D8Plugin>()
-the<D8EnvSpec>().version.set("13.4.61")
+
+with(D8RootPlugin.apply(rootProject)) {
+    version = "13.4.61"
+}
 
 allprojects.forEach {
     it.tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
