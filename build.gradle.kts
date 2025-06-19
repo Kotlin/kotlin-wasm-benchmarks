@@ -323,6 +323,7 @@ afterEvaluate {
 
 tasks.withType<KotlinJsCompile> {
     compilerOptions.freeCompilerArgs.add("-Xskip-prerelease-check")
+    compilerOptions.freeCompilerArgs.add("-Xwasm-enable-array-range-checks")
 }
 
 rootProject.the<YarnRootExtension>().yarnLockMismatchReport =
