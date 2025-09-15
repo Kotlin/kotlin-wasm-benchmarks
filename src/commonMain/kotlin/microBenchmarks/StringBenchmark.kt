@@ -17,10 +17,13 @@
 package microBenchmarks
 
 import kotlinx.benchmark.*
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 @State(Scope.Benchmark)
 class StringBenchmark {
     private var csv: String = ""
+    private val subSequenceRanges = mutableListOf<Pair<Int, Int>>()
 
     @Setup
     fun setup() {
@@ -30,6 +33,12 @@ class StringBenchmark {
             csv += ","
         }
         csv += 0.0
+
+        for (i in 1..sqrt(BENCHMARK_SIZE.toDouble()).roundToInt()) {
+            for (j in 0..csv.length - i) {
+                subSequenceRanges.add(Pair(j, j + i))
+            }
+        }
     }
     
     @Benchmark
@@ -89,6 +98,25 @@ class StringBenchmark {
         while (i < size) {
             sum += fields[i].toDouble()
             i++
+        }
+        return sum
+    }
+
+    @Benchmark
+    fun iterateCharsCsv(): Int {
+        var sum = 0
+        for (i in 0 until BENCHMARK_SIZE) {
+            sum += csv[i].code
+        }
+        return sum
+    }
+
+    @Benchmark
+    fun subSequenceCsv(): Int {
+        var sum = 0
+        for (range in subSequenceRanges) {
+            val subString = csv.subSequence(range.first, range.second)
+            sum += subString[0].code
         }
         return sum
     }

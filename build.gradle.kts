@@ -53,7 +53,7 @@ apply<BinaryenRootPlugin>()
 the<BinaryenRootEnvSpec>().version.set("123")
 
 apply<D8Plugin>()
-the<D8EnvSpec>().version.set("13.4.61")
+the<D8EnvSpec>().version.set("14.2.133")
 
 allprojects.forEach {
     it.tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
@@ -138,6 +138,7 @@ benchmark {
             "microBenchmarks.ArrayCopyBenchmark.copyInSameArray",
             "microBenchmarks.BunnymarkBenchmark.testBunnymark",
             "microBenchmarks.CoordinatesSolverBenchmark.solve",
+            "microBenchmarks.StringBenchmark.subSequence",
         )
         with(create("fastMicro")) {
             iterations = 5
