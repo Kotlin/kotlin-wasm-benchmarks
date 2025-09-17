@@ -322,7 +322,7 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
     id("Main")
     name = "Main"
 
-    artifactRules = "build/reports/benchmarks => reports"
+    artifactRules = "build/reports => reports"
     publishArtifacts = PublishMode.SUCCESSFUL
 
     params {
