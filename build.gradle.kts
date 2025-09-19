@@ -211,7 +211,7 @@ benchmark {
 
 /////////////////////////
 
-val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/releases/134.0.2/jsshell"
+val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/releases/143.0/jsshell"
 val jsShellSuffix = when (currentOsType) {
     OsType(OsName.LINUX, OsArch.X86_32) -> "linux-i686"
     OsType(OsName.LINUX, OsArch.X86_64) -> "linux-x86_64"
