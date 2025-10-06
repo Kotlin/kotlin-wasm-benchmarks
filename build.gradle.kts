@@ -1,24 +1,21 @@
 @file:OptIn(KotlinxBenchmarkPluginInternalApi::class, ExperimentalWasmDsl::class)
 
-import kotlinx.benchmark.gradle.*
 import de.undercouch.gradle.tasks.download.Download
+import kotlinx.benchmark.gradle.*
 import kotlinx.benchmark.gradle.internal.KotlinxBenchmarkPluginInternalApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinJsCompilation
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmSubTargetContainerDsl
-import org.jetbrains.kotlin.gradle.targets.js.ir.JsIrBinary
-import org.jetbrains.kotlin.gradle.targets.js.d8.D8Plugin
-import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootPlugin
-import org.jetbrains.kotlin.gradle.targets.js.d8.D8EnvSpec
-import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
+import org.jetbrains.kotlin.gradle.targets.js.ir.*
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
-import org.jetbrains.kotlin.gradle.targets.js.ir.*
+import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenPlugin
+import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8EnvSpec
+import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Plugin
 
 buildscript {
     repositories {
@@ -49,7 +46,7 @@ the<NodeJsEnvSpec>().apply {
     version.set("23.6.0")
 }
 
-apply<BinaryenRootPlugin>()
+apply<BinaryenPlugin>()
 the<BinaryenRootEnvSpec>().version.set("123")
 
 apply<D8Plugin>()
