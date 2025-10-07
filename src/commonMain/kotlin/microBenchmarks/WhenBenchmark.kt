@@ -5,17 +5,17 @@ import kotlinx.benchmark.*
 @State(Scope.Benchmark)
 class WhenBenchmark {
 
-    private val integers = 100500..100510
-    private val shorts = (10500..10510).map { it.toShort() }
-    private val bytes = (100..110).map { it.toByte() }
-    private val chars = 'a'..'k'
-    private val strings = ('a' .. 'k').flatMap {a -> ('a' .. 'k').map { b -> "$a$b" } }
+    private lateinit var integers: List<Int>
+    private lateinit var shorts: List<Short>
+    private lateinit var bytes: List<Byte>
+    private lateinit var chars: List<Char>
+    private lateinit var strings: List<String>
 
-    private val floatConst = 1.123.toFloat()
-    private val doubleConst = 1.123456789123456
+    private var floatConst: Float = 0F
+    private var doubleConst: Double = 0.0
 
-    private val floats = (1..10).map { it * floatConst }
-    private val doubles = (1..10).map { it * doubleConst }
+    private lateinit var floats: List<Float>
+    private lateinit var doubles: List<Double>
 
     private val integersData = mutableListOf<Int>()
     private val shortsData = mutableListOf<Short>()
@@ -27,14 +27,27 @@ class WhenBenchmark {
 
     @Setup
     fun setup() {
+
+        integers = (100500..100510).toList()
+        shorts = (10500..10510).map { it.toShort() }
+        bytes = (100..110).map { it.toByte() }
+        chars = ('a'..'k').toList()
+        strings = ('a' .. 'k').flatMap { a -> ('a' .. 'k').map { b -> "$a$b" } }
+
+        floatConst = 1.123F
+        doubleConst = 1.123456789123456
+
+        floats = (1..10).map { it * floatConst }
+        doubles = (1..10).map { it * doubleConst }
+
         for (i in 1..BENCHMARK_SIZE) {
-            charsData.add(chars.random())
-            shortsData.add(shorts.random())
-            bytesData.add(bytes.random())
-            integersData.add(integers.random())
-            stringsData.add(strings.random())
-            floatsData.add(floats.random())
-            doublesData.add(doubles.random())
+            charsData.add(chars[i % chars.size])
+            shortsData.add(shorts[i % shorts.size])
+            bytesData.add(bytes[i % bytes.size])
+            integersData.add(integers[i % integers.size])
+            stringsData.add(strings[i % strings.size])
+            floatsData.add(floats[i % floats.size])
+            doublesData.add(doubles[i % doubles.size])
         }
     }
 
@@ -42,11 +55,11 @@ class WhenBenchmark {
     fun charWhenDense(): Int {
         var sum = 0
         for (char in charsData) {
-            when(char) {
-                'a' -> sum += 13
-                'c' -> sum += 91
-                'e' -> sum += 34
-                else -> sum += 29
+            sum += when(char) {
+                'a' -> 13
+                'c' -> 91
+                'e' -> 34
+                else -> 29
             }
         }
         return sum
@@ -169,9 +182,9 @@ class WhenBenchmark {
         var sum = 0
         for (float in floatsData) {
             sum += when(float) {
-                floatConst -> 13
-                floatConst * 3 -> 91
-                floatConst * 4 -> 34
+                1.123F -> 13
+                3.369F -> 91
+                4.492F -> 34
                 else -> 29
             }
         }
@@ -183,9 +196,9 @@ class WhenBenchmark {
         var sum = 0
         for (double in doublesData) {
             sum += when(double) {
-                doubleConst -> 13
-                doubleConst * 3 -> 91
-                doubleConst * 4 -> 34
+                1.123 -> 13
+                3.369 -> 91
+                4.492 -> 34
                 else -> 29
             }
         }
