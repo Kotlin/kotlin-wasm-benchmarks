@@ -5,60 +5,80 @@ import kotlinx.benchmark.*
 @State(Scope.Benchmark)
 class WhenBenchmark {
 
-    private lateinit var integers: List<Int>
-    private lateinit var shorts: List<Short>
-    private lateinit var bytes: List<Byte>
-    private lateinit var chars: List<Char>
-    private lateinit var strings: List<String>
+    private lateinit var integersDense: IntArray
+    private lateinit var integersSparse: IntArray
+    private lateinit var shortsDense: ShortArray
+    private lateinit var shortsSparse: ShortArray
+    private lateinit var bytesDense: ByteArray
+    private lateinit var bytesSparse: ByteArray
+    private lateinit var charsDense: CharArray
+    private lateinit var charsSparse: CharArray
+    private lateinit var strings: Array<String>
 
     private var floatConst: Float = 0F
     private var doubleConst: Double = 0.0
 
-    private lateinit var floats: List<Float>
-    private lateinit var doubles: List<Double>
+    private lateinit var floats: FloatArray
+    private lateinit var doubles: DoubleArray
 
-    private val integersData = mutableListOf<Int>()
-    private val shortsData = mutableListOf<Short>()
-    private val bytesData = mutableListOf<Byte>()
-    private val charsData = mutableListOf<Char>()
-    private val stringsData = mutableListOf<String>()
-    private val floatsData = mutableListOf<Float>()
-    private val doublesData = mutableListOf<Double>()
+    private lateinit var integersDataDense: IntArray
+    private lateinit var integersDataSparse: IntArray
+    private lateinit var shortsDataDense: ShortArray
+    private lateinit var shortsDataSparse: ShortArray
+    private lateinit var bytesDataDense: ByteArray
+    private lateinit var bytesDataSparse: ByteArray
+    private lateinit var charsDataDense: CharArray
+    private lateinit var charsDataSparse: CharArray
+    private lateinit var stringsData: Array<String>
+    private lateinit var floatsData: FloatArray
+    private lateinit var doublesData: DoubleArray
 
     @Setup
     fun setup() {
 
-        integers = (100500..100510).toList()
-        shorts = (10500..10510).map { it.toShort() }
-        bytes = (100..110).map { it.toByte() }
-        chars = ('a'..'k').toList()
-        strings = ('a' .. 'k').flatMap { a -> ('a' .. 'k').map { b -> "$a$b" } }
+        integersDense = intArrayOf(100500, 100502, 100504, 100506)
+        integersSparse = intArrayOf(100500, 100505, 100510, 100512)
+        shortsDense = shortArrayOf(10500, 10502, 10504, 10506)
+        shortsSparse = shortArrayOf(10500, 10505, 10510, 10512)
+        bytesDense = byteArrayOf(100, 102, 104, 106)
+        bytesSparse = byteArrayOf(100, 105, 110, 112)
+        charsDense = charArrayOf('a', 'b', 'c', 'e', 'f', 'h')
+        charsSparse = charArrayOf('a', 'b', 'f', 'k', 't', 'z')
+        strings = arrayOf("aa", "bk", "fg", "eg")
 
         floatConst = 1.123F
         doubleConst = 1.123456789123456
 
-        floats = (1..10).map { it * floatConst }
-        doubles = (1..10).map { it * doubleConst }
+        floats = FloatArray(10) { (it + 1) * floatConst }
+        doubles = DoubleArray(10) { (it + 1) * doubleConst }
 
-        for (i in 1..BENCHMARK_SIZE) {
-            charsData.add(chars[i % chars.size])
-            shortsData.add(shorts[i % shorts.size])
-            bytesData.add(bytes[i % bytes.size])
-            integersData.add(integers[i % integers.size])
-            stringsData.add(strings[i % strings.size])
-            floatsData.add(floats[i % floats.size])
-            doublesData.add(doubles[i % doubles.size])
-        }
+        val size = BENCHMARK_SIZE * 10
+
+        integersDataDense = IntArray(size) { i -> integersDense[i % integersDense.size] }
+        integersDataSparse = IntArray(size) { i -> integersSparse[i % integersSparse.size] }
+        charsDataDense = CharArray(size) { i -> charsDense[i % charsDense.size] }
+        charsDataSparse = CharArray(size) { i -> charsSparse[i % charsSparse.size] }
+        shortsDataDense = ShortArray(size) { i -> shortsDense[i % shortsDense.size] }
+        shortsDataSparse = ShortArray(size) { i -> shortsSparse[i % shortsSparse.size] }
+        bytesDataDense = ByteArray(size) { i -> bytesDense[i % bytesDense.size] }
+        bytesDataSparse = ByteArray(size) { i -> bytesSparse[i % bytesSparse.size] }
+        stringsData = Array(size) { i -> strings[i % strings.size] }
+        floatsData = FloatArray(size) { i -> floats[i % floats.size] }
+        doublesData = DoubleArray(size) { i -> doubles[i % doubles.size] }
     }
 
     @Benchmark
     fun charWhenDense(): Int {
         var sum = 0
-        for (char in charsData) {
-            sum += when(char) {
+        val data = charsDataDense
+        for (i in 0 until data.size) {
+            val char = data[i]
+            sum += when (char) {
                 'a' -> 13
-                'c' -> 91
-                'e' -> 34
+                'b' -> 91
+                'c' -> 34
+                'e' -> 231
+                'h' -> 233
                 else -> 29
             }
         }
@@ -68,11 +88,15 @@ class WhenBenchmark {
     @Benchmark
     fun charWhenSparse(): Int {
         var sum = 0
-        for (char in charsData) {
-            sum += when(char) {
+        val data = charsDataSparse
+        for (i in 0 until data.size) {
+            val char = data[i]
+            sum += when (char) {
                 'a' -> 13
                 'f' -> 34
                 'k' -> 91
+                't' -> 231
+                'z' -> 233
                 else -> 29
             }
         }
@@ -82,8 +106,10 @@ class WhenBenchmark {
     @Benchmark
     fun intWhenDense(): Int {
         var sum = 0
-        for (i in integersData) {
-            sum += when(i) {
+        val data = integersDataDense
+        for (i in 0 until data.size) {
+            val v = data[i]
+            sum += when (v) {
                 100500 -> 13
                 100502 -> 91
                 100504 -> 34
@@ -96,8 +122,10 @@ class WhenBenchmark {
     @Benchmark
     fun intWhenSparse(): Int {
         var sum = 0
-        for (int in integersData) {
-            sum += when(int) {
+        val data = integersDataSparse
+        for (i in 0 until data.size) {
+            val v = data[i]
+            sum += when (v) {
                 100500 -> 13
                 100505 -> 91
                 100510 -> 34
@@ -110,8 +138,10 @@ class WhenBenchmark {
     @Benchmark
     fun shortWhenDense(): Int {
         var sum = 0
-        for (short in shortsData) {
-            sum += when(short) {
+        val data = shortsDataDense
+        for (i in 0 until data.size) {
+            val v = data[i]
+            sum += when (v) {
                 10500.toShort() -> 13
                 10502.toShort() -> 91
                 10504.toShort() -> 34
@@ -124,8 +154,10 @@ class WhenBenchmark {
     @Benchmark
     fun shortWhenSparse(): Int {
         var sum = 0
-        for (short in shortsData) {
-            sum += when(short) {
+        val data = shortsDataSparse
+        for (i in 0 until data.size) {
+            val v = data[i]
+            sum += when (v) {
                 10500.toShort() -> 13
                 10505.toShort() -> 91
                 10510.toShort() -> 34
@@ -138,8 +170,10 @@ class WhenBenchmark {
     @Benchmark
     fun byteWhenDense(): Int {
         var sum = 0
-        for (byte in bytesData) {
-            sum += when(byte) {
+        val data = bytesDataDense
+        for (i in 0 until data.size) {
+            val v = data[i]
+            sum += when (v) {
                 100.toByte() -> 13
                 102.toByte() -> 91
                 104.toByte() -> 34
@@ -152,8 +186,10 @@ class WhenBenchmark {
     @Benchmark
     fun byteWhenSparse(): Int {
         var sum = 0
-        for (byte in bytesData) {
-            sum += when(byte) {
+        val data = bytesDataSparse
+        for (i in 0 until data.size) {
+            val v = data[i]
+            sum += when (v) {
                 100.toByte() -> 13
                 105.toByte() -> 91
                 110.toByte() -> 34
@@ -166,8 +202,10 @@ class WhenBenchmark {
     @Benchmark
     fun stringWhen(): Int {
         var sum = 0
-        for (string in stringsData) {
-            sum += when(string) {
+        val data = stringsData
+        for (i in 0 until data.size) {
+            val s = data[i]
+            sum += when (s) {
                 "aa" -> 13
                 "bk" -> 91
                 "fg" -> 34
@@ -180,8 +218,10 @@ class WhenBenchmark {
     @Benchmark
     fun floatWhen(): Int {
         var sum = 0
-        for (float in floatsData) {
-            sum += when(float) {
+        val data = floatsData
+        for (i in 0 until data.size) {
+            val v = data[i]
+            sum += when (v) {
                 1.123F -> 13
                 3.369F -> 91
                 4.492F -> 34
@@ -194,8 +234,10 @@ class WhenBenchmark {
     @Benchmark
     fun doubleWhen(): Int {
         var sum = 0
-        for (double in doublesData) {
-            sum += when(double) {
+        val data = doublesData
+        for (i in 0 until data.size) {
+            val v = data[i]
+            sum += when (v) {
                 1.123 -> 13
                 3.369 -> 91
                 4.492 -> 34
