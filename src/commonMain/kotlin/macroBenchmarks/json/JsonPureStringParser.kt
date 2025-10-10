@@ -26,7 +26,7 @@ class JsonPureStringParser(private val input: String) {
     private var index: Int = -1
     private var line: Int = 1
     private var column: Int = 0
-    private var current: String? = null
+    private var current: Char? = null
     private var captureBuffer: String = ""
     private var captureStart: Int = -1
 
@@ -39,13 +39,13 @@ class JsonPureStringParser(private val input: String) {
     }
 
     private fun readValue(): JsonValue = when (current) {
-        "n" -> readNull()
-        "t" -> readTrue()
-        "f" -> readFalse()
-        "\"" -> readString()
-        "[" -> readArray()
-        "{" -> readObject()
-        "-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" -> readNumber()
+        'n' -> readNull()
+        't' -> readTrue()
+        'f' -> readFalse()
+        '\"' -> readString()
+        '[' -> readArray()
+        '{' -> readObject()
+        '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> readNumber()
         else -> throw expected("value")
     }
 
@@ -53,15 +53,15 @@ class JsonPureStringParser(private val input: String) {
         read()
         val array = JsonArray()
         skipWhiteSpace()
-        if (readChar("]")) {
+        if (readChar(']')) {
             return array
         }
         do {
             skipWhiteSpace()
             array.add(readValue())
             skipWhiteSpace()
-        } while (readChar(","))
-        if (!readChar("]")) {
+        } while (readChar(','))
+        if (!readChar(']')) {
             throw expected("',' or ']'")
         }
         return array
@@ -71,28 +71,28 @@ class JsonPureStringParser(private val input: String) {
         read()
         val result = JsonObject()
         skipWhiteSpace()
-        if (readChar("}")) {
+        if (readChar('}')) {
             return result
         }
         do {
             skipWhiteSpace()
             val name = readName()
             skipWhiteSpace()
-            if (!readChar(":")) {
+            if (!readChar(':')) {
                 throw expected("':'")
             }
             skipWhiteSpace()
             result.add(name, readValue())
             skipWhiteSpace()
-        } while (readChar(","))
-        if (!readChar("}")) {
+        } while (readChar(','))
+        if (!readChar('}')) {
             throw expected("',' or '}'")
         }
         return result
     }
 
     private fun readName(): String {
-        if (current != "\"") {
+        if (current != '\"') {
             throw expected("name")
         }
         return readStringInternal()
@@ -100,30 +100,30 @@ class JsonPureStringParser(private val input: String) {
 
     private fun readNull(): JsonValue {
         read()
-        readRequiredChar("u")
-        readRequiredChar("l")
-        readRequiredChar("l")
+        readRequiredChar('u')
+        readRequiredChar('l')
+        readRequiredChar('l')
         return JsonLiteral.NULL
     }
 
     private fun readTrue(): JsonValue {
         read()
-        readRequiredChar("r")
-        readRequiredChar("u")
-        readRequiredChar("e")
+        readRequiredChar('r')
+        readRequiredChar('u')
+        readRequiredChar('e')
         return JsonLiteral.TRUE
     }
 
     private fun readFalse(): JsonValue {
         read()
-        readRequiredChar("a")
-        readRequiredChar("l")
-        readRequiredChar("s")
-        readRequiredChar("e")
+        readRequiredChar('a')
+        readRequiredChar('l')
+        readRequiredChar('s')
+        readRequiredChar('e')
         return JsonLiteral.FALSE
     }
 
-    private fun readRequiredChar(ch: String) {
+    private fun readRequiredChar(ch: Char) {
         if (!readChar(ch)) {
             throw expected("'$ch'")
         }
@@ -136,8 +136,8 @@ class JsonPureStringParser(private val input: String) {
     private fun readStringInternal(): String {
         read()
         startCapture()
-        while (current != "\"") {
-            if (current == "\\") {
+        while (current != '\"') {
+            if (current == '\\') {
                 pauseCapture()
                 readEscape()
                 startCapture()
@@ -153,12 +153,12 @@ class JsonPureStringParser(private val input: String) {
     private fun readEscape() {
         read()
         captureBuffer += when (current) {
-            "\"", "/", "\\" -> current
-            "b" -> "\b"
-            "f" -> "\u000c"
-            "n" -> "\n"
-            "r" -> "\r"
-            "t" -> "\t"
+            '\"', '/', '\\' -> current
+            'b' -> "\b"
+            'f' -> "\u000c"
+            'n' -> "\n"
+            'r' -> "\r"
+            't' -> "\t"
             else -> throw expected("valid escape sequence")
         }
         read()
@@ -166,12 +166,12 @@ class JsonPureStringParser(private val input: String) {
 
     private fun readNumber(): JsonValue {
         startCapture()
-        readChar("-")
+        readChar('-')
         val firstDigit = current
         if (!readDigit()) {
             throw expected("digit")
         }
-        if (firstDigit != "0") {
+        if (firstDigit != '0') {
             while (readDigit()) {
             }
         }
@@ -181,7 +181,7 @@ class JsonPureStringParser(private val input: String) {
     }
 
     private fun readFraction(): Boolean {
-        if (!readChar(".")) {
+        if (!readChar('.')) {
             return false
         }
         if (!readDigit()) {
@@ -193,11 +193,11 @@ class JsonPureStringParser(private val input: String) {
     }
 
     private fun readExponent(): Boolean {
-        if (!readChar("e") && !readChar("E")) {
+        if (!readChar('e') && !readChar('E')) {
             return false
         }
-        if (!readChar("+")) {
-            readChar("-")
+        if (!readChar('+')) {
+            readChar('-')
         }
         if (!readDigit()) {
             throw expected("digit")
@@ -208,7 +208,7 @@ class JsonPureStringParser(private val input: String) {
         return true
     }
 
-    private fun readChar(ch: String): Boolean {
+    private fun readChar(ch: Char): Boolean {
         if (current != ch) {
             return false
         }
@@ -231,13 +231,14 @@ class JsonPureStringParser(private val input: String) {
     }
 
     private fun read() {
-        if ("\n" == current) {
+        if ('\n' == current) {
             line++
             column = 0
         }
         index++
         current = if (index < input.length) {
-            input.substring(index, index + 1)
+            input[index]
+//            input.substring(index, index + 1)
         } else {
             null
         }
@@ -274,9 +275,9 @@ class JsonPureStringParser(private val input: String) {
         ParseException(message, index, line, column - 1)
 
     private val isWhiteSpace: Boolean
-        get() = " " == current || "\t" == current || "\n" == current || "\r" == current
+        get() = ' ' == current || '\t' == current || '\n' == current || '\r' == current
     private val isDigit: Boolean
-        get() = "0" == current || "1" == current || "2" == current || "3" == current || "4" == current || "5" == current || "6" == current || "7" == current || "8" == current || "9" == current
+        get() = '0' == current || '1' == current || '2' == current || '3' == current || '4' == current || '5' == current || '6' == current || '7' == current || '8' == current || '9' == current
     private val isEndOfText: Boolean
         get() = current == null
 }
