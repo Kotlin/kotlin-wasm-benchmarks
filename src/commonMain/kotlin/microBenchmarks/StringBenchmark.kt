@@ -24,9 +24,13 @@ import kotlin.math.sqrt
 class StringBenchmark {
     private var csv: String = ""
     private val subSequenceRanges = mutableListOf<Pair<Int, Int>>()
+    private lateinit var stringsInterpolation: Array<String>
 
     @Setup
     fun setup() {
+
+        stringsInterpolation = Array(16) { i -> "s$i" }
+
         for (i in 1 until BENCHMARK_SIZE) {
             val elem = Random.nextDouble()
             csv += elem
@@ -117,6 +121,25 @@ class StringBenchmark {
         for (range in subSequenceRanges) {
             val subString = csv.subSequence(range.first, range.second)
             sum += subString[0].code
+        }
+        return sum
+    }
+
+    @Benchmark
+    fun stringInterpolation(): Int {
+        var sum = 0
+        var i = 0
+        var j = 0
+        while (i < BENCHMARK_SIZE) {
+            val add1 = stringsInterpolation[j]
+            j = (j + 1) and 15
+            val add2 = stringsInterpolation[j]
+            j = (j + 1) and 15
+            val add3 = stringsInterpolation[j]
+            j = (j + 1) and 15
+            val string = "$add1$add2$add3"
+            sum += string.length
+            i++
         }
         return sum
     }
