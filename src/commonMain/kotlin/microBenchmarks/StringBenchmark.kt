@@ -143,4 +143,48 @@ class StringBenchmark {
         }
         return sum
     }
+
+    @Benchmark
+    fun stringBuilderCompareWithInterpolation(): Int {
+        var sum = 0
+        var i = 0
+        var j = 0
+        while (i < BENCHMARK_SIZE) {
+            val add1 = stringsInterpolation[j]
+            j = (j + 1) and 15
+            val add2 = stringsInterpolation[j]
+            j = (j + 1) and 15
+            val add3 = stringsInterpolation[j]
+            j = (j + 1) and 15
+            val builder = StringBuilder(add1)
+            builder.append(add2)
+            builder.append(add3)
+            val string = builder.toString()
+            sum += string.length
+            i++
+        }
+        return sum
+    }
+
+    @Benchmark
+    fun stringPlusCompareWithInterpolation(): Int {
+        var sum = 0
+        var i = 0
+        var j = 0
+        while (i < BENCHMARK_SIZE) {
+            val add1 = stringsInterpolation[j]
+            j = (j + 1) and 15
+            val add2 = stringsInterpolation[j]
+            j = (j + 1) and 15
+            val add3 = stringsInterpolation[j]
+            j = (j + 1) and 15
+            var string = add1
+            string = string.plus(add2)
+            string = string.plus(add3)
+            sum += string.length
+            i++
+        }
+        return sum
+    }
+
 }
