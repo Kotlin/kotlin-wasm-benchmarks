@@ -24,6 +24,9 @@ import kotlin.math.sqrt
 class StringBenchmark {
     private var csv: String = ""
     private val subSequenceRanges = mutableListOf<Pair<Int, Int>>()
+    private val subSequenceRangesToRemove = mutableListOf<Pair<Int, Int>>()
+    private val subSequenceStrings = mutableListOf<String>()
+    private val stringToRepeat = mutableListOf<String>()
     private lateinit var stringsInterpolation: Array<String>
 
     @Setup
@@ -39,6 +42,9 @@ class StringBenchmark {
         csv += 0.0
 
         for (i in 1..sqrt(BENCHMARK_SIZE.toDouble()).roundToInt()) {
+            stringToRepeat.add(csv.substring(0, i))
+            subSequenceStrings.add(csv.substring(i - 1, 2 * i - 1))
+            subSequenceRangesToRemove.add(Pair(i - 1, 2 * i - 1))
             for (j in 0..csv.length - i) {
                 subSequenceRanges.add(Pair(j, j + i))
             }
@@ -140,6 +146,48 @@ class StringBenchmark {
             val string = "$add1$add2$add3"
             sum += string.length
             i++
+        }
+        return sum
+    }
+
+    @Benchmark
+    fun stringIndexOf(): Int {
+        var sum = 0
+        for (subString in subSequenceStrings) {
+            val idx = csv.indexOf(subString)
+            sum += idx
+        }
+        return sum
+    }
+
+    @Benchmark
+    fun stringRemoveRange(): Int {
+        var sum = 0
+        for (range in subSequenceRangesToRemove) {
+            val subString = csv.removeRange(range.first, range.second)
+            sum += subString[0].code
+        }
+        return sum
+    }
+
+    @Benchmark
+    fun stringRepeat(): Int {
+        var sum = 0
+        for (stringToRepeat in stringToRepeat) {
+            val num = BENCHMARK_SIZE / stringToRepeat.length
+            val repeated = stringToRepeat.repeat(num)
+            sum += repeated[0].code
+        }
+        return sum
+    }
+
+    @Benchmark
+    fun stringReplace(): Int {
+        var sum = 0
+        for ((i, subString) in subSequenceStrings.withIndex()) {
+            val newSubString = subSequenceStrings[(i + 1) % subString.length]
+            val newString = csv.replace(subString, newSubString)
+            sum += newString[0].code
         }
         return sum
     }
