@@ -178,9 +178,7 @@ class StringBenchmark {
             j = (j + 1) and 15
             val add3 = stringsInterpolation[j]
             j = (j + 1) and 15
-            var string = add1
-            string = string.plus(add2)
-            string = string.plus(add3)
+            val string = add1 + add2 + add3
             sum += string.length
             i++
         }
