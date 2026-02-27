@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
-import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmSubTargetContainerDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.*
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
@@ -16,6 +15,7 @@ import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenPlugin
 import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8EnvSpec
 import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Plugin
+import kotlin.io.resolve
 
 buildscript {
     repositories {
@@ -43,14 +43,14 @@ apply {
 
 apply<NodeJsPlugin>()
 the<NodeJsEnvSpec>().apply {
-    version.set("23.6.0")
+    version.set(libs.versions.nodejs.get())
 }
 
 apply<BinaryenPlugin>()
-the<BinaryenRootEnvSpec>().version.set("123")
+the<BinaryenRootEnvSpec>().version.set(libs.versions.binaryen.get())
 
 apply<D8Plugin>()
-the<D8EnvSpec>().version.set("14.2.133")
+the<D8EnvSpec>().version.set(libs.versions.v8.get())
 
 allprojects.forEach {
     it.tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
@@ -170,6 +170,7 @@ benchmark {
         register("wasm") {
             reportTasks.add(createReportTargetToTC(reportDir, name))
             reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
+            reportTasks.add(createReportTargetToTC(reportDir, "jsc_$name"))
 
             val wasmCompileSyncDir = compileSyncDir
                 .resolve("wasm")
@@ -181,6 +182,7 @@ benchmark {
         register("wasmOpt") {
             reportTasks.add(createReportTargetToTC(reportDir, name))
             reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
+            reportTasks.add(createReportTargetToTC(reportDir, "jsc_$name"))
             val wasmCompileSyncDir = compileSyncDir
                 .resolve("wasm")
                 .resolve("wasmBenchmark")
@@ -192,6 +194,7 @@ benchmark {
             (this as JsBenchmarkTarget).jsBenchmarksExecutor = JsBenchmarksExecutor.BuiltIn
             reportTasks.add(createReportTargetToTC(reportDir, name))
             reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
+            reportTasks.add(createReportTargetToTC(reportDir, "jsc_$name"))
             val wasmCompileSyncDir = compileSyncDir
                 .resolve("js")
                 .resolve("jsBenchmark")
@@ -211,7 +214,8 @@ benchmark {
 
 /////////////////////////
 
-val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/releases/145.0.2/jsshell"
+val jsShellVersion = libs.versions.jsShell.get()
+val jsShellDirectory = "https://archive.mozilla.org/pub/firefox/releases/$jsShellVersion/jsshell"
 val jsShellSuffix = when (currentOsType) {
     OsType(OsName.LINUX, OsArch.X86_32) -> "linux-i686"
     OsType(OsName.LINUX, OsArch.X86_64) -> "linux-x86_64"
@@ -285,20 +289,85 @@ fun Project.createJsShellExec(
     standardOutput = ConsoleAndFilesOutputStream()
 }
 
+enum class Engine { JsShell, Jsc };
 
 fun Project.createJsEngineBenchmarkExecTask(
+    engine: Engine,
     config: BenchmarkConfiguration,
     target: BenchmarkTarget,
     compilation: KotlinJsIrCompilation,
     mode: KotlinJsBinaryMode,
 ) {
     val postfix = if (mode == KotlinJsBinaryMode.DEVELOPMENT) "" else "Opt"
-    val taskName = "jsShell_${target.name}$postfix${config.capitalizedName()}${BenchmarksPlugin.BENCHMARK_EXEC_SUFFIX}"
-    val compilationTarget = compilation.target
-    if (compilationTarget is KotlinWasmSubTargetContainerDsl) {
-        val execTask = createJsShellExec(config, target, compilation, taskName, mode, postfix)
-        tasks.getByName(config.prefixName(BenchmarksPlugin.RUN_BENCHMARKS_TASKNAME)).dependsOn(execTask)
-    }
+    val taskName = "${engine.name.replaceFirstChar { it.lowercase() }}_${target.name}$postfix${config.capitalizedName()}${BenchmarksPlugin.BENCHMARK_EXEC_SUFFIX}"
+
+    val execTask =
+        when(engine) {
+            Engine.JsShell -> createJsShellExec(config, target, compilation, taskName, mode, postfix)
+            Engine.Jsc -> createJscExec(config, target, compilation, taskName, mode, postfix)
+        }
+    tasks.getByName(config.prefixName(BenchmarksPlugin.RUN_BENCHMARKS_TASKNAME)).dependsOn(execTask)
+}
+
+/////////////////////////
+
+val jscDirectory = "https://packages.jetbrains.team/files/p/kt/kotlin-file-dependencies/javascriptcore/"
+
+val jscSuffix = when (currentOsType) {
+    OsType(OsName.LINUX, OsArch.X86_64) -> "linux64_${libs.versions.jscLinux.get()}"
+    OsType(OsName.MAC, OsArch.X86_64),
+    OsType(OsName.MAC, OsArch.ARM64) -> "sequoia_${libs.versions.jscSequoia.get()}"
+    OsType(OsName.WINDOWS, OsArch.X86_64) -> "win64_${libs.versions.jscWindows.get()}"
+    else -> error("unsupported os type $currentOsType")
+}
+
+val jscLocation = "$jscDirectory/$jscSuffix.zip"
+
+val downloadJsc = tasks.register("jscDownload", Download::class) {
+    src(jscLocation)
+    dest(File(downloadedTools, "jsc-$jscSuffix.zip"))
+    overwrite(false)
+}
+
+val unzipJsc = tasks.register("jscUnzip", UnzipJsc::class) {
+    dependsOn(downloadJsc)
+    from.setFrom(downloadJsc.get().dest)
+
+    val unpackedDir = File(downloadedTools, "jsc-$jscSuffix")
+    into.set(unpackedDir)
+
+    val isLinux = currentOsType.name == OsName.LINUX
+    getIsLinux.set(isLinux)
+}
+
+fun Project.createJscExec(
+    config: BenchmarkConfiguration,
+    target: BenchmarkTarget,
+    compilation: KotlinJsIrCompilation,
+    taskName: String,
+    mode: KotlinJsBinaryMode,
+    fileNamePostfix: String,
+): TaskProvider<Exec> = tasks.register(taskName, Exec::class) {
+    dependsOn(compilation.runtimeDependencyFiles)
+    dependsOn(unzipJsc)
+
+    group = BenchmarksPlugin.BENCHMARKS_TASK_GROUP
+    description = "Executes benchmark for '${target.name}' with jsShell"
+
+    val newArgs = mutableListOf<String>()
+    executable = File(unzipJsc.get().into.get().asFile, "jsc").absolutePath
+
+    val productionBinary = getExecutableFile(compilation, mode) ?: error("Not found production binary")
+    dependsOn(productionBinary)
+
+    val inputFileAsFile = productionBinary.get().asFile
+    workingDir = inputFileAsFile.parentFile
+    newArgs.add("${inputFileAsFile.absolutePath}")
+    val reportFile = setupReporting(target, config, "jsc_", fileNamePostfix)
+    newArgs.add("--")
+    newArgs.add(writeParameters(target.name, reportFile, traceFormat(), config).absolutePath)
+    args = newArgs
+    standardOutput = ConsoleAndFilesOutputStream()
 }
 
 afterEvaluate {
@@ -312,8 +381,10 @@ afterEvaluate {
         if (compilation != null) {
             target.extension.configurations.forEach { config ->
                 val benchmarkCompilation = compilation.target.compilations.maybeCreate(target.name + BenchmarksPlugin.BENCHMARK_COMPILATION_SUFFIX) as KotlinJsIrCompilation
-                createJsEngineBenchmarkExecTask(config, target, benchmarkCompilation, KotlinJsBinaryMode.PRODUCTION)
-                createJsEngineBenchmarkExecTask(config, target, benchmarkCompilation, KotlinJsBinaryMode.DEVELOPMENT)
+                createJsEngineBenchmarkExecTask(Engine.Jsc, config, target, benchmarkCompilation, KotlinJsBinaryMode.PRODUCTION)
+                createJsEngineBenchmarkExecTask(Engine.Jsc, config, target, benchmarkCompilation, KotlinJsBinaryMode.DEVELOPMENT)
+                createJsEngineBenchmarkExecTask(Engine.JsShell, config, target, benchmarkCompilation, KotlinJsBinaryMode.PRODUCTION)
+                createJsEngineBenchmarkExecTask(Engine.JsShell, config, target, benchmarkCompilation, KotlinJsBinaryMode.DEVELOPMENT)
             }
         }
     }
