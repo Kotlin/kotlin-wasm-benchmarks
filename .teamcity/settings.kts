@@ -294,10 +294,13 @@ project {
                 series = listOf(
                     Serie(title = "js_v8", key = SeriesKey("js_$name")),
                     Serie(title = "js_sm", key = SeriesKey("jsShell_js_$name")),
+                    Serie(title = "js_jsc", key = SeriesKey("jsc_js_$name")),
                     Serie(title = "wasm_v8", key = SeriesKey("wasm_$name")),
                     Serie(title = "wasm_sm", key = SeriesKey("jsShell_wasm_$name")),
+                    Serie(title = "wasm_jsc", key = SeriesKey("jsc_wasm_$name")),
                     Serie(title = "wasmOpt_v8", key = SeriesKey("wasmOpt_$name")),
                     Serie(title = "wasmOpt_sm", key = SeriesKey("jsShell_wasmOpt_$name")),
+                    Serie(title = "wasmOpt_jsc", key = SeriesKey("jsc_wasmOpt_$name")),
                 )
                 param("properties.axis.y.min", (min - margins).coerceAtLeast(-margins / 10.0).toString())
                 param("properties.axis.y.type", "default")
