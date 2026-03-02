@@ -372,6 +372,12 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
             executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
         }
         gradle {
+            name = "wasmBenchmark_jsc"
+            tasks = ":jsc_wasmFastMicroBenchmark :jsc_wasmSlowMicroBenchmark :jsc_wasmFastMacroBenchmark :jsc_wasmSlowMacroBenchmark"
+            gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+            executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
+        }
+        gradle {
             name = "wasmOptBenchmark_v8"
             tasks = ":wasmOptFastMicroBenchmark :wasmOptSlowMicroBenchmark :wasmOptFastMacroBenchmark :wasmOptSlowMacroBenchmark"
             gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
@@ -384,6 +390,12 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
             executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
         }
         gradle {
+            name = "wasmOptBenchmark_jsc"
+            tasks = ":jsc_wasmOptFastMicroBenchmark :jsc_wasmOptSlowMicroBenchmark :jsc_wasmOptFastMacroBenchmark :jsc_wasmOptSlowMacroBenchmark"
+            gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+            executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
+        }
+        gradle {
             name = "jsBenchmark_v8"
             tasks = ":jsFastMicroBenchmark :jsSlowMicroBenchmark :jsFastMacroBenchmark :jsSlowMacroBenchmark"
             gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
@@ -392,6 +404,12 @@ object Kotlin_Benchmarks_Wasm_Main : BuildType({
         gradle {
             name = "jsBenchmark_sm"
             tasks = ":jsShell_jsFastMicroBenchmark :jsShell_jsSlowMicroBenchmark :jsShell_jsFastMacroBenchmark :jsShell_jsSlowMacroBenchmark"
+            gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
+            executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
+        }
+        gradle {
+            name = "jsBenchmark_jsc"
+            tasks = ":jsc_jsFastMicroBenchmark :jsc_jsSlowMicroBenchmark :jsc_jsFastMacroBenchmark :jsc_jsSlowMacroBenchmark"
             gradleParams = "--rerun-tasks -Pkotlin_version=%kotlin-version%"
             executionMode = BuildStep.ExecutionMode.RUN_ON_FAILURE
         }
