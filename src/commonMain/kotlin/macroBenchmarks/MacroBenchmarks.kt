@@ -17,6 +17,8 @@
 package macroBenchmarks
 
 import kotlinx.benchmark.*
+import macroBenchmarks.coroutinesFastBenchmarks.SharedFlowBaseline
+import macroBenchmarks.coroutinesFastBenchmarks.SimpleChannelBenchmark
 
 open class MacroBenchmarksBase {
     protected fun runBenchmark(macroBenchmark: MacroBenchmark) {
@@ -62,11 +64,6 @@ class MacroBenchmarksSlow : MacroBenchmarksBase() {
     fun coroutineRecursion() {
         runBenchmark(Coroutines.Recursion())
     }
-
-    @Benchmark
-    fun sharedFlowBaseline() {
-        runBenchmark(SharedFlowBaseline())
-    }
 }
 
 @State(Scope.Benchmark)
@@ -104,5 +101,25 @@ class MacroBenchmarksFast : MacroBenchmarksBase() {
     @Benchmark
     fun towers() {
         runBenchmark(Towers())
+    }
+
+    @Benchmark
+    fun cancellableChannelBenchmark() {
+        runBenchmark(SimpleChannelBenchmark.CancellableChannelBenchmark())
+    }
+
+    @Benchmark
+    fun cancellableReusableChannelBenchmark() {
+        runBenchmark(SimpleChannelBenchmark.CancellableReusableChannelBenchmark())
+    }
+
+    @Benchmark
+    fun nonCancellableChannelBenchmark() {
+        runBenchmark(SimpleChannelBenchmark.NonCancellableChannelBenchmark())
+    }
+
+    @Benchmark
+    fun sharedFlowBaseline() {
+        runBenchmark(SharedFlowBaseline())
     }
 }

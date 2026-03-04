@@ -97,6 +97,7 @@ kotlin {
     }
     sourceSets.commonMain.dependencies {
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+        implementation("io.arrow-kt:arrow-fx-coroutines:2.0.1")
     }
 }
 
@@ -135,6 +136,7 @@ benchmark {
             mode = "avgt"
             advanced("jsUseBridge", true)
             includes.add("macroBenchmarks.MacroBenchmarksSlow")
+            includes.add("macroBenchmarks.coroutinesSlowBenchmarks")
         }
         val slowMicroBenchmarks = listOf(
             "microBenchmarks.StringBenchmark.summarizeSplittedCsv",
