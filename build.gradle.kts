@@ -95,9 +95,22 @@ kotlin {
             }
         }
     }
+    sourceSets.commonMain.dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    }
 }
 
 val reportAllTargetsToTC = tasks.register("reportAllTargetsToTC")
+
+tasks.withType<org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Exec>().configureEach {
+    val currentArgs = d8Args.get()
+    d8Args.set(currentArgs + "--experimental-wasm-wasmfx")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenExec>().configureEach {
+    binaryenArgs.add("--enable-stack-switching")
+    binaryenArgs.add("--enable-multivalue")
+}
 
 benchmark {
     configurations {

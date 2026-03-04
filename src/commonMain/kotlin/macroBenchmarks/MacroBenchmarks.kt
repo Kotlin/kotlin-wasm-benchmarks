@@ -62,6 +62,11 @@ class MacroBenchmarksSlow : MacroBenchmarksBase() {
     fun coroutineRecursion() {
         runBenchmark(Coroutines.Recursion())
     }
+
+    @Benchmark
+    fun sharedFlowBaseline() {
+        runBenchmark(SharedFlowBaseline())
+    }
 }
 
 @State(Scope.Benchmark)
