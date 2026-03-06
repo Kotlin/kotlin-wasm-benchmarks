@@ -95,9 +95,25 @@ kotlin {
             }
         }
     }
+    sourceSets.commonMain.dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+        implementation("io.arrow-kt:arrow-fx-coroutines:2.0.1")
+    }
 }
 
 val reportAllTargetsToTC = tasks.register("reportAllTargetsToTC")
+
+tasks.withType<org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Exec>().configureEach {
+    val currentArgs = d8Args.get()
+    d8Args.set(currentArgs + "--experimental-wasm-wasmfx")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenExec>().configureEach {
+    val filteredArgs = binaryenArgs.filter { it != "--gufa" }
+    binaryenArgs = filteredArgs.toMutableList()
+    binaryenArgs.add("--enable-stack-switching")
+    binaryenArgs.add("--enable-multivalue")
+}
 
 benchmark {
     configurations {
@@ -122,6 +138,7 @@ benchmark {
             mode = "avgt"
             advanced("jsUseBridge", true)
             includes.add("macroBenchmarks.MacroBenchmarksSlow")
+            includes.add("macroBenchmarks.coroutinesSlowBenchmarks")
         }
         val slowMicroBenchmarks = listOf(
             "microBenchmarks.StringBenchmark.summarizeSplittedCsv",
