@@ -17,7 +17,7 @@ private fun doGeomDistrWork(work: Int) {
     // are distributed geometrically, see https://github.com/Kotlin/kotlinx.coroutines/pull/1464#discussion_r355705325
     val p = 1.0 / work
 
-//    used to have ThreadLocal to avoid contention, but there is no multithreading in K/Wasm?
+//    Used to have ThreadLocal to avoid contention, but there is no multithreading in K/Wasm?
 //    val r = ThreadLocalRandom.current()
     val r = Random
     while (true) {
@@ -25,10 +25,14 @@ private fun doGeomDistrWork(work: Int) {
     }
 }
 
+/*
+ * Adapted benchmark from kotlinx.coroutines
+ * https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/benchmarks/jvm/kotlin/kotlinx/coroutines/SemaphoreBenchmark.kt
+ */
 @State(Scope.Benchmark)
 open class SemaphoreBenchmark: ParametrizedDispatcherBase() {
 
-    // with params both stack-switching and non-stack-switching versions fail
+// With params both stack-switching and non-stack-switching versions fail
 //    @Param("0", "1000")
     var coroutines: Int = 1000
 

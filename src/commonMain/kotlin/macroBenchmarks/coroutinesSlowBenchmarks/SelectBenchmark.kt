@@ -9,6 +9,10 @@ import kotlinx.benchmark.*
 import macroBenchmarks.coroutines.ParametrizedDispatcherBase
 import kotlin.concurrent.Volatile
 
+/*
+ * Adapted benchmark from kotlinx.coroutines
+ * https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/benchmarks/jvm/kotlin/kotlinx/coroutines/channels/SelectBenchmark.kt
+ */
 @State(Scope.Benchmark)
 open class SelectBenchmark: ParametrizedDispatcherBase() {
     // 450

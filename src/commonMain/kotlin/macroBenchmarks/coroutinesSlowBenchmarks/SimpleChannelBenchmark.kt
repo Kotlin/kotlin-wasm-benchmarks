@@ -1,4 +1,4 @@
-package macroBenchmarks.coroutinesFastBenchmarks
+package macroBenchmarks.coroutinesSlowBenchmarks
 
 import kotlinx.coroutines.launch
 import macroBenchmarks.coroutines.CancellableChannel
@@ -9,9 +9,13 @@ import macroBenchmarks.coroutines.SimpleChannel
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.startCoroutine
+import kotlinx.benchmark.*
 
-// Stresses out 'synchronized' codepath in MutableSharedFlow
-sealed class SimpleChannelBenchmark : ParametrizedDispatcherBaseSlow() {
+/*
+ * Adapted benchmark from kotlinx.coroutines
+ * https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/benchmarks/jvm/kotlin/kotlinx/coroutines/channels/SimpleChannelBenchmark.kt
+ */
+abstract class SimpleChannelBenchmark : ParametrizedDispatcherBaseSlow() {
 
     private val iterations = 10_000
     protected abstract fun makeChannel(): SimpleChannel
@@ -39,16 +43,28 @@ sealed class SimpleChannelBenchmark : ParametrizedDispatcherBaseSlow() {
         check(done) { "benchmark did not complete" }
         return sink
     }
+}
 
-    class CancellableChannelBenchmark: SimpleChannelBenchmark() {
-        override fun makeChannel() = CancellableChannel()
-    }
+@State(Scope.Benchmark)
+class CancellableChannelBenchmark: SimpleChannelBenchmark() {
+    override fun makeChannel() = CancellableChannel()
 
-    class CancellableReusableChannelBenchmark: SimpleChannelBenchmark() {
-        override fun makeChannel() = CancellableReusableChannel()
-    }
+    @Benchmark
+    fun cancellable() = benchmark()
+}
 
-    class NonCancellableChannelBenchmark: SimpleChannelBenchmark() {
-        override fun makeChannel() = NonCancellableChannel()
-    }
+@State(Scope.Benchmark)
+class CancellableReusableChannelBenchmark: SimpleChannelBenchmark() {
+    override fun makeChannel() = CancellableReusableChannel()
+
+    @Benchmark
+    fun cancellableReusable() = benchmark()
+}
+
+@State(Scope.Benchmark)
+class NonCancellableChannelBenchmark: SimpleChannelBenchmark() {
+    override fun makeChannel() = NonCancellableChannel()
+
+    @Benchmark
+    fun nonCancellable() = benchmark()
 }

@@ -7,6 +7,13 @@ import macroBenchmarks.coroutines.ParametrizedDispatcherBase
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.startCoroutine
 
+/*
+ * Adapted benchmark from kotlinx.coroutines
+ * https://github.com/Kotlin/kotlinx.coroutines/blob/master/benchmarks/src/jmh/kotlin/benchmarks/scheduler/LaunchBenchmark.kt
+ * Probably, no need of FJP-like adaptation, cause in K/Wasm no multithreading?
+ *
+ * Used CyclicBarrier from arrow-kt as an alternative to java CyclicBarrier
+ */
 @State(Scope.Benchmark)
 open class LaunchBenchmark : ParametrizedDispatcherBase() {
 

@@ -109,6 +109,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Exec>().configureEa
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenExec>().configureEach {
+    val filteredArgs = binaryenArgs.filter { it != "--gufa" }
+    binaryenArgs = filteredArgs.toMutableList()
     binaryenArgs.add("--enable-stack-switching")
     binaryenArgs.add("--enable-multivalue")
 }
