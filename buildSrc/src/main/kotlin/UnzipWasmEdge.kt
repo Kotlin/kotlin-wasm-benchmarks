@@ -1,0 +1,74 @@
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.*
+import org.gradle.work.DisableCachingByDefault
+import java.nio.file.Files
+import javax.inject.Inject
+
+@DisableCachingByDefault
+abstract class UnzipWasmEdge : DefaultTask() {
+    @get:Inject
+    abstract val fs: FileSystemOperations
+
+    @get:Inject
+    abstract val archiveOperations: ArchiveOperations
+
+    @get:InputFiles
+    @get:Classpath
+    abstract val from: ConfigurableFileCollection
+
+    @get:OutputDirectory
+    abstract val into: DirectoryProperty
+
+    @get:Input
+    abstract val getIsWindows: Property<Boolean>
+
+    @get:Input
+    abstract val getIsMac: Property<Boolean>
+
+    @TaskAction
+    fun extract() {
+        fs.delete {
+            delete(into)
+        }
+
+        val isWindows = getIsWindows.get()
+
+        fs.copy {
+            from(
+                if (isWindows) {
+                    archiveOperations.zipTree(from.singleFile)
+                } else {
+                    archiveOperations.tarTree(from.singleFile)
+                }
+            )
+            into(into)
+        }
+
+        if (isWindows) return
+
+        val wasmEdgeUnpackedDirectory = into.get().asFile
+
+        val unpackedWasmEdgeDirectory = wasmEdgeUnpackedDirectory.toPath()
+
+        val libDirectory = unpackedWasmEdgeDirectory
+            .resolve(if (getIsMac.get()) "lib" else "lib64")
+
+        val targets = if (getIsMac.get())
+            listOf("libwasmedge.0.1.0.dylib", "libwasmedge.0.1.0.tbd")
+        else listOf("libwasmedge.so.0.1.0")
+
+        targets.forEach {
+            val target = libDirectory.resolve(it)
+            val firstLink = libDirectory.resolve(it.replace("0.1.0", "0")).also(Files::deleteIfExists)
+            val secondLink = libDirectory.resolve(it.replace(".0.1.0", "")).also(Files::deleteIfExists)
+
+            Files.createSymbolicLink(firstLink, target)
+            Files.createSymbolicLink(secondLink, target)
+        }
+    }
+}
