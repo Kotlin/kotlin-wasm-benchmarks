@@ -169,8 +169,8 @@ benchmark {
         val reportTasks = mutableListOf<TaskProvider<Task>>()
         register("wasm") {
             reportTasks.add(createReportTargetToTC(reportDir, name))
-            reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
-            reportTasks.add(createReportTargetToTC(reportDir, "jsc_$name"))
+//            reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
+//            reportTasks.add(createReportTargetToTC(reportDir, "jsc_$name"))
 
             val wasmCompileSyncDir = compileSyncDir
                 .resolve("wasm")
@@ -181,8 +181,8 @@ benchmark {
         }
         register("wasmOpt") {
             reportTasks.add(createReportTargetToTC(reportDir, name))
-            reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
-            reportTasks.add(createReportTargetToTC(reportDir, "jsc_$name"))
+//            reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
+//            reportTasks.add(createReportTargetToTC(reportDir, "jsc_$name"))
             val wasmCompileSyncDir = compileSyncDir
                 .resolve("wasm")
                 .resolve("wasmBenchmark")
@@ -193,8 +193,8 @@ benchmark {
         register("js") {
             (this as JsBenchmarkTarget).jsBenchmarksExecutor = JsBenchmarksExecutor.BuiltIn
             reportTasks.add(createReportTargetToTC(reportDir, name))
-            reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
-            reportTasks.add(createReportTargetToTC(reportDir, "jsc_$name"))
+//            reportTasks.add(createReportTargetToTC(reportDir, "jsShell_$name"))
+//            reportTasks.add(createReportTargetToTC(reportDir, "jsc_$name"))
             val wasmCompileSyncDir = compileSyncDir
                 .resolve("js")
                 .resolve("jsBenchmark")
@@ -262,31 +262,39 @@ fun Project.createJsShellExec(
     taskName: String,
     mode: KotlinJsBinaryMode,
     fileNamePostfix: String,
-): TaskProvider<Exec> = tasks.register(taskName, Exec::class) {
+): TaskProvider<DefaultTask> = tasks.register(taskName, DefaultTask::class) {
     dependsOn(compilation.runtimeDependencyFiles)
-    dependsOn(unzipJsShell)
-
+//    dependsOn(unzipJsShell)
+//
     group = BenchmarksPlugin.BENCHMARKS_TASK_GROUP
     description = "Executes benchmark for '${target.name}' with jsShell"
 
-    val newArgs = mutableListOf<String>()
-    executable = File(unzipJsShell.get().destinationDir, "js").absolutePath
-
-    val productionBinary = getExecutableFile(compilation, mode) ?: error("Not found production binary")
-    dependsOn(productionBinary)
-
-    val inputFileAsFile = productionBinary.get().asFile
-    workingDir = inputFileAsFile.parentFile
-    if (compilation.target.platformType == KotlinPlatformType.wasm) {
-        newArgs.add("--module=${inputFileAsFile.absolutePath}")
-    } else {
-        newArgs.add("--file=${inputFileAsFile.absolutePath}")
-    }
     val reportFile = setupReporting(target, config, "jsShell_", fileNamePostfix)
-    newArgs.add("--")
-    newArgs.add(writeParameters(target.name, reportFile, traceFormat(), config).absolutePath)
-    args = newArgs
-    standardOutput = ConsoleAndFilesOutputStream()
+    writeParameters(target.name, reportFile, traceFormat(), config)
+    doLast {
+        reportFile.parentFile.mkdirs()
+        reportFile.createNewFile()
+        reportFile.writeText("STUB")
+    }
+
+//    val newArgs = mutableListOf<String>()
+//    executable = File(unzipJsShell.get().destinationDir, "js").absolutePath
+//
+//    val productionBinary = getExecutableFile(compilation, mode) ?: error("Not found production binary")
+//    dependsOn(productionBinary)
+//
+//    val inputFileAsFile = productionBinary.get().asFile
+//    workingDir = inputFileAsFile.parentFile
+//    if (compilation.target.platformType == KotlinPlatformType.wasm) {
+//        newArgs.add("--module=${inputFileAsFile.absolutePath}")
+//    } else {
+//        newArgs.add("--file=${inputFileAsFile.absolutePath}")
+//    }
+//    val reportFile = setupReporting(target, config, "jsShell_", fileNamePostfix)
+//    newArgs.add("--")
+//    newArgs.add(writeParameters(target.name, reportFile, traceFormat(), config).absolutePath)
+//    args = newArgs
+//    standardOutput = ConsoleAndFilesOutputStream()
 }
 
 enum class Engine { JsShell, Jsc };
@@ -347,27 +355,35 @@ fun Project.createJscExec(
     taskName: String,
     mode: KotlinJsBinaryMode,
     fileNamePostfix: String,
-): TaskProvider<Exec> = tasks.register(taskName, Exec::class) {
-    dependsOn(compilation.runtimeDependencyFiles)
-    dependsOn(unzipJsc)
+): TaskProvider<DefaultTask> = tasks.register(taskName, DefaultTask::class) {
+//    dependsOn(compilation.runtimeDependencyFiles)
+//    dependsOn(unzipJsc)
 
     group = BenchmarksPlugin.BENCHMARKS_TASK_GROUP
     description = "Executes benchmark for '${target.name}' with jsShell"
 
-    val newArgs = mutableListOf<String>()
-    executable = File(unzipJsc.get().into.get().asFile, "jsc").absolutePath
-
-    val productionBinary = getExecutableFile(compilation, mode) ?: error("Not found production binary")
-    dependsOn(productionBinary)
-
-    val inputFileAsFile = productionBinary.get().asFile
-    workingDir = inputFileAsFile.parentFile
-    newArgs.add("${inputFileAsFile.absolutePath}")
     val reportFile = setupReporting(target, config, "jsc_", fileNamePostfix)
-    newArgs.add("--")
-    newArgs.add(writeParameters(target.name, reportFile, traceFormat(), config).absolutePath)
-    args = newArgs
-    standardOutput = ConsoleAndFilesOutputStream()
+    writeParameters(target.name, reportFile, traceFormat(), config)
+    doLast {
+        reportFile.parentFile.mkdirs()
+        reportFile.createNewFile()
+        reportFile.writeText("STUB")
+    }
+
+//    val newArgs = mutableListOf<String>()
+//    executable = File(unzipJsc.get().into.get().asFile, "jsc").absolutePath
+//
+//    val productionBinary = getExecutableFile(compilation, mode) ?: error("Not found production binary")
+//    dependsOn(productionBinary)
+//
+//    val inputFileAsFile = productionBinary.get().asFile
+//    workingDir = inputFileAsFile.parentFile
+//    newArgs.add("${inputFileAsFile.absolutePath}")
+//    val reportFile = setupReporting(target, config, "jsc_", fileNamePostfix)
+//    newArgs.add("--")
+//    newArgs.add(writeParameters(target.name, reportFile, traceFormat(), config).absolutePath)
+//    args = newArgs
+//    standardOutput = ConsoleAndFilesOutputStream()
 }
 
 afterEvaluate {
