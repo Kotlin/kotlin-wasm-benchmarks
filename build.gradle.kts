@@ -352,7 +352,7 @@ fun Project.createJscExec(
     dependsOn(unzipJsc)
 
     group = BenchmarksPlugin.BENCHMARKS_TASK_GROUP
-    description = "Executes benchmark for '${target.name}' with jsShell"
+    description = "Executes benchmark for '${target.name}' with JSC"
 
     val newArgs = mutableListOf<String>()
     executable = File(unzipJsc.get().into.get().asFile, "jsc").absolutePath
@@ -362,6 +362,7 @@ fun Project.createJscExec(
 
     val inputFileAsFile = productionBinary.get().asFile
     workingDir = inputFileAsFile.parentFile
+    newArgs.add("--useOMGJIT=false")
     newArgs.add("${inputFileAsFile.absolutePath}")
     val reportFile = setupReporting(target, config, "jsc_", fileNamePostfix)
     newArgs.add("--")
