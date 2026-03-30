@@ -362,7 +362,6 @@ fun Project.createJscExec(
 
     val inputFileAsFile = productionBinary.get().asFile
     workingDir = inputFileAsFile.parentFile
-    newArgs.add("--useOMGJIT=false")
     newArgs.add("${inputFileAsFile.absolutePath}")
     val reportFile = setupReporting(target, config, "jsc_", fileNamePostfix)
     newArgs.add("--")
