@@ -396,3 +396,9 @@ tasks.withType<KotlinJsCompile> {
 
 rootProject.the<YarnRootExtension>().yarnLockMismatchReport =
     org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport.NONE
+
+tasks.named("clean") {
+    doFirst {
+        throw GradleException("Intentional failure for TeamCity notification test")
+    }
+}
