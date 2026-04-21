@@ -4,11 +4,13 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         maven(uri("./kotlin-compiler"))
+        mavenLocal()
         maven(uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap/"))
     }
     resolutionStrategy {
         repositories {
             maven(uri("./kotlin-compiler"))
+            mavenLocal()
             gradlePluginPortal()
             maven(uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap/"))
         }

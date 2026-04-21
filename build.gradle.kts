@@ -103,18 +103,6 @@ kotlin {
 
 val reportAllTargetsToTC = tasks.register("reportAllTargetsToTC")
 
-tasks.withType<org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Exec>().configureEach {
-    val currentArgs = d8Args.get()
-    d8Args.set(currentArgs + "--experimental-wasm-wasmfx")
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenExec>().configureEach {
-    val filteredArgs = binaryenArgs.filter { it != "--gufa" }
-    binaryenArgs = filteredArgs.toMutableList()
-    binaryenArgs.add("--enable-stack-switching")
-    binaryenArgs.add("--enable-multivalue")
-}
-
 benchmark {
     configurations {
         with(create("fastMacro")) {

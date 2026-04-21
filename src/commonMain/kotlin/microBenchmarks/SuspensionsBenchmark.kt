@@ -5,13 +5,19 @@ import macroBenchmarks.coroutines.ParametrizedDispatcherBase
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
+import kotlin.coroutines.intrinsics.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.startCoroutine
 import kotlin.coroutines.suspendCoroutine
 
 @State(Scope.Benchmark)
 open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
+
+    companion object {
+        const val BENCHMARK_CHAIN_DEPTH = 100
+        const val BENCHMARK_FIB_DEPTH = 80
+        const val BENCHMARK_SIZE_SUSPENSIONS = 1000
+    }
 
     val coroutines: MutableList<Continuation<Unit>> = mutableListOf()
     val coroutines2: MutableList<Continuation<Unit>> = mutableListOf()
@@ -55,8 +61,7 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
         coroutines2.clear()
         deepReached = 0
         deepCompletion = 0
-        val depth = 20
-        for (i in 1..depth) {
+        for (i in 1..BENCHMARK_CHAIN_DEPTH) {
             builder {
                 suspendCoroutine { cont ->
                     coroutines.add(cont)
@@ -68,8 +73,8 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
         coroutines.last().resume(Unit)
         coroutines2.forEach { it.resume(Unit) }
 
-        check(deepReached == 1) { "deepReached=$deepReached" }
-        check(deepCompletion == depth) { "deepCompletion=$deepCompletion" }
+        check (deepReached == 1) { "deepReached=$deepReached" }
+        check (deepCompletion == BENCHMARK_CHAIN_DEPTH) { "deepCompletion=$deepCompletion" }
     }
 
     suspend fun deepDeep(n: Int, deepSuspensionsNum: Int) {
@@ -100,55 +105,53 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
         deepReached = 0
         deepCompletion = 0
         deepSuspensionsCount = 0
-        val depth = 20
-        val deepSuspensionsNum = 20
-        for (i in 1..depth) {
+        for (i in 1..BENCHMARK_CHAIN_DEPTH) {
             builder {
                 suspendCoroutine { cont ->
                     coroutines.add(cont)
                     COROUTINE_SUSPENDED
                 }
-                deepDeep(i - 1, deepSuspensionsNum)
+                deepDeep(i - 1, BENCHMARK_CHAIN_DEPTH)
             }
         }
         coroutines.last().resume(Unit)
-        for (i in 1..deepSuspensionsNum) {
+        for (i in 1..BENCHMARK_CHAIN_DEPTH) {
             deepCoroutine!!.resume(Unit)
         }
         coroutines2.forEach { it.resume(Unit) }
 
-        check(deepSuspensionsCount == deepSuspensionsNum) { "deepSuspensionsCount=$deepSuspensionsCount" }
-        check(deepReached == 1) { "deepReached=$deepReached" }
-        check(deepCompletion == depth) { "deepCompletion=$deepCompletion" }
+        check (deepSuspensionsCount == BENCHMARK_CHAIN_DEPTH) { "deepSuspensionsCount=$deepSuspensionsCount" }
+        check (deepReached == 1) { "deepReached=$deepReached" }
+        check (deepCompletion == BENCHMARK_CHAIN_DEPTH) { "deepCompletion=$deepCompletion" }
     }
 
 
     private suspend fun suspendWithIncrement(value: Int): Int =
-        kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn { x ->
+        suspendCoroutineUninterceptedOrReturn { x ->
             x.resume(value + 1)
             COROUTINE_SUSPENDED
         }
 
     @Benchmark
-    fun multipleSuspensions1() {
+    fun selfResumptions() {
 
         var result = 0
 
         builder {
             var acc = 0
-            for (i in 1..50) {
+            for (i in 1..BENCHMARK_SIZE_SUSPENSIONS) {
                 acc = suspendWithIncrement(acc)
             }
             result = acc
         }
 
-        check(result == 50) { "result=$result" }
+        check (result == BENCHMARK_SIZE_SUSPENSIONS) { "result=$result" }
     }
 
     var resumeCoroutine: (() -> Unit)? = null
 
     private suspend fun suspendWithIncrement2(value: Int): Int =
-        kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn { x ->
+        suspendCoroutineUninterceptedOrReturn { x ->
             resumeCoroutine = {
                 x.resume(value + 1)
             }
@@ -156,34 +159,69 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
         }
 
     @Benchmark
-    fun multipleSuspensions2() {
+    fun externalResumptions() {
         resumeCoroutine = null
         var result = 0
         var acc = 0
 
         builder {
-            for (i in 1..50) {
+            for (i in 1..BENCHMARK_SIZE) {
                 acc = suspendWithIncrement2(acc)
             }
             result = acc
         }
 
-        for (i in 1..50) {
+        for (i in 1..BENCHMARK_SIZE) {
             resumeCoroutine!!.invoke()
             check (acc == i) { "Failed: expected $i, got $acc" }
         }
+        check (result == BENCHMARK_SIZE) { "Failed: expected 50, got $result" }
+    }
 
-        check (result == 50) { "Failed: expected 50, got $result" }
+    private data class Event(val userId: Int, val type: String, val amount: Int)
+
+    private fun rawEvents(n: Int): Sequence<String> = sequence {
+        var id = 0
+        repeat(n) {
+            val userId = (id % 200) + 1
+            val type = when (id % 3) { 0 -> "purchase"; 1 -> "refund"; else -> "view" }
+            val amount = (id % 97) + 1
+            yield("$userId,$type,$amount")
+            id++
+        }
+    }
+
+    private fun parseEvents(raw: Sequence<String>): Sequence<Event> =
+        raw.map { line ->
+            val parts = line.split(",")
+            Event(parts[0].toInt(), parts[1], parts[2].toInt())
+        }
+
+    private fun purchasesOnly(events: Sequence<Event>): Sequence<Event> =
+        events.filter { it.type == "purchase" }
+
+    private fun enriched(events: Sequence<Event>): Sequence<Pair<Int, Int>> = sequence {
+        for (event in events) {
+            yield(event.userId to event.amount)
+            if (event.amount > 50) yield(event.userId to (event.amount / 2))
+        }
     }
 
     @Benchmark
-    fun sequence() {
-        val iterations = 20
+    fun sequenceMultiplePipelines() {
+        val result = enriched(purchasesOnly(parseEvents(rawEvents(BENCHMARK_SIZE))))
+            .fold(0L) { acc, (_, amount) -> acc + amount }
+
+        check (result == 222_547L) { "Failed: got $result" }
+    }
+
+    @Benchmark
+    fun sequenceIterator() {
         val fibonacci = sequence {
-            yield(1)
-            yield(1)
-            var a = 1
-            var b = 1
+            yield(0L)
+            yield(1L)
+            var a = 0L
+            var b = 1L
             while (true) {
                 yield(a + b)
                 val temp = a
@@ -191,11 +229,11 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
                 b += temp
             }
         }.iterator()
-        var current = 0
-        for (i in 1..iterations) {
+        var current = 0L
+        for (i in 1..BENCHMARK_FIB_DEPTH) {
             current = fibonacci.next()
         }
-        check(current == 6765) { "Failed: expected 6765, got $current" }
+        check (current == 14_472_334_024_676_221L) { "Failed: expected 6765, got $current" }
     }
 
     var completionCount = 0
@@ -205,11 +243,11 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun startCoroutine() {
+    fun startCoroutinePerformance() {
         completionCount = 0
 
         // Start multiple coroutines to measure startCoroutine performance
-        repeat(100) {
+        repeat(BENCHMARK_SIZE) {
             val coroutine: suspend () -> String = ::simpleCoroutine
 
             coroutine.startCoroutine(object : Continuation<String> {
@@ -229,21 +267,21 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
     var resumeCount = 0
 
     private suspend fun suspendAndResume(): String =
-        kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn { continuation ->
+        suspendCoroutineUninterceptedOrReturn { continuation ->
             // Immediately resume to measure the suspension/resumption overhead
             continuation.resume("OK")
             COROUTINE_SUSPENDED
         }
 
     @Benchmark
-    fun suspendCoroutineUninterceptedOrReturn() {
+    fun suspendCoroutineUninterceptedOrReturnPerformance() {
         resumeCount = 0
         var result = "FAIL"
 
         // Perform multiple suspend/resume cycles
         val coroutine: suspend () -> String = {
             var accumulated = ""
-            repeat(10) {
+            repeat(BENCHMARK_SIZE_SUSPENSIONS) {
                 val value = suspendAndResume()
                 if (value == "OK") {
                     resumeCount++
@@ -262,6 +300,6 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
             }
         })
 
-        check (resumeCount == 10 && result == "OK") { "FAIL: $resumeCount" }
+        check (resumeCount == BENCHMARK_SIZE_SUSPENSIONS && result == "OK") { "FAIL: $resumeCount" }
     }
 }
