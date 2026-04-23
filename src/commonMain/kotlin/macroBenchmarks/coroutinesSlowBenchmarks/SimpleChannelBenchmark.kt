@@ -17,7 +17,7 @@ import kotlinx.benchmark.*
  */
 abstract class SimpleChannelBenchmark : ParametrizedDispatcherBaseSlow() {
 
-    private val iterations = 10_000
+    private val iterations = 200_000
     protected abstract fun makeChannel(): SimpleChannel
 
     @Volatile

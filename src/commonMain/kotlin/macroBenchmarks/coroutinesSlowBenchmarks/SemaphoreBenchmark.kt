@@ -34,7 +34,7 @@ open class SemaphoreBenchmark: ParametrizedDispatcherBase() {
 
 // With params both stack-switching and non-stack-switching versions fail
 //    @Param("0", "1000")
-    var coroutines: Int = 1000
+    var coroutines: Int = 10_000
 
 //    @Param("1", "2", "4", "8", "32", "128", "100000")
     var maxPermits: Int = 100000

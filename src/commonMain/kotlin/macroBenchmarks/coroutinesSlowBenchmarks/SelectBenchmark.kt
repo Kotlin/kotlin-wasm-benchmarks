@@ -16,7 +16,7 @@ import kotlin.concurrent.Volatile
 @State(Scope.Benchmark)
 open class SelectBenchmark: ParametrizedDispatcherBase() {
     // 450
-    private val iterations = 1000
+    private val iterations = 100_000
 
     @Volatile
     private var sink: Int = 0

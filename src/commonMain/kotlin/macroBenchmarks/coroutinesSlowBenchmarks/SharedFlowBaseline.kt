@@ -15,7 +15,7 @@ import kotlinx.benchmark.*
 @State(Scope.Benchmark)
 open class SharedFlowBaseline : ParametrizedDispatcherBase() {
 
-    private var size: Int = 10_000
+    private var size: Int = 100_000
 
     @Benchmark
     fun baseline() {

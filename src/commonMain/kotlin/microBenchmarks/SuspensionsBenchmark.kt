@@ -5,6 +5,7 @@ import macroBenchmarks.coroutines.ParametrizedDispatcherBase
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.createCoroutine
 import kotlin.coroutines.intrinsics.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.startCoroutine
@@ -14,9 +15,10 @@ import kotlin.coroutines.suspendCoroutine
 open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
 
     companion object {
-        const val BENCHMARK_CHAIN_DEPTH = 100
+        const val BENCHMARK_CHAIN_DEPTH = 1000
         const val BENCHMARK_FIB_DEPTH = 80
-        const val BENCHMARK_SIZE_SUSPENSIONS = 1000
+        const val BENCHMARK_SIZE_SUSPENSIONS = 2_000
+        const val BENCHMARK_SIZE_CREATIONS = 40_000
     }
 
     val coroutines: MutableList<Continuation<Unit>> = mutableListOf()
@@ -247,10 +249,10 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
         completionCount = 0
 
         // Start multiple coroutines to measure startCoroutine performance
-        repeat(BENCHMARK_SIZE) {
-            val coroutine: suspend () -> String = ::simpleCoroutine
+        repeat(BENCHMARK_SIZE_CREATIONS) {
+            val suspendFun: suspend () -> String = ::simpleCoroutine
 
-            coroutine.startCoroutine(object : Continuation<String> {
+            suspendFun.startCoroutine(object : Continuation<String> {
                 override val context: CoroutineContext
                     get() = EmptyCoroutineContext
 
@@ -261,45 +263,58 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
                 }
             })
         }
+        check (completionCount == BENCHMARK_SIZE_CREATIONS) { "Failed: expected $BENCHMARK_SIZE_CREATIONS to complete, $completionCount completed." }
     }
-
-
-    var resumeCount = 0
-
-    private suspend fun suspendAndResume(): String =
-        suspendCoroutineUninterceptedOrReturn { continuation ->
-            // Immediately resume to measure the suspension/resumption overhead
-            continuation.resume("OK")
-            COROUTINE_SUSPENDED
-        }
 
     @Benchmark
-    fun suspendCoroutineUninterceptedOrReturnPerformance() {
-        resumeCount = 0
-        var result = "FAIL"
+    fun createCoroutinePerformance(blackhole: Blackhole) {
 
-        // Perform multiple suspend/resume cycles
-        val coroutine: suspend () -> String = {
-            var accumulated = ""
-            repeat(BENCHMARK_SIZE_SUSPENSIONS) {
-                val value = suspendAndResume()
-                if (value == "OK") {
-                    resumeCount++
-                }
-                accumulated = value
-            }
-            accumulated
+        // Create multiple coroutines to measure createCoroutine performance
+        repeat(BENCHMARK_SIZE_CREATIONS) {
+            val suspendFun: suspend () -> String = ::simpleCoroutine
+
+            val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) {})
+            blackhole.consume(coroutine)
         }
-
-        coroutine.startCoroutine(object : Continuation<String> {
-            override val context: CoroutineContext
-                get() = EmptyCoroutineContext
-
-            override fun resumeWith(value: Result<String>) {
-                result = value.getOrNull() ?: "FAIL"
-            }
-        })
-
-        check (resumeCount == BENCHMARK_SIZE_SUSPENSIONS && result == "OK") { "FAIL: $resumeCount" }
     }
+
+//
+//    var resumeCount = 0
+//
+//    private suspend fun suspendAndResume(): String =
+//        suspendCoroutineUninterceptedOrReturn { continuation ->
+//            // Immediately resume to measure the suspension/resumption overhead
+//            continuation.resume("OK")
+//            COROUTINE_SUSPENDED
+//        }
+
+//    @Benchmark
+//    fun suspendCoroutineUninterceptedOrReturnPerformance() {
+//        resumeCount = 0
+//        var result = "FAIL"
+//
+//        // Perform multiple suspend/resume cycles
+//        val coroutine: suspend () -> String = {
+//            var accumulated = ""
+//            repeat(BENCHMARK_SIZE_SUSPENSIONS) {
+//                val value = suspendAndResume()
+//                if (value == "OK") {
+//                    resumeCount++
+//                }
+//                accumulated = value
+//            }
+//            accumulated
+//        }
+//
+//        coroutine.startCoroutine(object : Continuation<String> {
+//            override val context: CoroutineContext
+//                get() = EmptyCoroutineContext
+//
+//            override fun resumeWith(value: Result<String>) {
+//                result = value.getOrNull() ?: "FAIL"
+//            }
+//        })
+//
+//        check (resumeCount == BENCHMARK_SIZE_SUSPENSIONS && result == "OK") { "FAIL: $resumeCount" }
+//    }
 }
