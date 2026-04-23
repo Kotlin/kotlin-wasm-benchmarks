@@ -74,6 +74,8 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
         }
         coroutines.last().resume(Unit)
         coroutines2.forEach { it.resume(Unit) }
+        coroutines.clear()
+        coroutines2.clear()
 
         check (deepReached == 1) { "deepReached=$deepReached" }
         check (deepCompletion == BENCHMARK_CHAIN_DEPTH) { "deepCompletion=$deepCompletion" }
@@ -121,6 +123,9 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
             deepCoroutine!!.resume(Unit)
         }
         coroutines2.forEach { it.resume(Unit) }
+        coroutines.clear()
+        coroutines2.clear()
+        deepCoroutine = null
 
         check (deepSuspensionsCount == BENCHMARK_CHAIN_DEPTH) { "deepSuspensionsCount=$deepSuspensionsCount" }
         check (deepReached == 1) { "deepReached=$deepReached" }
@@ -177,6 +182,7 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
             resumeCoroutine!!.invoke()
             check (acc == i) { "Failed: expected $i, got $acc" }
         }
+        resumeCoroutine = null
         check (result == BENCHMARK_SIZE) { "Failed: expected 50, got $result" }
     }
 
