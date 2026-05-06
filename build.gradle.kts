@@ -150,7 +150,7 @@ benchmark {
             excludes.addAll(slowMicroBenchmarks)
         }
         with(create("slowMicro")) {
-            iterations = 1
+            iterations = 5
             warmups = 5
             iterationTime = 1
             iterationTimeUnit = "nanos"
