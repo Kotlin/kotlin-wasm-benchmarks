@@ -36,6 +36,7 @@ class PrimeListBenchmark {
     @Benchmark
     fun calcDirect() {
         val primes = primes1
+        primes.clear()
         primes.add(2)
         var i = 3
         while (i <= BENCHMARK_SIZE) {
@@ -57,6 +58,7 @@ class PrimeListBenchmark {
     @Benchmark
     fun calcEratosthenes() {
         val primes = primes2
+        primes.clear()
         primes.addAll(2..BENCHMARK_SIZE)
         var i = 0
         while (i < primes.size) {
