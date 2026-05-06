@@ -429,8 +429,8 @@ benchmark {
             with(create("slowMicro_${engine.name}")) {
                 iterations = 5
                 warmups = 5
-                iterationTime = 1
-                iterationTimeUnit = "nanos"
+                iterationTime = 50
+                iterationTimeUnit = "millis"
                 outputTimeUnit = "millis"
                 reportFormat = "json"
                 mode = "avgt"
