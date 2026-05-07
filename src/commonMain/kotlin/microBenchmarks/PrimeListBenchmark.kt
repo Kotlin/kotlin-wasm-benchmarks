@@ -18,25 +18,18 @@ package microBenchmarks
 
 import kotlinx.benchmark.*
 
+// TODO: should we switch back to LinkedList as it was in the original version or introduce a new test using LinkedList?
+// https://github.com/Kotlin/kotlin-benchmarks/blob/a1c5a7fb320a88f975a97e438b209b627f41f71b/src/main/kotlin/org/jetbrains/PrimeListBenchmark.kt#L15
 /*
- * This class tests linked list performance
- * using prime number calculation algorithms
+ * This class tests list performance
+ * using prime number calculation algorithms.
  */
 @State(Scope.Benchmark)
 class PrimeListBenchmark {
-    private lateinit var primes1: MutableList<Int>
-    private lateinit var primes2: MutableList<Int>
-
-    @Setup
-    fun setup() {
-        primes1 = mutableListOf()
-        primes2 = mutableListOf()
-    }
-
     @Benchmark
     fun calcDirect() {
-        val primes = primes1
-        primes.clear()
+        val primes = ArrayList<Int>(BENCHMARK_SIZE)
+
         primes.add(2)
         var i = 3
         while (i <= BENCHMARK_SIZE) {
@@ -57,8 +50,8 @@ class PrimeListBenchmark {
 
     @Benchmark
     fun calcEratosthenes() {
-        val primes = primes2
-        primes.clear()
+        val primes = ArrayList<Int>(BENCHMARK_SIZE)
+
         primes.addAll(2..BENCHMARK_SIZE)
         var i = 0
         while (i < primes.size) {
