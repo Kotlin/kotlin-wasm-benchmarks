@@ -84,15 +84,28 @@ kotlin {
     }
 
     sourceSets {
+        val isOnlyCoroutines = project.hasProperty("onlyCoroutines")
         commonMain {
             dependencies {
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar"))
+            }
+            if (isOnlyCoroutines) {
+                kotlin.include("**/macroBenchmarks/coroutines/**")
+                kotlin.include("**/macroBenchmarks/coroutinesSlowBenchmarks/**")
+                kotlin.include("**/macroBenchmarks/MacroBenchmark.kt")
+                kotlin.include("**/macroBenchmarks/MacroBenchmarks.kt")
+                kotlin.include("**/microBenchmarks/SuspensionsBenchmark.kt")
+                kotlin.include("**/microBenchmarks/CreateCoroutineBenchmark.kt")
+                kotlin.include("**/microBenchmarks/Utils.kt")
             }
         }
 
         val wasmMain by getting {
             dependencies {
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
+            }
+            if (isOnlyCoroutines) {
+                kotlin.exclude("**/microBenchmarks/**")
             }
         }
 

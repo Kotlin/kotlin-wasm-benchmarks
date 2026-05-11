@@ -29,30 +29,30 @@ open class MacroBenchmarksBase {
 
 @State(Scope.Benchmark)
 class MacroBenchmarksSlow : MacroBenchmarksBase() {
-    @Benchmark
-    fun cd() {
-        runBenchmark(CD())
-    }
-
-    @Benchmark
-    fun havlak() {
-        runBenchmark(Havlak())
-    }
-
-    @Benchmark
-    fun json() {
-        runBenchmark(Json())
-    }
-
-    @Benchmark
-    fun nBody() {
-        runBenchmark(NBody())
-    }
-
-    @Benchmark
-    fun mandelbrot() {
-        runBenchmark(Mandelbrot())
-    }
+//    @Benchmark
+//    fun cd() {
+//        runBenchmark(CD())
+//    }
+//
+//    @Benchmark
+//    fun havlak() {
+//        runBenchmark(Havlak())
+//    }
+//
+//    @Benchmark
+//    fun json() {
+//        runBenchmark(Json())
+//    }
+//
+//    @Benchmark
+//    fun nBody() {
+//        runBenchmark(NBody())
+//    }
+//
+//    @Benchmark
+//    fun mandelbrot() {
+//        runBenchmark(Mandelbrot())
+//    }
 
     @Benchmark
     fun coroutineIteration() {
@@ -64,41 +64,41 @@ class MacroBenchmarksSlow : MacroBenchmarksBase() {
         runBenchmark(Coroutines.Recursion())
     }
 }
-
-@State(Scope.Benchmark)
-class MacroBenchmarksFast : MacroBenchmarksBase() {
-    @Benchmark
-    fun bounce() {
-        runBenchmark(Bounce())
-    }
-
-    @Benchmark
-    fun list() {
-        runBenchmark(List())
-    }
-
-    @Benchmark
-    fun permute() {
-        runBenchmark(Permute())
-    }
-
-    @Benchmark
-    fun queens() {
-        runBenchmark(Queens())
-    }
-
-    @Benchmark
-    fun sieve() {
-        runBenchmark(Sieve())
-    }
-
-    @Benchmark
-    fun storage() {
-        runBenchmark(Storage())
-    }
-
-    @Benchmark
-    fun towers() {
-        runBenchmark(Towers())
-    }
-}
+//
+//@State(Scope.Benchmark)
+//class MacroBenchmarksFast : MacroBenchmarksBase() {
+//    @Benchmark
+//    fun bounce() {
+//        runBenchmark(Bounce())
+//    }
+//
+//    @Benchmark
+//    fun list() {
+//        runBenchmark(List())
+//    }
+//
+//    @Benchmark
+//    fun permute() {
+//        runBenchmark(Permute())
+//    }
+//
+//    @Benchmark
+//    fun queens() {
+//        runBenchmark(Queens())
+//    }
+//
+//    @Benchmark
+//    fun sieve() {
+//        runBenchmark(Sieve())
+//    }
+//
+//    @Benchmark
+//    fun storage() {
+//        runBenchmark(Storage())
+//    }
+//
+//    @Benchmark
+//    fun towers() {
+//        runBenchmark(Towers())
+//    }
+//}
