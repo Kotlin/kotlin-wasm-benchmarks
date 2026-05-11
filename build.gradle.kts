@@ -3,6 +3,8 @@
 import de.undercouch.gradle.tasks.download.Download
 import kotlinx.benchmark.gradle.BenchmarksPlugin
 import kotlinx.benchmark.gradle.CustomEngine
+import kotlinx.benchmark.gradle.JsBenchmarkTarget
+import kotlinx.benchmark.gradle.JsBenchmarksExecutor
 import kotlinx.benchmark.gradle.KotlinxBenchmarkPluginExperimentalApi
 import kotlinx.benchmark.gradle.benchmark
 import kotlinx.benchmark.gradle.internal.KotlinxBenchmarkPluginInternalApi
@@ -34,9 +36,9 @@ buildscript {
     val kotlin_version: String by project
 
     dependencies {
-        classpath("org.jetbrains.kotlinx:kotlinx-benchmark-plugin:0.4.17")
+//        classpath("org.jetbrains.kotlinx:kotlinx-benchmark-plugin:0.4.17")
 //        classpath("org.jetbrains.kotlinx:kotlinx-benchmark-plugin:0.5.0-SNAPSHOT")
-//        classpath(files("./kotlinx-benchmarks/kotlinx-benchmark-plugin-0.5.0.jar"))
+        classpath(files("./kotlinx-benchmarks/kotlinx-benchmark-plugin-0.5.0.jar"))
         classpath("com.squareup:kotlinpoet:1.3.0")
         classpath("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version")
     }
@@ -82,11 +84,11 @@ kotlin {
         nodejs()
     }
 
-    wasmJs("wasm") {
+    wasmJs {
         nodejs()
         //nodejs()
     }
-    wasmWasi("wasmWasi") {
+    wasmWasi {
         nodejs()
     }
 
@@ -95,56 +97,74 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-common"))
 //                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.5.0-SNAPSHOT")
-                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.17")
-//                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar"))
+//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.17")
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar"))
             }
         }
 
-        val wasmMain by getting {
+        val wasmJsMain by getting {
             dependencies {
 //                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-js:0.5.0-SNAPSHOT")
-                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-js:0.4.17")
-//                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
+//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-js:0.4.17")
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
             }
         }
 
         val wasmWasiMain by getting {
             dependencies {
 //                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-wasi:0.5.0-SNAPSHOT")
-                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-wasi:0.4.17")
-//                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-wasi-0.5.0.klib"))
+//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-wasi:0.4.17")
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-wasi-0.5.0.klib"))
             }
         }
 
         val jsMain by getting {
             dependencies {
 //                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-js:0.5.0-SNAPSHOT")
-                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-js:0.4.17")
-//                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-js-0.5.0.klib"))
+//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-js:0.4.17")
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-js-0.5.0.klib"))
             }
         }
     }
 }
 
-fun getBenchmarkOutputBinary(mode: KotlinJsBinaryMode): JsIrBinary {
-    val wasiCompilations = kotlin.targets.getByName("wasmWasi").compilations
-    val benchmarkCompilation = wasiCompilations.single {
+fun getBenchmarkOutputBinary(targetName: String, mode: KotlinJsBinaryMode): JsIrBinary {
+    val compilations = kotlin.targets.getByName(targetName).compilations
+    val benchmarkCompilation = compilations.single {
         it.compilationName.endsWith(BenchmarksPlugin.BENCHMARK_COMPILATION_SUFFIX)
     } as KotlinJsIrCompilation
     return benchmarkCompilation.binaries.single { it.mode == mode }
 }
 
-val wasmWasiProductionOutputFile = layout.file(provider {
-    val binary = getBenchmarkOutputBinary(KotlinJsBinaryMode.PRODUCTION)
+class EngineInput(val isJs: Boolean, val isProd: Boolean, val file: Provider<File>)
+fun EngineInput.targetModeAndEngine(engine: String): String {
+    val target = if (isJs) "Js" else "Wasm"
+    val mode = if (isProd) "Prod" else "Dev"
+    return "${target}_${mode}_$engine"
+}
+
+val wasmWasiProductionOutputFile = provider {
+    val binary = getBenchmarkOutputBinary("wasmWasi", KotlinJsBinaryMode.PRODUCTION)
     val mainFile = (binary as ExecutableWasm).mainOptimizedFile.get().asFile
     mainFile.resolveSibling("${mainFile.nameWithoutExtension}.wasm")
-})
-val wasmWasiDevelopmentOutputFile = layout.file(provider {
-    val binary = getBenchmarkOutputBinary(KotlinJsBinaryMode.DEVELOPMENT)
+}
+val wasmWasiDevelopmentOutputFile = provider {
+    val binary = getBenchmarkOutputBinary("wasmWasi", KotlinJsBinaryMode.DEVELOPMENT)
     val mainFile = binary.mainFile.get().asFile
     mainFile.resolveSibling("${mainFile.nameWithoutExtension}.wasm")
-})
-val wasmWasiOutputFiles = listOf("Production" to wasmWasiProductionOutputFile, "Development" to wasmWasiDevelopmentOutputFile)
+}
+val wasiEngineInputs = listOf(
+    EngineInput(isJs = false, isProd = true, file = wasmWasiProductionOutputFile),
+    EngineInput(isJs = false, isProd = false, file = wasmWasiDevelopmentOutputFile)
+)
+
+val jsEngineInputs = listOf(
+    EngineInput(isJs = false, isProd = true, file = provider { (getBenchmarkOutputBinary("wasm", KotlinJsBinaryMode.PRODUCTION) as ExecutableWasm).mainOptimizedFile.get().asFile }),
+    EngineInput(isJs = false, isProd = false, file = provider { getBenchmarkOutputBinary("wasm", KotlinJsBinaryMode.DEVELOPMENT).mainFile.get().asFile }),
+    EngineInput(isJs = true, isProd = true, file = provider { getBenchmarkOutputBinary("js", KotlinJsBinaryMode.PRODUCTION).mainFile.get().asFile }),
+    EngineInput(isJs = true, isProd = false, file = provider { getBenchmarkOutputBinary("js", KotlinJsBinaryMode.DEVELOPMENT).mainFile.get().asFile }),
+)
+val jsStubsFile = layout.projectDirectory.file("jsStubs.js").asFile.absolutePath
 
 
 val customEngines = mutableListOf<CustomEngine>()
@@ -179,14 +199,17 @@ val unzipJsShell = tasks.register("unzipJsShell", Copy::class) {
     from(zipTree(jsShellDownload.map { it.dest } ))
     into(jsShellDownload.map { it.dest.resolveSibling("unpacked") })
 }
-
-customEngines.add(
+jsEngineInputs.mapTo(customEngines) { input ->
+    val engineArguments = when (input.isJs) {
+        true -> input.file.map { listOf("-f", jsStubsFile, it.absolutePath, "<ARGUMENTS>") }
+        else -> input.file.map { listOf("--module", it.absolutePath, "--", "<ARGUMENTS>") }
+    }
     CustomEngine(
-        name = "JsShell",
+        name = input.targetModeAndEngine("JsShell"),
         enginePath = layout.file(unzipJsShell.map { it.destinationDir.resolve("js") }),
-        engineArguments = provider { listOf("--module", "<MODULE>", "--", "<ARGUMENTS>") }
+        engineArguments = engineArguments,
     )
-)
+}
 
 ///////////////////////////////// WASM EDGE /////////////////////////////////////////////////////////
 val wasmEdgeVersion = libs.versions.wasmedge.get()
@@ -220,13 +243,11 @@ val unzipWasmEdge = tasks.register("unzipWasmEdge", UnzipWasmEdge::class) {
     getIsMac.set(currentOsTypeForConfigurationCache == OsName.MAC)
 }
 
-wasmWasiOutputFiles.forEach { (mode, file) ->
-    customEngines.add(
-        CustomEngine(
-            name = "WasmEdge$mode",
-            enginePath = unzipWasmEdge.flatMap { it.into.dir("bin").map { dir -> dir.file("wasmedge") } },
-            engineArguments = file.map { listOf("--dir", "/:/", it.asFile.absolutePath, "entryPointStub", "<ARGUMENTS>") }
-        )
+wasiEngineInputs.mapTo(customEngines) { input ->
+    CustomEngine(
+        name = input.targetModeAndEngine("WasmEdge"),
+        enginePath = unzipWasmEdge.flatMap { it.into.dir("bin").map { dir -> dir.file("wasmedge") } },
+        engineArguments = input.file.map { listOf("--dir", "/:/", it.absolutePath, "entryPointStub", "<ARGUMENTS>") }
     )
 }
 
@@ -273,13 +294,18 @@ val createJscRunner = tasks.register("createJscRunner", CreateJscRunner::class) 
 
     inputDirectory.set(unzipJsc.flatMap { it.into })
 }
-customEngines.add(
+
+jsEngineInputs.mapTo(customEngines) { input ->
+    val engineArguments = when (input.isJs) {
+        true -> input.file.map { listOf(jsStubsFile, it.absolutePath, "--", "<ARGUMENTS>") }
+        else -> input.file.map { listOf(it.absolutePath,  "--", "<ARGUMENTS>") }
+    }
     CustomEngine(
-        name = "JSC",
+        name = input.targetModeAndEngine("Jsc"),
         enginePath = createJscRunner.flatMap { it.outputFile },
-        engineArguments = provider { listOf("<MODULE>",  "--", "<ARGUMENTS>") }
+        engineArguments = engineArguments,
     )
-)
+}
 
 ///////////////////////////////// WASM TIME /////////////////////////////////////////////////////////
 val wasmtimeVersion = libs.versions.wasmtime.get()
@@ -318,33 +344,35 @@ val unzipWasmtime = tasks.register("unzipWasmtime", UnzipWasmtime::class) {
     into.set(project.layout.dir(wasmTimeDownload.map { it.dest.resolveSibling("unpacked") }))
 }
 
-wasmWasiOutputFiles.forEach { (mode, file) ->
-    customEngines.add(
-        CustomEngine(
-            name = "WasmTime$mode",
-            enginePath = unzipWasmtime.flatMap {
-                it.into.dir("wasmtime-v$wasmtimeVersion-$wasmtimePlatformSuffix").map { dir -> dir.file("wasmtime") }
-            },
-            engineArguments = file.map {
-                listOf("-W", "gc,exceptions,function-references", "--dir=/", it.asFile.absolutePath, "STUB", "<ARGUMENTS>")
-            }
-        )
+wasiEngineInputs.mapTo(customEngines) { input ->
+    CustomEngine(
+        name = input.targetModeAndEngine("Wasmtime"),
+        enginePath = unzipWasmtime.flatMap {
+            it.into.dir("wasmtime-v$wasmtimeVersion-$wasmtimePlatformSuffix").map { dir -> dir.file("wasmtime") }
+        },
+        engineArguments = input.file.map {
+            listOf("-W", "gc,exceptions,function-references", "--dir=/", it.absolutePath, "STUB", "<ARGUMENTS>")
+        }
     )
 }
 
 ///////////////////////////////// V8 /////////////////////////////////////////////////////////
-customEngines.add(
+jsEngineInputs.mapTo(customEngines) { input ->
+    val engineArguments = when (input.isJs) {
+        true -> input.file.map { listOf(jsStubsFile, it.absolutePath, "--", "<ARGUMENTS>") }
+        else -> input.file.map { listOf("--module", it.absolutePath, "--", "<ARGUMENTS>") }
+    }
     CustomEngine(
-        name = "D8",
+        name = input.targetModeAndEngine("D8"),
         enginePath = layout.file(the(D8EnvSpec::class).executable.map { File(it) }),
-        engineArguments = provider { listOf("--module", "<MODULE>", "--", "<ARGUMENTS>") }
+        engineArguments = engineArguments,
     )
-)
+}
 
 benchmark {
     configurations {
         customEngines.forEach { engine ->
-            with(create("fastMacro${engine.name}")) {
+            with(create("fastMacro_${engine.name}")) {
                 iterations = 5
                 warmups = 5
                 iterationTime = 50
@@ -357,7 +385,7 @@ benchmark {
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
             }
-            with(create("slowMacro${engine.name}")) {
+            with(create("slowMacro_${engine.name}")) {
                 iterations = 1
                 warmups = 5
                 iterationTime = 1
@@ -384,7 +412,7 @@ benchmark {
                 "microBenchmarks.CoordinatesSolverBenchmark.solve",
                 "microBenchmarks.StringBenchmark.subSequence",
             )
-            with(create("fastMicro${engine.name}")) {
+            with(create("fastMicro_${engine.name}")) {
                 iterations = 5
                 warmups = 5
                 iterationTime = 50
@@ -398,7 +426,7 @@ benchmark {
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
             }
-            with(create("slowMicro${engine.name}")) {
+            with(create("slowMicro_${engine.name}")) {
                 iterations = 1
                 warmups = 5
                 iterationTime = 1
@@ -414,9 +442,12 @@ benchmark {
         }
     }
     targets {
-        register("js")
+        register("js") {
+            this as JsBenchmarkTarget
+            this.jsBenchmarksExecutor = JsBenchmarksExecutor.BuiltIn
+        }
         register("wasmWasi")
-        register("wasm")
+        register("wasmJs")
     }
 }
 
