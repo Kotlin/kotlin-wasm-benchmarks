@@ -1,6 +1,7 @@
 package microBenchmarks
 
 import kotlinx.benchmark.*
+import kotlinx.coroutines.suspendCancellableCoroutine
 import macroBenchmarks.coroutines.ParametrizedDispatcherBase
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
@@ -8,6 +9,7 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.createCoroutine
 import kotlin.coroutines.intrinsics.*
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.startCoroutine
 import kotlin.coroutines.suspendCoroutine
 
@@ -15,10 +17,13 @@ import kotlin.coroutines.suspendCoroutine
 open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
 
     companion object {
+        // increasing limits/making more benchmarks on creation (even with gc) breaks benchmarks
+        // probably, v8 limitation
         const val BENCHMARK_CHAIN_DEPTH = 1000
-        const val BENCHMARK_FIB_DEPTH = 80
         const val BENCHMARK_SIZE_SUSPENSIONS = 2_000
-        const val BENCHMARK_SIZE_CREATIONS = 40_000
+        // could use 40_000 for a single benchmark with Stack Switching, but several benchmarks combined is broken
+        // for state machine could even use 10_000_000
+        const val BENCHMARK_SIZE_CREATIONS = 10_000
     }
 
     val coroutines: MutableList<Continuation<Unit>> = mutableListOf()
@@ -84,7 +89,7 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
     suspend fun deepDeep(n: Int, deepSuspensionsNum: Int) {
         if (n == 0) {
             ++deepReached
-            for (i in 1..deepSuspensionsNum) {
+            repeat (deepSuspensionsNum) {
                 suspendCoroutine<Unit> { cont ->
                     ++deepSuspensionsCount
                     deepCoroutine = cont
@@ -119,7 +124,7 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
             }
         }
         coroutines.last().resume(Unit)
-        for (i in 1..BENCHMARK_CHAIN_DEPTH) {
+        repeat (BENCHMARK_CHAIN_DEPTH) {
             deepCoroutine!!.resume(Unit)
         }
         coroutines2.forEach { it.resume(Unit) }
@@ -146,7 +151,7 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
 
         builder {
             var acc = 0
-            for (i in 1..BENCHMARK_SIZE_SUSPENSIONS) {
+            repeat (BENCHMARK_SIZE_SUSPENSIONS) {
                 acc = suspendWithIncrement(acc)
             }
             result = acc
@@ -172,7 +177,7 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
         var acc = 0
 
         builder {
-            for (i in 1..BENCHMARK_SIZE) {
+            repeat (BENCHMARK_SIZE) {
                 acc = suspendWithIncrement2(acc)
             }
             result = acc
@@ -225,26 +230,22 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
 
     @Benchmark
     fun sequenceIterator() {
-        val fibonacci = sequence {
-            yield(0L)
-            yield(1L)
-            var a = 0L
-            var b = 1L
+        val collatzIterator = sequence {
+            var n = 1
             while (true) {
-                yield(a + b)
-                val temp = a
-                a = b
-                b += temp
+                var x = n++
+                while (x != 1) {
+                    yield(x)
+                    x = if (x % 2 == 0) x / 2 else 3 * x + 1
+                }
             }
         }.iterator()
-        var current = 0L
-        for (i in 1..BENCHMARK_FIB_DEPTH) {
-            current = fibonacci.next()
+        var current = 0
+        repeat (BENCHMARK_SIZE) {
+            current = collatzIterator.next()
         }
-        check (current == 14_472_334_024_676_221L) { "Failed: expected 6765, got $current" }
+        check (current == 137) { "Failed: expected 6765, got $current" }
     }
-
-    var completionCount = 0
 
     suspend fun simpleCoroutine(): String {
         return "OK"
@@ -252,20 +253,15 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
 
     @Benchmark
     fun startCoroutinePerformance() {
-        completionCount = 0
+        var completionCount = 0
 
         // Start multiple coroutines to measure startCoroutine performance
         repeat(BENCHMARK_SIZE_CREATIONS) {
             val suspendFun: suspend () -> String = ::simpleCoroutine
 
-            suspendFun.startCoroutine(object : Continuation<String> {
-                override val context: CoroutineContext
-                    get() = EmptyCoroutineContext
-
-                override fun resumeWith(result: Result<String>) {
-                    if (result.isSuccess && result.getOrNull() == "OK") {
-                        completionCount++
-                    }
+            suspendFun.startCoroutine(Continuation(EmptyCoroutineContext) { result ->
+                if (result.isSuccess && result.getOrNull() == "OK") {
+                    completionCount++
                 }
             })
         }
@@ -273,9 +269,33 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun createCoroutinePerformance(blackhole: Blackhole) {
+    fun startCoroutineUninterceptedOrReturnPerformance(blackhole: Blackhole) {
+        var completionCount = 0
 
+        // Start multiple coroutines to measure startCoroutine performance
+        repeat(BENCHMARK_SIZE_CREATIONS) {
+            val suspendFun: suspend () -> String = ::simpleCoroutine
+
+            val result = suspendFun.startCoroutineUninterceptedOrReturn(Continuation(EmptyCoroutineContext) {})
+            if (result == "OK") {
+                completionCount++
+            }
+        }
+        check (completionCount == BENCHMARK_SIZE_CREATIONS) { "Failed: expected $BENCHMARK_SIZE_CREATIONS to complete, $completionCount completed." }
+//        // Start multiple coroutines to measure startCoroutineUninterceptedOrReturn performance
+//        repeat(BENCHMARK_SIZE_CREATIONS) {
+//            val suspendFun: suspend () -> String = ::simpleCoroutine
+//
+//            val coroutine = suspendFun.startCoroutineUninterceptedOrReturn(Continuation(EmptyCoroutineContext) {})
+//            blackhole.consume(coroutine)
+//        }
+    }
+
+
+    @Benchmark
+    fun createCoroutinePerformance(blackhole: Blackhole) {
         // Create multiple coroutines to measure createCoroutine performance
+
         repeat(BENCHMARK_SIZE_CREATIONS) {
             val suspendFun: suspend () -> String = ::simpleCoroutine
 
@@ -284,6 +304,95 @@ open class SuspensionsBenchmark : ParametrizedDispatcherBase() {
         }
     }
 
+    @Benchmark
+    fun createAndResumeCoroutinePerformance() {
+
+        var completionCount = 0
+
+        val coroutines = List(BENCHMARK_SIZE_CREATIONS) {
+            val suspendFun: suspend () -> String = ::simpleCoroutine
+
+            val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) { result ->
+                if (result.isSuccess && result.getOrNull() == "OK") {
+                    completionCount++
+                }
+            })
+            coroutine
+        }
+
+        coroutines.forEach { it.resume(Unit) }
+        check (completionCount == BENCHMARK_SIZE_CREATIONS) { "Failed: expected $BENCHMARK_SIZE_CREATIONS to complete, $completionCount completed." }
+    }
+
+    @Benchmark
+    fun createCoroutineUninterceptedPerformance(blackhole: Blackhole) {
+
+        // Create multiple coroutines to measure createCoroutineUnintercepted performance
+        repeat(BENCHMARK_SIZE_CREATIONS) {
+            val suspendFun: suspend () -> String = ::simpleCoroutine
+
+            val coroutine = suspendFun.createCoroutineUnintercepted(Continuation(EmptyCoroutineContext) {})
+            blackhole.consume(coroutine)
+        }
+    }
+
+    val pendingFrames = ArrayDeque<Continuation<Long>>()
+    var frameTime = 0L
+
+    suspend fun awaitFrame(): Long = suspendCoroutine { pendingFrames.add(it) }
+
+// as per suggestion (in SM as well in SS - x1.5 from suspendCoroutine)
+//    suspend fun awaitFrame(): Long = suspendCancellableCoroutine { pendingFrames.add(it) }
+
+    fun dispatchFrame() {
+        frameTime += 16 // simulate 16ms frame
+        val cont = pendingFrames.removeFirstOrNull() ?: return
+        cont.resume(frameTime)
+    }
+
+    // benchmark emulating compose lazy viewers
+    @Benchmark
+    fun frameClockSuspensions() {
+        var consumed = 0L
+
+        builder {
+            repeat(BENCHMARK_SIZE) {
+                val time = awaitFrame()  // suspends, resumed by dispatchFrame
+                consumed += time         // do "work" per frame
+            }
+        }
+
+        repeat(BENCHMARK_SIZE) { dispatchFrame() }
+
+        check(pendingFrames.isEmpty())
+    }
+
+    var throwContinuation: Continuation<Int>? = null
+
+    private suspend fun suspendAndThrow(): Int = suspendCoroutine { cont ->
+        throwContinuation = cont
+    }
+
+    @Benchmark
+    fun externalResumptionsWithException() {
+        var caught = 0
+
+        builder {
+            repeat(BENCHMARK_SIZE) {
+                try {
+                    suspendAndThrow()
+                } catch (e: Exception) {
+                    caught++
+                }
+            }
+        }
+
+        repeat(BENCHMARK_SIZE) {
+            throwContinuation!!.resumeWithException(RuntimeException("x"))
+        }
+
+        check(caught == BENCHMARK_SIZE)
+    }
 //
 //    var resumeCount = 0
 //
