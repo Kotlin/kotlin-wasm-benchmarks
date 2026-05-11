@@ -21,6 +21,7 @@ buildscript {
     repositories {
         gradlePluginPortal()
         maven(uri("./kotlin-compiler"))
+        mavenLocal()
     }
 
     val kotlin_version: String by project
@@ -61,6 +62,7 @@ allprojects.forEach {
 repositories {
     mavenCentral()
     maven(uri("./kotlin-compiler"))
+    mavenLocal()
     maven(uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap/"))
 }
 
