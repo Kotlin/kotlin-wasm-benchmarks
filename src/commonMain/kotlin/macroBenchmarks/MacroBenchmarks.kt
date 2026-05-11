@@ -17,6 +17,7 @@
 package macroBenchmarks
 
 import kotlinx.benchmark.*
+import macroBenchmarks.coroutinesSlowBenchmarks.Coroutines
 
 open class MacroBenchmarksBase {
     protected fun runBenchmark(macroBenchmark: MacroBenchmark) {

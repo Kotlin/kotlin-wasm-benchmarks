@@ -21,6 +21,7 @@ buildscript {
     repositories {
         gradlePluginPortal()
         maven(uri("./kotlin-compiler"))
+        mavenLocal()
     }
 
     val kotlin_version: String by project
@@ -61,6 +62,7 @@ allprojects.forEach {
 repositories {
     mavenCentral()
     maven(uri("./kotlin-compiler"))
+    mavenLocal()
     maven(uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap/"))
 }
 
@@ -95,6 +97,10 @@ kotlin {
             }
         }
     }
+    sourceSets.commonMain.dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+        implementation("io.arrow-kt:arrow-fx-coroutines:2.0.1")
+    }
 }
 
 val reportAllTargetsToTC = tasks.register("reportAllTargetsToTC")
@@ -122,6 +128,7 @@ benchmark {
             mode = "avgt"
             advanced("jsUseBridge", true)
             includes.add("macroBenchmarks.MacroBenchmarksSlow")
+            includes.add("macroBenchmarks.coroutinesSlowBenchmarks")
         }
         val slowMicroBenchmarks = listOf(
             "microBenchmarks.StringBenchmark.summarizeSplittedCsv",
