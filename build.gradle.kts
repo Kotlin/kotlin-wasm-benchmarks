@@ -159,8 +159,8 @@ val wasiEngineInputs = listOf(
 )
 
 val jsEngineInputs = listOf(
-    EngineInput(isJs = false, isProd = true, file = provider { (getBenchmarkOutputBinary("wasm", KotlinJsBinaryMode.PRODUCTION) as ExecutableWasm).mainOptimizedFile.get().asFile }),
-    EngineInput(isJs = false, isProd = false, file = provider { getBenchmarkOutputBinary("wasm", KotlinJsBinaryMode.DEVELOPMENT).mainFile.get().asFile }),
+    EngineInput(isJs = false, isProd = true, file = provider { (getBenchmarkOutputBinary("wasmJs", KotlinJsBinaryMode.PRODUCTION) as ExecutableWasm).mainOptimizedFile.get().asFile }),
+    EngineInput(isJs = false, isProd = false, file = provider { getBenchmarkOutputBinary("wasmJs", KotlinJsBinaryMode.DEVELOPMENT).mainFile.get().asFile }),
     EngineInput(isJs = true, isProd = true, file = provider { getBenchmarkOutputBinary("js", KotlinJsBinaryMode.PRODUCTION).mainFile.get().asFile }),
     EngineInput(isJs = true, isProd = false, file = provider { getBenchmarkOutputBinary("js", KotlinJsBinaryMode.DEVELOPMENT).mainFile.get().asFile }),
 )
