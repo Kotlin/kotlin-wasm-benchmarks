@@ -79,7 +79,7 @@ kotlin {
         compilerOptions {
             // This flag tells the compiler to dump the hit-level IR to a .wat file
             freeCompilerArgs.add("-Xwasm-generate-wat")
-            freeCompilerArgs.add("-Xwasm-coroutines-stack-switching")
+            freeCompilerArgs.add("-Xwasm-use-stack-switching-proposal")
         }
     }
 
