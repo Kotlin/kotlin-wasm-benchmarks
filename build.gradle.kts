@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.gradle.targets.js.ir.JsIrBinary
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrCompilation
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
@@ -87,18 +88,34 @@ kotlin {
     wasmJs {
         nodejs()
         //nodejs()
+        compilerOptions {
+            val requestedStackSwitchingTask =
+                gradle.startParameter.taskNames.any { it.contains("stackSwitching", ignoreCase = true) }
+            if (requestedStackSwitchingTask) {
+                freeCompilerArgs.add("-Xwasm-use-stack-switching-proposal")
+            }
+        }
     }
     wasmWasi {
         nodejs()
     }
 
     sourceSets {
+        val requestedStackSwitchingTask =
+            gradle.startParameter.taskNames.any { it.contains("stackSwitching", ignoreCase = true) }
         commonMain {
             dependencies {
                 implementation(kotlin("stdlib-common"))
 //                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.5.0-SNAPSHOT")
 //                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.17")
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar"))
+                implementation(libs.kotlinx.coroutines.core)
+            }
+            if (requestedStackSwitchingTask) {
+                kotlin.include("**/macroBenchmarks/**")
+                kotlin.include("**/microBenchmarks/SuspensionsBenchmark.kt")
+                kotlin.include("**/microBenchmarks/CreateCoroutineBenchmark.kt")
+                kotlin.include("**/microBenchmarks/Utils.kt")
             }
         }
 
@@ -107,6 +124,9 @@ kotlin {
 //                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-js:0.5.0-SNAPSHOT")
 //                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-js:0.4.17")
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
+            }
+            if (requestedStackSwitchingTask) {
+                kotlin.exclude("**/microBenchmarks/**")
             }
         }
 
@@ -360,7 +380,7 @@ wasiEngineInputs.mapTo(customEngines) { input ->
 jsEngineInputs.mapTo(customEngines) { input ->
     val engineArguments = when (input.isJs) {
         true -> input.file.map { listOf(jsStubsFile, it.absolutePath, "--", "<ARGUMENTS>") }
-        else -> input.file.map { listOf("--module", it.absolutePath, "--", "<ARGUMENTS>") }
+        else -> input.file.map { listOf("--experimental-wasm-wasmfx", "--module", it.absolutePath, "--", "<ARGUMENTS>") }
     }
     CustomEngine(
         name = input.targetModeAndEngine("D8"),
@@ -395,6 +415,7 @@ benchmark {
                 mode = "avgt"
                 advanced("jsUseBridge", true)
                 includes.add("macroBenchmarks.MacroBenchmarksSlow")
+                includes.add("macroBenchmarks.coroutinesSlowBenchmarks")
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
             }
@@ -439,6 +460,34 @@ benchmark {
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
             }
+
+            with(create("stackSwitchingSlow_${engine.name}")) {
+                iterations = 1
+                warmups = 5
+                iterationTime = 1
+                iterationTimeUnit = "nanos"
+                outputTimeUnit = "millis"
+                reportFormat = "json"
+                mode = "avgt"
+                advanced("jsUseBridge", true)
+                includes.add("macroBenchmarks.MacroBenchmarksSlow")
+                includes.add("macroBenchmarks.coroutinesSlowBenchmarks")
+                advanced("wasmFork", "perBenchmark")
+                customEngine = engine
+            }
+            with(create("stackSwitchingFast_${engine.name}")) {
+                iterations = 5
+                warmups = 5
+                iterationTime = 50
+                iterationTimeUnit = "millis"
+                outputTimeUnit = "millis"
+                reportFormat = "json"
+                mode = "avgt"
+                advanced("jsUseBridge", true)
+                includes.add("microBenchmarks.SuspensionsBenchmark")
+                advanced("wasmFork", "perBenchmark")
+                customEngine = engine
+            }
         }
     }
     targets {
@@ -454,6 +503,10 @@ benchmark {
 
 tasks.withType<KotlinJsCompile> {
     compilerOptions.freeCompilerArgs.add("-Xskip-prerelease-check")
+}
+
+tasks.withType<NodeJsExec>().configureEach {
+    nodeArgs += "--experimental-wasm-wasmfx"
 }
 
 rootProject.the<YarnRootExtension>().yarnLockMismatchReport =
