@@ -89,9 +89,10 @@ kotlin {
         nodejs()
         //nodejs()
         compilerOptions {
-            val requestedStackSwitchingTask =
+            // Matches: if gradle running task contains `stackSwitching`, use stack switching coroutines compilation
+            val isStackSwitchingEnabled =
                 gradle.startParameter.taskNames.any { it.contains("stackSwitching", ignoreCase = true) }
-            if (requestedStackSwitchingTask) {
+            if (isStackSwitchingEnabled) {
                 freeCompilerArgs.add("-Xwasm-use-stack-switching-proposal")
             }
         }
@@ -101,7 +102,8 @@ kotlin {
     }
 
     sourceSets {
-        val requestedStackSwitchingTask =
+        // Matches: if gradle running task contains `stackSwitching`, use stack switching coroutines compilation
+        val isStackSwitchingEnabled =
             gradle.startParameter.taskNames.any { it.contains("stackSwitching", ignoreCase = true) }
         commonMain {
             dependencies {
@@ -111,7 +113,7 @@ kotlin {
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar"))
                 implementation(libs.kotlinx.coroutines.core)
             }
-            if (requestedStackSwitchingTask) {
+            if (isStackSwitchingEnabled) {
                 kotlin.include("**/macroBenchmarks/**")
                 kotlin.include("**/microBenchmarks/SuspensionsBenchmark.kt")
                 kotlin.include("**/microBenchmarks/CreateCoroutineBenchmark.kt")
@@ -125,7 +127,7 @@ kotlin {
 //                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-js:0.4.17")
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
             }
-            if (requestedStackSwitchingTask) {
+            if (isStackSwitchingEnabled) {
                 kotlin.exclude("**/microBenchmarks/**")
             }
         }
