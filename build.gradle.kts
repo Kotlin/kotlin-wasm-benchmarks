@@ -451,6 +451,19 @@ benchmark {
     }
 }
 
+val customEngineProvisioningTasks = mapOf(
+    "JsShell" to unzipJsShell,
+    "WasmEdge" to unzipWasmEdge,
+    "Jsc" to createJscRunner,
+    "Wasmtime" to unzipWasmtime,
+)
+tasks.configureEach {
+    if (name.endsWith("Benchmark")) {
+        customEngineProvisioningTasks.forEach { (marker, provisioningTask) ->
+            if (name.contains(marker)) dependsOn(provisioningTask)
+        }
+    }
+}
 
 tasks.withType<KotlinJsCompile> {
     compilerOptions.freeCompilerArgs.add("-Xskip-prerelease-check")
