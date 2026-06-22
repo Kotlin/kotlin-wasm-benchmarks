@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.gradle.targets.js.ir.JsIrBinary
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrCompilation
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrTarget
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
@@ -477,6 +478,19 @@ benchmark {
     }
 }
 
+val customEngineProvisioningTasks = mapOf(
+    "JsShell" to unzipJsShell,
+    "WasmEdge" to unzipWasmEdge,
+    "Jsc" to createJscRunner,
+    "Wasmtime" to unzipWasmtime,
+)
+
+tasks.withType<NodeJsExec> {
+    assert(name.endsWith("Benchmark"))
+    customEngineProvisioningTasks.forEach { (marker, provisioningTask) ->
+        if (name.contains(marker)) dependsOn(provisioningTask)
+    }
+}
 
 tasks.withType<KotlinJsCompile> {
     compilerOptions.freeCompilerArgs.add("-Xskip-prerelease-check")
