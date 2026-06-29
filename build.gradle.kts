@@ -470,7 +470,6 @@ tasks.withType<NodeJsExec> {
 // Needs the benchmark binaries to exist, so configure in afterEvaluate.
 afterEvaluate {
     val devBinary = getBenchmarkOutputBinary("wasmWasi", KotlinJsBinaryMode.DEVELOPMENT) as ExecutableWasm
-    devBinary.optimizeTask.configure { enabled = false }
 
     val prodBinary = getBenchmarkOutputBinary("wasmWasi", KotlinJsBinaryMode.PRODUCTION) as ExecutableWasm
 
@@ -478,13 +477,10 @@ afterEvaluate {
         if (compilation.target.wasmTargetType != KotlinWasmTargetType.WASI) return@configureEach
 
         when (inputFileProperty.orNull?.asFile) {
-            devBinary.mainOptimizedFile.get().asFile -> {
-                // properly set input file for WASI dev tasks
-                inputFileProperty.set(devBinary.mainFile)
-
+            devBinary.mainFile.get().asFile ->
                 dependsOn(devBinary.linkTask)
-            }
-            prodBinary.mainOptimizedFile.get().asFile -> dependsOn(prodBinary.optimizeTask)
+            prodBinary.mainOptimizedFile.get().asFile ->
+                dependsOn(prodBinary.optimizeTask)
         }
     }
 }
