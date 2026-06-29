@@ -88,42 +88,35 @@ kotlin {
 
     wasmJs {
         nodejs()
-        //nodejs()
     }
+
     wasmWasi {
         nodejs()
     }
 
     sourceSets {
-        commonMain {
+        val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.5.0-SNAPSHOT")
-//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.17")
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar"))
+                implementation(libs.kotlinx.coroutines.core)
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
-//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-js:0.5.0-SNAPSHOT")
-//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-js:0.4.17")
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
             }
         }
 
         val wasmWasiMain by getting {
             dependencies {
-//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-wasi:0.5.0-SNAPSHOT")
-//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-wasm-wasi:0.4.17")
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-wasi-0.5.0.klib"))
             }
         }
 
         val jsMain by getting {
             dependencies {
-//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-js:0.5.0-SNAPSHOT")
-//                implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime-js:0.4.17")
                 implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-js-0.5.0.klib"))
             }
         }
@@ -397,6 +390,7 @@ benchmark {
                 mode = "avgt"
                 advanced("jsUseBridge", true)
                 includes.add("macroBenchmarks.MacroBenchmarksSlow")
+                includes.add("macroBenchmarks.coroutinesSlowBenchmarks")
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
             }

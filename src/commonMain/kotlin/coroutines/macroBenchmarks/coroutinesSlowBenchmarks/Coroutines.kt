@@ -1,5 +1,6 @@
-package macroBenchmarks
+package macroBenchmarks.coroutinesSlowBenchmarks
 
+import macroBenchmarks.MacroBenchmark
 import macroBenchmarks.coroutines.AbstractGenerator
 import macroBenchmarks.coroutines.ClosedRangeGenerator
 import macroBenchmarks.coroutines.CoroutineStub

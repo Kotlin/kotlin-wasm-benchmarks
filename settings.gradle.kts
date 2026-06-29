@@ -1,5 +1,7 @@
 rootProject.name = "kotlin-wasm-benchmarks"
 
+include(":coroutines-stack-switching")
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
