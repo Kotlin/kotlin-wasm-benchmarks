@@ -8,3 +8,7 @@ nodejs="25.0.0"
 v8="15.0.45"
 wasmedge="0.17.0"
 wasmtime="46.0.1"
+coroutines = "1.10.2"
+
+[libraries]
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
