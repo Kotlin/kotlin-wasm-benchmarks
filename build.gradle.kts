@@ -350,8 +350,9 @@ wasiEngineInputs.mapTo(customEngines) { input ->
         enginePath = unzipWasmtime.flatMap {
             it.into.dir("wasmtime-v$wasmtimeVersion-$wasmtimePlatformSuffix").map { dir -> dir.file("wasmtime") }
         },
+        // Default collector is copying, but https://github.com/bytecodealliance/wasmtime/issues/13756
         engineArguments = input.file.map {
-            listOf("-W", "gc,exceptions,function-references", "--dir=/", it.absolutePath, "STUB", "<ARGUMENTS>")
+            listOf("-W", "gc,exceptions,function-references", "-C", "collector=drc", "--dir=/", it.absolutePath, "STUB", "<ARGUMENTS>")
         }
     )
 }
