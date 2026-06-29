@@ -11,6 +11,7 @@ import kotlinx.benchmark.gradle.internal.KotlinxBenchmarkPluginInternalApi
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetType
 import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
 import org.jetbrains.kotlin.gradle.targets.js.ir.ExecutableWasm
@@ -463,6 +464,28 @@ tasks.withType<NodeJsExec> {
     assert(name.endsWith("Benchmark"))
     customEngineProvisioningTasks.forEach { (marker, provisioningTask) ->
         if (name.contains(marker)) dependsOn(provisioningTask)
+    }
+}
+
+// Needs the benchmark binaries to exist, so configure in afterEvaluate.
+afterEvaluate {
+    val devBinary = getBenchmarkOutputBinary("wasmWasi", KotlinJsBinaryMode.DEVELOPMENT) as ExecutableWasm
+    devBinary.optimizeTask.configure { enabled = false }
+
+    val prodBinary = getBenchmarkOutputBinary("wasmWasi", KotlinJsBinaryMode.PRODUCTION) as ExecutableWasm
+
+    tasks.withType<NodeJsExec>().configureEach {
+        if (compilation.target.wasmTargetType != KotlinWasmTargetType.WASI) return@configureEach
+
+        when (inputFileProperty.orNull?.asFile) {
+            devBinary.mainOptimizedFile.get().asFile -> {
+                // properly set input file for WASI dev tasks
+                inputFileProperty.set(devBinary.mainFile)
+
+                dependsOn(devBinary.linkTask)
+            }
+            prodBinary.mainOptimizedFile.get().asFile -> dependsOn(prodBinary.optimizeTask)
+        }
     }
 }
 
