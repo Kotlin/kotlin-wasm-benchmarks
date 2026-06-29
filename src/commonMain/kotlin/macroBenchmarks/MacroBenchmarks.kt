@@ -17,14 +17,7 @@
 package macroBenchmarks
 
 import kotlinx.benchmark.*
-
-open class MacroBenchmarksBase {
-    protected fun runBenchmark(macroBenchmark: MacroBenchmark) {
-        check(macroBenchmark.innerBenchmarkLoop(macroBenchmark.defaultInnerIterations.max())) {
-            "Failed bencmark ${macroBenchmark::class.simpleName}"
-        }
-    }
-}
+import macroBenchmarks.coroutinesSlowBenchmarks.Coroutines
 
 @State(Scope.Benchmark)
 class MacroBenchmarksSlow : MacroBenchmarksBase() {
