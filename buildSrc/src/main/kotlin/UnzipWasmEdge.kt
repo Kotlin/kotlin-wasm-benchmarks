@@ -59,13 +59,13 @@ abstract class UnzipWasmEdge : DefaultTask() {
             .resolve(if (getIsMac.get()) "lib" else "lib64")
 
         val targets = if (getIsMac.get())
-            listOf("libwasmedge.0.1.0.dylib", "libwasmedge.0.1.0.tbd")
-        else listOf("libwasmedge.so.0.1.0")
+            listOf("libwasmedge.0.1.1.dylib", "libwasmedge.0.1.1.tbd")
+        else listOf("libwasmedge.so.0.1.1")
 
         targets.forEach {
             val target = libDirectory.resolve(it)
-            val firstLink = libDirectory.resolve(it.replace("0.1.0", "0")).also(Files::deleteIfExists)
-            val secondLink = libDirectory.resolve(it.replace(".0.1.0", "")).also(Files::deleteIfExists)
+            val firstLink = libDirectory.resolve(it.replace("0.1.1", "0")).also(Files::deleteIfExists)
+            val secondLink = libDirectory.resolve(it.replace(".0.1.1", "")).also(Files::deleteIfExists)
 
             Files.createSymbolicLink(firstLink, target)
             Files.createSymbolicLink(secondLink, target)
