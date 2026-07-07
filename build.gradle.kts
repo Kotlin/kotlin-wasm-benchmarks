@@ -370,15 +370,23 @@ jsEngineInputs.mapTo(customEngines) { input ->
     )
 }
 
+val SINGLE_ITERATION = 1
+val BENCHMARK_ITERATIONS = 10
+val WARMUP_ITERATIONS = 20
+val ITERATION_TIME = 50L
+val SINGLE_SHOT_TIME = 1L
+val MILLIS = "millis"
+val NANOS = "nanos"
+
 benchmark {
     configurations {
         customEngines.forEach { engine ->
             with(create("fastMacro_${engine.name}")) {
-                iterations = 5
-                warmups = 5
-                iterationTime = 50
-                iterationTimeUnit = "millis"
-                outputTimeUnit = "millis"
+                iterations = BENCHMARK_ITERATIONS
+                warmups = WARMUP_ITERATIONS
+                iterationTime = ITERATION_TIME
+                iterationTimeUnit = MILLIS
+                outputTimeUnit = MILLIS
                 reportFormat = "json"
                 mode = "avgt"
                 advanced("jsUseBridge", true)
@@ -387,11 +395,11 @@ benchmark {
                 customEngine = engine
             }
             with(create("slowMacro_${engine.name}")) {
-                iterations = 1
-                warmups = 5
-                iterationTime = 1
-                iterationTimeUnit = "nanos"
-                outputTimeUnit = "millis"
+                iterations = SINGLE_ITERATION
+                warmups = WARMUP_ITERATIONS
+                iterationTime = SINGLE_SHOT_TIME
+                iterationTimeUnit = NANOS
+                outputTimeUnit = MILLIS
                 reportFormat = "json"
                 mode = "avgt"
                 advanced("jsUseBridge", true)
@@ -414,11 +422,11 @@ benchmark {
                 "microBenchmarks.StringBenchmark.subSequence",
             )
             with(create("fastMicro_${engine.name}")) {
-                iterations = 5
-                warmups = 5
-                iterationTime = 50
-                iterationTimeUnit = "millis"
-                outputTimeUnit = "millis"
+                iterations = BENCHMARK_ITERATIONS
+                warmups = WARMUP_ITERATIONS
+                iterationTime = ITERATION_TIME
+                iterationTimeUnit = MILLIS
+                outputTimeUnit = MILLIS
                 reportFormat = "json"
                 mode = "avgt"
                 advanced("jsUseBridge", true)
@@ -428,11 +436,11 @@ benchmark {
                 customEngine = engine
             }
             with(create("slowMicro_${engine.name}")) {
-                iterations = 5
-                warmups = 5
-                iterationTime = 50
-                iterationTimeUnit = "millis"
-                outputTimeUnit = "millis"
+                iterations = BENCHMARK_ITERATIONS
+                warmups = WARMUP_ITERATIONS
+                iterationTime = ITERATION_TIME
+                iterationTimeUnit = MILLIS
+                outputTimeUnit = MILLIS
                 reportFormat = "json"
                 mode = "avgt"
                 advanced("jsUseBridge", true)
