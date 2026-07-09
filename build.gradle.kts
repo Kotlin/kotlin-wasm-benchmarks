@@ -361,7 +361,9 @@ wasiEngineInputs.mapTo(customEngines) { input ->
 jsEngineInputs.mapTo(customEngines) { input ->
     val engineArguments = when (input.isJs) {
         true -> input.file.map { listOf(jsStubsFile, it.absolutePath, "--", "<ARGUMENTS>") }
-        else -> input.file.map { listOf("--module", it.absolutePath, "--", "<ARGUMENTS>") }
+        else -> input.file.map {
+            listOf("--module", it.absolutePath, "--", "<ARGUMENTS>")
+        }
     }
     CustomEngine(
         name = input.targetModeAndEngine("D8"),
@@ -371,9 +373,10 @@ jsEngineInputs.mapTo(customEngines) { input ->
 }
 
 val SINGLE_ITERATION = 1
-val BENCHMARK_ITERATIONS = 10
-val WARMUP_ITERATIONS = 20
+val BENCHMARK_ITERATIONS = 5
+val WARMUP_ITERATIONS = 10
 val ITERATION_TIME = 50L
+val MICRO_ITERATION_TIME = 200L
 val SINGLE_SHOT_TIME = 1L
 val MILLIS = "millis"
 val NANOS = "nanos"
@@ -424,7 +427,7 @@ benchmark {
             with(create("fastMicro_${engine.name}")) {
                 iterations = BENCHMARK_ITERATIONS
                 warmups = WARMUP_ITERATIONS
-                iterationTime = ITERATION_TIME
+                iterationTime = MICRO_ITERATION_TIME
                 iterationTimeUnit = MILLIS
                 outputTimeUnit = MILLIS
                 reportFormat = "json"
@@ -438,7 +441,7 @@ benchmark {
             with(create("slowMicro_${engine.name}")) {
                 iterations = BENCHMARK_ITERATIONS
                 warmups = WARMUP_ITERATIONS
-                iterationTime = ITERATION_TIME
+                iterationTime = MICRO_ITERATION_TIME
                 iterationTimeUnit = MILLIS
                 outputTimeUnit = MILLIS
                 reportFormat = "json"
