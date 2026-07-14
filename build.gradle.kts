@@ -1,6 +1,7 @@
 @file:OptIn(KotlinxBenchmarkPluginInternalApi::class, ExperimentalWasmDsl::class, KotlinxBenchmarkPluginExperimentalApi::class)
 
 import de.undercouch.gradle.tasks.download.Download
+import kotlinx.benchmark.gradle.BenchmarkConfiguration
 import kotlinx.benchmark.gradle.BenchmarksPlugin
 import kotlinx.benchmark.gradle.CustomEngine
 import kotlinx.benchmark.gradle.JsBenchmarkTarget
@@ -372,14 +373,34 @@ jsEngineInputs.mapTo(customEngines) { input ->
     )
 }
 
+// Optional overrides, e.g. -PwarmupIterations=3 -PiterationTimeMs=100 -Pbenchmarks=microBenchmarks.StringBenchmark.stringConcat
+val warmupIterations: String? by project
+val iterationTimeMs: String? by project
+val benchmarks: String? by project
+
 val SINGLE_ITERATION = 1
 val BENCHMARK_ITERATIONS = 5
-val WARMUP_ITERATIONS = 10
-val ITERATION_TIME = 50L
-val MICRO_ITERATION_TIME = 200L
+val WARMUP_ITERATIONS = warmupIterations?.takeIf { it.isNotBlank() }?.toInt() ?: 10
+val ITERATION_TIME = iterationTimeMs?.takeIf { it.isNotBlank() }?.toLong() ?: 50L
+val MICRO_ITERATION_TIME = iterationTimeMs?.takeIf { it.isNotBlank() }?.toLong() ?: 200L
 val SINGLE_SHOT_TIME = 1L
 val MILLIS = "millis"
 val NANOS = "nanos"
+
+// When set, replaces each configuration's default includes/excludes so only the requested benchmarks run.
+val benchmarksToRun: List<String>? = benchmarks
+    ?.split(",")
+    ?.map { it.trim() }
+    ?.filter { it.isNotEmpty() }
+    ?.takeIf { it.isNotEmpty() }
+
+fun BenchmarkConfiguration.applyBenchmarksOverride() {
+    if (benchmarksToRun != null) {
+        includes.clear()
+        includes.addAll(benchmarksToRun)
+        excludes.clear()
+    }
+}
 
 benchmark {
     configurations {
@@ -396,6 +417,7 @@ benchmark {
                 includes.add("macroBenchmarks.MacroBenchmarksFast")
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
+                applyBenchmarksOverride()
             }
             with(create("slowMacro_${engine.name}")) {
                 iterations = SINGLE_ITERATION
@@ -409,6 +431,7 @@ benchmark {
                 includes.add("macroBenchmarks.MacroBenchmarksSlow")
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
+                applyBenchmarksOverride()
             }
             val slowMicroBenchmarks = listOf(
                 "microBenchmarks.StringBenchmark.summarizeSplittedCsv",
@@ -437,6 +460,7 @@ benchmark {
                 excludes.addAll(slowMicroBenchmarks)
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
+                applyBenchmarksOverride()
             }
             with(create("slowMicro_${engine.name}")) {
                 iterations = BENCHMARK_ITERATIONS
@@ -450,6 +474,7 @@ benchmark {
                 includes.addAll(slowMicroBenchmarks)
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
+                applyBenchmarksOverride()
             }
         }
     }

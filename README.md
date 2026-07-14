@@ -19,6 +19,13 @@ To perform benchmarks it uses [kotlinx-benchmarks](https://github.com/Kotlin/kot
 # Build and Run
 Specify Kotlin version in `gradle.properties` file or use additional gradle argument `-Pkotlin_version=1.8.0`.
 
+Only whole benchmark groups (e.g. `fastMicro`, `slowMacro`) can be started as tasks, but a run's parameters can be tuned with extra gradle arguments:
+- `-PwarmupIterations=<count>` — number of warmup iterations (default: `10`)
+- `-PiterationTimeMs=<ms>` — iteration time in milliseconds for `fastMacro`/`fastMicro`/`slowMicro` groups (defaults: `50` for macro, `200` for micro)
+- `-Pbenchmarks=<name1>,<name2>,...` — comma-separated list of specific benchmarks to run instead of the group's default set, e.g. `-Pbenchmarks=microBenchmarks.StringBenchmark.stringConcat`
+
+Example: `./gradlew wasmJsFastMicro_Js_Prod_D8Benchmark -PwarmupIterations=3 -PiterationTimeMs=100 -Pbenchmarks=microBenchmarks.StringBenchmark.stringConcat`
+
 ### To run All benchmarks in V8:
 `./gradlew benchmark`
 
