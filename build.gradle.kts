@@ -359,11 +359,17 @@ wasiEngineInputs.mapTo(customEngines) { input ->
 }
 
 ///////////////////////////////// V8 /////////////////////////////////////////////////////////
+// Optional: -Pd8Flags="--no-wasm-tier-up,--trace-wasm-compilation-times" prepends arbitrary V8 flags to D8 runs,
+// e.g. to diagnose mid-run timing jumps caused by Liftoff -> TurboFan tier-up. Note some "(developer-only)"
+// trace-* flags (e.g. --trace-wasm-compiler) are readonly/disabled on release D8 builds and will fail to start.
+val d8Flags: String? by project
+val d8ExtraArgs: List<String> = d8Flags?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
+
 jsEngineInputs.mapTo(customEngines) { input ->
     val engineArguments = when (input.isJs) {
-        true -> input.file.map { listOf(jsStubsFile, it.absolutePath, "--", "<ARGUMENTS>") }
+        true -> input.file.map { d8ExtraArgs + listOf(jsStubsFile, it.absolutePath, "--", "<ARGUMENTS>") }
         else -> input.file.map {
-            listOf("--module", it.absolutePath, "--", "<ARGUMENTS>")
+            d8ExtraArgs + listOf("--module", it.absolutePath, "--", "<ARGUMENTS>")
         }
     }
     CustomEngine(
