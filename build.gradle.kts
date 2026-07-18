@@ -373,6 +373,7 @@ jsEngineInputs.mapTo(customEngines) { input ->
 val SINGLE_ITERATION = 1
 val BENCHMARK_ITERATIONS = 5
 val WARMUP_ITERATIONS = 10
+val VOLATILE_WARMUP_ITERATIONS = 30
 val ITERATION_TIME = 50L
 val MICRO_ITERATION_TIME = 200L
 val SINGLE_SHOT_TIME = 1L
@@ -408,20 +409,17 @@ benchmark {
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
             }
-            val slowMicroBenchmarks = listOf(
-                "microBenchmarks.StringBenchmark.summarizeSplittedCsv",
-                "microBenchmarks.PrimeListBenchmark.calcEratosthenes",
-                "microBenchmarks.FibonacciBenchmark.calcSquare",
-                "microBenchmarks.superslow.GraphSolverBenchmark.solve",
-                "microBenchmarks.LinkedListWithAtomicsBenchmark.ensureNext",
-                "microBenchmarks.StringBenchmark.stringConcat",
-                "microBenchmarks.StringBenchmark.stringConcatNullable",
-                "microBenchmarks.EulerBenchmark.problem4",
-                "microBenchmarks.ArrayCopyBenchmark.copyInSameArray",
-                "microBenchmarks.BunnymarkBenchmark.testBunnymark",
-                "microBenchmarks.CoordinatesSolverBenchmark.solve",
-                "microBenchmarks.StringBenchmark.subSequence",
-            )
+            /*
+             * Per engine, split `microBenchmarks` into three non-overlapping sets:
+             *   - volatileMicro: this VM's list in `VolatileMicroBenchmarksByVm`
+             *   - slowMicro: `SlowMicroBenchmarks` minus whatever volatileMicro already claimed
+             *   - fastMicro: everything else
+             *
+             * If the VM has no entry, volatileMicro still exists as a no-op (TeamCity always invokes it).
+             */
+            val engineVm = engine.name.substringAfterLast("_")
+            val volatileMicroBenchmarks = VolatileMicroBenchmarksByVm[engineVm]
+            val slowOnlyMicroBenchmarks = SlowMicroBenchmarks - (volatileMicroBenchmarks ?: emptyList())
             with(create("fastMicro_${engine.name}")) {
                 iterations = BENCHMARK_ITERATIONS
                 warmups = WARMUP_ITERATIONS
@@ -432,7 +430,8 @@ benchmark {
                 mode = "avgt"
                 advanced("jsUseBridge", true)
                 includes.add("microBenchmarks")
-                excludes.addAll(slowMicroBenchmarks)
+                excludes.addAll(slowOnlyMicroBenchmarks)
+                excludes.addAll(volatileMicroBenchmarks ?: emptyList())
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
             }
@@ -445,7 +444,24 @@ benchmark {
                 reportFormat = "json"
                 mode = "avgt"
                 advanced("jsUseBridge", true)
-                includes.addAll(slowMicroBenchmarks)
+                includes.addAll(slowOnlyMicroBenchmarks)
+                advanced("wasmFork", "perBenchmark")
+                customEngine = engine
+            }
+            with(create("volatileMicro_${engine.name}")) {
+                iterations = BENCHMARK_ITERATIONS
+                warmups = VOLATILE_WARMUP_ITERATIONS
+                iterationTime = MICRO_ITERATION_TIME
+                iterationTimeUnit = MILLIS
+                outputTimeUnit = MILLIS
+                reportFormat = "json"
+                mode = "avgt"
+                advanced("jsUseBridge", true)
+                if (volatileMicroBenchmarks != null) {
+                    includes.addAll(volatileMicroBenchmarks)
+                } else {
+                    excludes.add(".*")
+                }
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
             }
