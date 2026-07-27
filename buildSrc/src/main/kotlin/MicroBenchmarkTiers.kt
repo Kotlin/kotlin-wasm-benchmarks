@@ -61,7 +61,6 @@ private val VolatileMicroBenchmarksV8 = listOf(
     "microBenchmarks.ParameterNotNullAssertionBenchmark.invokeTwoArgsWithoutNullCheck",
     "microBenchmarks.SingletonBenchmark.access",
     "microBenchmarks.StringBenchmark.stringBuilderConcat",
-    "microBenchmarks.StringBenchmark.stringConcatNullable",
     "microBenchmarks.StringBenchmark.stringIndexOf",
     "microBenchmarks.SwitchBenchmark.testConstSwitch",
     "microBenchmarks.SwitchBenchmark.testSparseIntSwitch",
