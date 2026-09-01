@@ -27,6 +27,7 @@
 /java_error_*
 /.konan/*
 /.kotlin/*
+/.lesshst
 /.local/*
 /.m2/*
 /.nix-defexpr/*
@@ -35,6 +36,7 @@
 /.ssh/*
 !/.ssh/config
 /.vscode-shared/*
+/.vscode/argv.json
 /.vscode/extensions/*
 /.zprofile
 /.zsh_history
