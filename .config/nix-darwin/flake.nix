@@ -14,7 +14,7 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages =
         [
-          pkgs.git 
+          pkgs.git
           pkgs.micro
           pkgs.temurin-bin-17
           pkgs.temurin-bin-21
