@@ -15,6 +15,7 @@
       environment.systemPackages =
         [
           pkgs.git
+          pkgs.jdk8
           pkgs.micro
           pkgs.temurin-bin-17
           pkgs.temurin-bin-21
@@ -49,6 +50,7 @@
       security.pam.services.sudo_local.touchIdAuth = true;
 
       system.activationScripts.extraActivation.text = ''
+        ln -sf "${pkgs.jdk8}/Library/Java/JavaVirtualMachines/zulu-8.jdk" "/Library/Java/JavaVirtualMachines/"
         ln -sf "${pkgs.temurin-bin-17}/Library/Java/JavaVirtualMachines/temurin-17.jdk" "/Library/Java/JavaVirtualMachines/"
         ln -sf "${pkgs.temurin-bin-21}/Library/Java/JavaVirtualMachines/temurin-21.jdk" "/Library/Java/JavaVirtualMachines/"
       '';
