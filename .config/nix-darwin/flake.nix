@@ -14,9 +14,13 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages =
         [
+          pkgs.bat
+          pkgs.fzf
           pkgs.git
+          pkgs.github-cli
           pkgs.jdk8
           pkgs.micro
+          pkgs.ripgrep
           pkgs.temurin-bin-17
           pkgs.temurin-bin-21
         ];
