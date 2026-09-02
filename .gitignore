@@ -39,6 +39,7 @@
 /.vscode-shared/*
 /.vscode/argv.json
 /.vscode/extensions/*
+/.zcompdump
 /.zprofile
 /.zsh_history
 /.zsh_sessions/*
