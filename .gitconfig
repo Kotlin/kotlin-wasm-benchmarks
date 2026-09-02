@@ -5,3 +5,5 @@ email = nikolay.kasyanov@me.com
 excludesFile = /Users/nikolai/.config/git/ignore
 [init]
 	defaultBranch = main
+[pull]
+	rebase = true
