@@ -19,10 +19,10 @@
           pkgs.git
           pkgs.github-cli
           pkgs.jdk8
+          pkgs.jdk17
+          pkgs.jdk21
           pkgs.micro
           pkgs.ripgrep
-          pkgs.temurin-bin-17
-          pkgs.temurin-bin-21
         ];
 
       environment.variables = {
@@ -55,8 +55,8 @@
 
       system.activationScripts.extraActivation.text = ''
         ln -sf "${pkgs.jdk8}/Library/Java/JavaVirtualMachines/zulu-8.jdk" "/Library/Java/JavaVirtualMachines/"
-        ln -sf "${pkgs.temurin-bin-17}/Library/Java/JavaVirtualMachines/temurin-17.jdk" "/Library/Java/JavaVirtualMachines/"
-        ln -sf "${pkgs.temurin-bin-21}/Library/Java/JavaVirtualMachines/temurin-21.jdk" "/Library/Java/JavaVirtualMachines/"
+        ln -sf "${pkgs.jdk17}/Library/Java/JavaVirtualMachines/zulu-17.jdk" "/Library/Java/JavaVirtualMachines/"
+        ln -sf "${pkgs.jdk21}/Library/Java/JavaVirtualMachines/zulu-21.jdk" "/Library/Java/JavaVirtualMachines/"
       '';
 
       users.knownUsers = [ "nikolai" ];
