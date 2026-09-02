@@ -49,8 +49,8 @@
       security.pam.services.sudo_local.touchIdAuth = true;
 
       system.activationScripts.extraActivation.text = ''
-        ln -sf "${pkgs.temurin-bin-21}/Library/Java/JavaVirtualMachines/temurin-21.jdk" "/Library/Java/JavaVirtualMachines/"
         ln -sf "${pkgs.temurin-bin-17}/Library/Java/JavaVirtualMachines/temurin-17.jdk" "/Library/Java/JavaVirtualMachines/"
+        ln -sf "${pkgs.temurin-bin-21}/Library/Java/JavaVirtualMachines/temurin-21.jdk" "/Library/Java/JavaVirtualMachines/"
       '';
 
       users.knownUsers = [ "nikolai" ];
