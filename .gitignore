@@ -23,6 +23,7 @@
 /.config/jgit/*
 /.config/micro/buffers/*
 /.copilot/*
+/.gradle/*
 /dead.letter
 /java_error_*
 /.konan/*
