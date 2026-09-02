@@ -15,6 +15,7 @@
       environment.systemPackages =
         [
           pkgs.bat
+          pkgs.bytecode-viewer
           pkgs.fzf
           pkgs.git
           pkgs.github-cli
