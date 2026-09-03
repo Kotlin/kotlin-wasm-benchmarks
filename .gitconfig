@@ -1,8 +1,9 @@
 [user]
-name = Nikolai Kasyanov
+	name = Nikolai Kasyanov
 	email = nikolai.kasyanov@jetbrains.com
 [core]
 excludesFile = /Users/nikolai/.config/git/ignore
+	excludesFiles = /Users/nikolai/.config/git/ignore
 [init]
 	defaultBranch = main
 [pull]
