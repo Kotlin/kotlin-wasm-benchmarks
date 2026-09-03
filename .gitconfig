@@ -1,6 +1,6 @@
 [user]
 name = Nikolai Kasyanov
-email = nikolay.kasyanov@me.com
+	email = nikolai.kasyanov@jetbrains.com
 [core]
 excludesFile = /Users/nikolai/.config/git/ignore
 [init]
