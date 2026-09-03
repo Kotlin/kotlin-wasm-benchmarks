@@ -12,6 +12,7 @@
 /.Bytecode-Viewer/*
 /.CFUserTextEncoding
 /.Trash/*
+/.android/analytics.settings
 /.bash_history
 /.bash_sessions/*
 /.cache/*
@@ -27,6 +28,7 @@
 /.gradle/*
 /dead.letter
 /java_error_*
+/.jetbrains-central/*
 /.konan/*
 /.kotlin/*
 /.lesshst
