@@ -31,6 +31,9 @@
 /.kotlin/*
 /.lesshst
 /.local/*
+!/.local/bin
+/.local/bin/*
+!/.local/bin/code
 /.m2/*
 /.nix-defexpr/*
 /.nix-profile
