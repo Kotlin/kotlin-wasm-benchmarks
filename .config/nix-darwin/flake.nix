@@ -14,6 +14,7 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages =
         [
+          (pkgs.callPackage ./packages/xcodes/package.nix {})
           pkgs.bat
           pkgs.bytecode-viewer
           pkgs.fzf
