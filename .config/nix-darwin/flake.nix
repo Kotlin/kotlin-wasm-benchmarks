@@ -59,8 +59,74 @@
         ln -sf "${pkgs.jdk8}/Library/Java/JavaVirtualMachines/zulu-8.jdk" "/Library/Java/JavaVirtualMachines/"
         ln -sf "${pkgs.jdk17}/Library/Java/JavaVirtualMachines/zulu-17.jdk" "/Library/Java/JavaVirtualMachines/"
         ln -sf "${pkgs.jdk21}/Library/Java/JavaVirtualMachines/zulu-21.jdk" "/Library/Java/JavaVirtualMachines/"
+
+        # Make these declarative once nix-darwin supports -currentHost: https://github.com/nix-darwin/nix-darwin/issues/1721
+        # Trackpad
+        defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -bool true
+        defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true
+        defaults -currentHost write NSGlobalDomain com.apple.trackpad.threeFingerDragGesture -bool true
+
+        # Following line is to apply user defaults without a logout/login cycle
+        /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
       '';
 
+      system.defaults = {
+        NSGlobalDomain = {
+          AppleKeyboardUIMode = 2;
+          NSNavPanelExpandedStateForSaveMode = true;
+          NSNavPanelExpandedStateForSaveMode2 = true;
+        };
+
+        dock = {
+          autohide = true;
+          autohide-delay = 0.0;
+          autohide-time-modifier = 0.2;
+          expose-animation-duration = 0.2;tilesize = 48;
+          launchanim = false;
+          static-only = false;
+          showhidden = false;
+          show-recents = true;
+          show-process-indicators = true;
+          orientation = "bottom";
+          mru-spaces = false;
+          # mouse in top right corner will (5) start screensaver
+          wvous-tr-corner = 5;
+        };
+
+        finder = {
+          AppleShowAllExtensions = true;
+          FXDefaultSearchScope = "SCcf";
+          FXPreferredViewStyle = "Nlsv";
+          _FXSortFoldersFirst = true;
+        };
+
+        screensaver = {
+          # hasn't been working since macOS 13: https://github.com/nix-darwin/nix-darwin/issues/908
+        };
+
+        trackpad = {
+          # Use once nix-darwin starts doing the right thing (https://github.com/nix-darwin/nix-darwin/issues/1721)
+        };
+
+        CustomUserPreferences = {
+          "com.apple.desktopservices" = {
+            # Avoid creating .DS_Store files on network or USB volumes
+            DSDontWriteNetworkStores = true;
+            DSDontWriteUSBStores = true;
+          };
+
+          "com.apple.dt.Xcode" = {
+            DVTTextEditorTrimTrailingWhitespace = true;
+            DVTTextEditorTrimWhitespaceOnlyLines = true;
+          };
+
+          "com.apple.Safari" = {
+            AutoOpenSafeDownloads = false;
+          };
+        };
+      };
+
+      system.primaryUser = "nikolai";
       users.knownUsers = [ "nikolai" ];
       users.users.nikolai = {
         uid = 501;
