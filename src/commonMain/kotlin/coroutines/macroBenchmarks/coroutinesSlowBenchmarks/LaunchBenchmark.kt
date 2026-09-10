@@ -18,7 +18,8 @@ import kotlin.coroutines.suspendCoroutine
 @State(Scope.Benchmark)
 open class LaunchBenchmark : ParametrizedDispatcherBase() {
 
-    private val jobsToLaunch = 1000
+    // Higher numbers cause `Fatal process out of memory` with stack switching.
+    private val jobsToLaunch = 100
     private val submitters = 40
 
     private val allLaunched = CyclicBarrier(submitters)

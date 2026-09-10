@@ -32,7 +32,8 @@ private fun doGeomDistrWork(work: Int) {
 @State(Scope.Benchmark)
 open class SemaphoreBenchmark: ParametrizedDispatcherBase() {
 
-    var coroutines: Int = 10_000
+    // Higher numbers cause `Fatal process out of memory` with stack switching.
+    var coroutines: Int = 1_000
 
     var maxPermits: Int = 100000
 
@@ -77,4 +78,4 @@ open class SemaphoreBenchmark: ParametrizedDispatcherBase() {
 
 private const val WORK_INSIDE = 50
 private const val WORK_OUTSIDE = 50
-private const val BATCH_SIZE = 100000
+private const val BATCH_SIZE = 10_000
