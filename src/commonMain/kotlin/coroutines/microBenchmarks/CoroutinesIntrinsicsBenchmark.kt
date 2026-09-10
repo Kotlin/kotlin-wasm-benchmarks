@@ -280,17 +280,17 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     }
 
 
-    @Benchmark
-    fun createCoroutinePerformance(blackhole: Blackhole) {
-        // Create multiple coroutines to measure createCoroutine performance
-
-        repeat(CREATE_SIZE) {
-            val suspendFun: suspend () -> String = ::simpleCoroutine
-
-            val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) {})
-            blackhole.consume(coroutine)
-        }
-    }
+//    @Benchmark
+//    fun createCoroutinePerformance(blackhole: Blackhole) {
+//        // Create multiple coroutines to measure createCoroutine performance
+//
+//        repeat(CREATE_SIZE) {
+//            val suspendFun: suspend () -> String = ::simpleCoroutine
+//
+//            val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) {})
+//            blackhole.consume(coroutine)
+//        }
+//    }
 
     @Benchmark
     fun createAndResumeCoroutinePerformance() {
@@ -312,17 +312,17 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
         check (completionCount == CREATE_SIZE) { "Failed: expected $BENCHMARK_SIZE to complete, $completionCount completed." }
     }
 
-    @Benchmark
-    fun createCoroutineUninterceptedPerformance(blackhole: Blackhole) {
-
-        // Create multiple coroutines to measure createCoroutineUnintercepted performance
-        repeat(CREATE_SIZE) {
-            val suspendFun: suspend () -> String = ::simpleCoroutine
-
-            val coroutine = suspendFun.createCoroutineUnintercepted(Continuation(EmptyCoroutineContext) {})
-            blackhole.consume(coroutine)
-        }
-    }
+//    @Benchmark
+//    fun createCoroutineUninterceptedPerformance(blackhole: Blackhole) {
+//
+//        // Create multiple coroutines to measure createCoroutineUnintercepted performance
+//        repeat(CREATE_SIZE) {
+//            val suspendFun: suspend () -> String = ::simpleCoroutine
+//
+//            val coroutine = suspendFun.createCoroutineUnintercepted(Continuation(EmptyCoroutineContext) {})
+//            blackhole.consume(coroutine)
+//        }
+//    }
 
     val pendingFrames = ArrayDeque<Continuation<Long>>()
     var frameTime = 0L
