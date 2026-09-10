@@ -39,6 +39,21 @@ repositories {
     mavenLocal()
 }
 
+// Kotlinx.benchmark derives generated descriptor names directly from the compiled class's package,
+// so to distinguish this module's benchmarks (and avoid descriptor name clashes)
+// we compile a private, repackaged copy of the shared sources under a `stack.switching.` prefix.
+val benchmarkPackagePrefix = "stack.switching"
+val repackagedSourcesDir = layout.buildDirectory.dir("generated/stack.switching/")
+val repackageBenchmarkSources by tasks.registering(Copy::class) {
+    val packageRegex = Regex("^(package|import)\\s+(macroBenchmarks|microBenchmarks)\\b")
+    from(rootProject.file("src/commonMain/kotlin/infra"))
+    from(rootProject.file("src/commonMain/kotlin/coroutines"))
+    into(repackagedSourcesDir)
+    filter { line: String ->
+        packageRegex.replace(line) { match -> "${match.groupValues[1]} $benchmarkPackagePrefix.${match.groupValues[2]}" }
+    }
+}
+
 kotlin {
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
@@ -50,9 +65,9 @@ kotlin {
 
     sourceSets {
         commonMain {
-            // Reuse the root project's benchmark sources (shared macro infra + coroutines).
-            kotlin.srcDir(rootProject.file("src/commonMain/kotlin/infra"))
-            kotlin.srcDir(rootProject.file("src/commonMain/kotlin/coroutines"))
+            // Reuse the root project's benchmark sources (shared macro infra + coroutines),
+            // repackaged under `stack.switching.` so generated descriptor names carry the prefix.
+            kotlin.srcDir(repackageBenchmarkSources)
             dependencies {
                 implementation(kotlin("stdlib-common"))
                 implementation(files(rootProject.file("kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar")))
@@ -89,7 +104,7 @@ val stackSwitchingEngines = stackSwitchingInputs.map { input ->
     CustomEngine(
         name = input.engineName,
         enginePath = layout.file(the(D8EnvSpec::class).executable.map { File(it) }),
-        engineArguments = input.file.map { listOf("--experimental-wasm-wasmfx", "--module", it.absolutePath, "--", "<ARGUMENTS>") },
+        engineArguments = input.file.map { listOf("--wasm-wasmfx", "--wasm-growable-stacks", "--module", it.absolutePath, "--", "<ARGUMENTS>") },
     )
 }
 
@@ -119,7 +134,7 @@ benchmark {
                 reportFormat = "json"
                 mode = "avgt"
                 advanced("jsUseBridge", true)
-                includes.add("microBenchmarks.CoroutinesIntrinsicsBenchmark")
+                includes.add("$benchmarkPackagePrefix.microBenchmarks.CoroutinesIntrinsicsBenchmark")
                 advanced("wasmFork", "perBenchmark")
                 customEngine = engine
             }
