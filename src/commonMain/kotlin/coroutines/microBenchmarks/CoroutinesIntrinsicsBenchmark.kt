@@ -15,6 +15,9 @@ import kotlin.coroutines.suspendCoroutine
 // Bigger values will result in `Maximum call stack size exceeded` for State Machine.
 private const val SUSPENSIONS_AMOUNT = 500
 
+// Bigger values lead to Fatal process out of memory: StackMemory::StackSegment::StackSegment with Stack Switching on TC.
+private const val CREATE_SIZE = 1_000
+
 @State(Scope.Benchmark)
 open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
 
@@ -281,7 +284,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     fun createCoroutinePerformance(blackhole: Blackhole) {
         // Create multiple coroutines to measure createCoroutine performance
 
-        repeat(BENCHMARK_SIZE) {
+        repeat(CREATE_SIZE) {
             val suspendFun: suspend () -> String = ::simpleCoroutine
 
             val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) {})
@@ -294,7 +297,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
 
         var completionCount = 0
 
-        val coroutines = List(BENCHMARK_SIZE) {
+        val coroutines = List(CREATE_SIZE) {
             val suspendFun: suspend () -> String = ::simpleCoroutine
 
             val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) { result ->
@@ -306,14 +309,14 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
         }
 
         coroutines.forEach { it.resume(Unit) }
-        check (completionCount == BENCHMARK_SIZE) { "Failed: expected $BENCHMARK_SIZE to complete, $completionCount completed." }
+        check (completionCount == CREATE_SIZE) { "Failed: expected $BENCHMARK_SIZE to complete, $completionCount completed." }
     }
 
     @Benchmark
     fun createCoroutineUninterceptedPerformance(blackhole: Blackhole) {
 
         // Create multiple coroutines to measure createCoroutineUnintercepted performance
-        repeat(BENCHMARK_SIZE) {
+        repeat(CREATE_SIZE) {
             val suspendFun: suspend () -> String = ::simpleCoroutine
 
             val coroutine = suspendFun.createCoroutineUnintercepted(Continuation(EmptyCoroutineContext) {})
