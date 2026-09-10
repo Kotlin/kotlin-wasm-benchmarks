@@ -280,49 +280,49 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     }
 
 
-    @Benchmark
-    fun createCoroutinePerformance(blackhole: Blackhole) {
-        // Create multiple coroutines to measure createCoroutine performance
+//    @Benchmark
+//    fun createCoroutinePerformance(blackhole: Blackhole) {
+//        // Create multiple coroutines to measure createCoroutine performance
+//
+//        repeat(CREATE_SIZE) {
+//            val suspendFun: suspend () -> String = ::simpleCoroutine
+//
+//            val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) {})
+//            blackhole.consume(coroutine)
+//        }
+//    }
 
-        repeat(CREATE_SIZE) {
-            val suspendFun: suspend () -> String = ::simpleCoroutine
+//    @Benchmark
+//    fun createAndResumeCoroutinePerformance() {
+//
+//        var completionCount = 0
+//
+//        val coroutines = List(CREATE_SIZE) {
+//            val suspendFun: suspend () -> String = ::simpleCoroutine
+//
+//            val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) { result ->
+//                if (result.isSuccess && result.getOrNull() == "OK") {
+//                    completionCount++
+//                }
+//            })
+//            coroutine
+//        }
+//
+//        coroutines.forEach { it.resume(Unit) }
+//        check (completionCount == CREATE_SIZE) { "Failed: expected $BENCHMARK_SIZE to complete, $completionCount completed." }
+//    }
 
-            val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) {})
-            blackhole.consume(coroutine)
-        }
-    }
-
-    @Benchmark
-    fun createAndResumeCoroutinePerformance() {
-
-        var completionCount = 0
-
-        val coroutines = List(CREATE_SIZE) {
-            val suspendFun: suspend () -> String = ::simpleCoroutine
-
-            val coroutine = suspendFun.createCoroutine(Continuation(EmptyCoroutineContext) { result ->
-                if (result.isSuccess && result.getOrNull() == "OK") {
-                    completionCount++
-                }
-            })
-            coroutine
-        }
-
-        coroutines.forEach { it.resume(Unit) }
-        check (completionCount == CREATE_SIZE) { "Failed: expected $BENCHMARK_SIZE to complete, $completionCount completed." }
-    }
-
-    @Benchmark
-    fun createCoroutineUninterceptedPerformance(blackhole: Blackhole) {
-
-        // Create multiple coroutines to measure createCoroutineUnintercepted performance
-        repeat(CREATE_SIZE) {
-            val suspendFun: suspend () -> String = ::simpleCoroutine
-
-            val coroutine = suspendFun.createCoroutineUnintercepted(Continuation(EmptyCoroutineContext) {})
-            blackhole.consume(coroutine)
-        }
-    }
+//    @Benchmark
+//    fun createCoroutineUninterceptedPerformance(blackhole: Blackhole) {
+//
+//        // Create multiple coroutines to measure createCoroutineUnintercepted performance
+//        repeat(CREATE_SIZE) {
+//            val suspendFun: suspend () -> String = ::simpleCoroutine
+//
+//            val coroutine = suspendFun.createCoroutineUnintercepted(Continuation(EmptyCoroutineContext) {})
+//            blackhole.consume(coroutine)
+//        }
+//    }
 
     val pendingFrames = ArrayDeque<Continuation<Long>>()
     var frameTime = 0L
