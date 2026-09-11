@@ -24,6 +24,8 @@
           pkgs.jdk17
           pkgs.jdk21
           pkgs.micro
+          pkgs.miller
+          pkgs.mosh
           pkgs.ripgrep
         ];
 
