@@ -30,7 +30,6 @@ class MultiFunctionInterfaceBenchmark {
         Function4<Int, Int, Int, Int, Int>,
         Function5<Int, Int, Int, Int, Int, Int>
 
-    @State(Scope.Benchmark)
     class IFuncClass : IFunc {
         override fun invoke(p1: Int): Int = p1
 

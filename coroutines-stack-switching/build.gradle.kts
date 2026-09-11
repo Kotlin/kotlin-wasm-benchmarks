@@ -55,7 +55,7 @@ kotlin {
             kotlin.srcDir(rootProject.file("src/commonMain/kotlin/coroutines"))
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                implementation(files(rootProject.file("kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar")))
+                implementation(files(rootProject.file("kotlinx-benchmarks/kotlinx-benchmark-runtime-0.6.0.jar")))
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
@@ -63,7 +63,7 @@ kotlin {
             // Reuse the root project's custom-engine (d8) support.
             kotlin.srcDir(rootProject.file("src/wasmJsMain/kotlin/customEngines"))
             dependencies {
-                implementation(files(rootProject.file("kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib")))
+                implementation(files(rootProject.file("kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.6.0.klib")))
             }
         }
     }

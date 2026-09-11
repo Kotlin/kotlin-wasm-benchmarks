@@ -129,12 +129,10 @@ class CallsBenchmark {
 
     abstract class A : I
 
-@State(Scope.Benchmark)
 class B : A() {
         override fun foo() = 42
     }
 
-@State(Scope.Benchmark)
 class C : A() {
         override fun foo() = 117
     }

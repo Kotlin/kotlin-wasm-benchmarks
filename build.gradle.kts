@@ -40,7 +40,7 @@ buildscript {
     dependencies {
 //        classpath("org.jetbrains.kotlinx:kotlinx-benchmark-plugin:0.4.17")
 //        classpath("org.jetbrains.kotlinx:kotlinx-benchmark-plugin:0.5.0-SNAPSHOT")
-        classpath(files("./kotlinx-benchmarks/kotlinx-benchmark-plugin-0.5.0.jar"))
+        classpath(files("./kotlinx-benchmarks/kotlinx-benchmark-plugin-0.6.0.jar"))
         classpath("com.squareup:kotlinpoet:1.3.0")
         classpath("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version")
     }
@@ -98,26 +98,26 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.5.0.jar"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-0.6.0.jar"))
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.5.0.klib"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-js-0.6.0.klib"))
             }
         }
 
         val wasmWasiMain by getting {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-wasi-0.5.0.klib"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-wasm-wasi-0.6.0.klib"))
             }
         }
 
         val jsMain by getting {
             dependencies {
-                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-js-0.5.0.klib"))
+                implementation(files("./kotlinx-benchmarks/kotlinx-benchmark-runtime-js-0.6.0.klib"))
             }
         }
     }
