@@ -9,7 +9,7 @@
 
   outputs = inputs@{ self, nix-darwin, nixpkgs }:
   let
-    configuration = { pkgs, ... }: {
+    configuration = { pkgs, lib, ... }: {
       # List packages installed in system profile. To search by name, run:
       # $ nix-env -qaP | grep wget
       environment.systemPackages =
@@ -22,7 +22,7 @@
           pkgs.github-cli
           pkgs.jdk8
           pkgs.jdk17
-          pkgs.jdk21
+          (lib.hiPrio pkgs.jdk21)
           pkgs.micro
           pkgs.miller
           pkgs.mosh
