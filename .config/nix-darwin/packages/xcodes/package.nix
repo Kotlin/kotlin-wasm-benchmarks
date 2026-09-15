@@ -7,11 +7,11 @@
 
 stdenvNoCC.mkDerivation {
   pname = "xcodes";
-  version = "2.0.3";
+  version = "2.1.0";
 
   src = fetchurl {
-    url = "https://github.com/XcodesOrg/xcodes/releases/download/2.0.3/xcodes.zip";
-    hash = "sha256-nMszmNxyrKFxdLcF7hZXxpdH/sJWY/yF0t/7hwL/N6o=";
+    url = "https://github.com/XcodesOrg/xcodes/releases/download/2.1.0/xcodes.zip";
+    hash = "sha256-8VGa/pNKUT6F3Zsy/IcjlL7Lu2pB2xXZrDkmoJqJGIg=";
   };
 
   nativeBuildInputs = [ unzip ];
