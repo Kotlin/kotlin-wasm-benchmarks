@@ -19,7 +19,9 @@
 /.claude.json*
 /.claude/*
 .claude/settings.local.json
+/.codex/*
 /.config/1Password/telemetry-enabled
+/.config/fish/completions/copilot.fish
 /.config/gh/hosts.yml
 /.config/github-copilot/*
 /.config/jgit/*
@@ -29,9 +31,12 @@
 /dead.letter
 /java_error_*
 /.jetbrains-central/*
+/.junie/*
+/.jupyter_kotlin/*
 /.konan/*
 /.kotlin/*
 /.lesshst
+/.lldb/lldb-widehistory
 /.local/*
 !/.local/bin
 /.local/bin/*
@@ -40,8 +45,10 @@
 /.nix-defexpr/*
 /.nix-profile
 /.npm/
+/.pdfbox.cache
 /.ssh/*
 !/.ssh/config
+/.swiftpm/*
 /.vscode-shared/*
 /.vscode/argv.json
 /.vscode/extensions/*
