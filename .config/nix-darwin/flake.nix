@@ -17,6 +17,7 @@
           (pkgs.callPackage ./packages/xcodes/package.nix {})
           pkgs.bat
           pkgs.bytecode-viewer
+          pkgs.clang-tools
           pkgs.fzf
           pkgs.git
           pkgs.github-cli
