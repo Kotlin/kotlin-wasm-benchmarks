@@ -5,19 +5,20 @@ import kotlinx.benchmark.gradle.CustomEngine
 import kotlinx.benchmark.gradle.KotlinxBenchmarkPluginExperimentalApi
 import kotlinx.benchmark.gradle.benchmark
 import kotlinx.benchmark.gradle.internal.KotlinxBenchmarkPluginInternalApi
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsBinaryMode
 import org.jetbrains.kotlin.gradle.targets.js.ir.ExecutableWasm
 import org.jetbrains.kotlin.gradle.targets.js.ir.JsIrBinary
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrCompilation
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExec
 import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenEnvSpec
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenPlugin
 import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8EnvSpec
 import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Plugin
+import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsPlugin
 
 plugins {
     kotlin("multiplatform")
@@ -25,12 +26,15 @@ plugins {
 
 apply<BenchmarksPlugin>()
 
-apply<NodeJsPlugin>()
-the<NodeJsEnvSpec>().version.set(libs.versions.nodejs.get())
-apply<BinaryenPlugin>()
-the<BinaryenEnvSpec>().version.set(libs.versions.binaryen.get())
+// applied by KGP
+plugins.withType<WasmNodeJsPlugin> {
+    the<WasmNodeJsEnvSpec>().version.set(libs.versions.nodejs)
+}
+plugins.withType<BinaryenPlugin> {
+    the<BinaryenEnvSpec>().version.set(libs.versions.binaryen)
+}
 apply<D8Plugin>()
-the<D8EnvSpec>().version.set(libs.versions.v8.get())
+the<D8EnvSpec>().version.set(libs.versions.v8)
 
 repositories {
     mavenCentral()

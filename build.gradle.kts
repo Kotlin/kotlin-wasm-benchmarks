@@ -24,9 +24,12 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenEnvSpec
+import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenExec
 import org.jetbrains.kotlin.gradle.targets.wasm.binaryen.BinaryenPlugin
 import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8EnvSpec
 import org.jetbrains.kotlin.gradle.targets.wasm.d8.D8Plugin
+import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.wasm.nodejs.WasmNodeJsPlugin
 
 buildscript {
     repositories {
@@ -55,16 +58,19 @@ apply {
     plugin<BenchmarksPlugin>()
 }
 
-apply<NodeJsPlugin>()
-the<NodeJsEnvSpec>().apply {
-    version.set(libs.versions.nodejs.get())
+// applied by KGP
+plugins.withType<NodeJsPlugin> {
+    the<NodeJsEnvSpec>().version.set(libs.versions.nodejs)
+}
+plugins.withType<WasmNodeJsPlugin> {
+    the<WasmNodeJsEnvSpec>().version.set(libs.versions.nodejs)
+}
+plugins.withType<BinaryenPlugin> {
+    the<BinaryenEnvSpec>().version.set(libs.versions.binaryen)
 }
 
-apply<BinaryenPlugin>()
-the<BinaryenEnvSpec>().version.set(libs.versions.binaryen.get())
-
 apply<D8Plugin>()
-the<D8EnvSpec>().version.set(libs.versions.v8.get())
+the<D8EnvSpec>().version.set(libs.versions.v8)
 
 allprojects.forEach {
     it.tasks.withType<KotlinNpmInstallTask>().configureEach {
