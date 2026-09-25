@@ -23,7 +23,8 @@
           pkgs.github-cli
           pkgs.jdk8
           pkgs.jdk17
-          (lib.hiPrio pkgs.jdk21)
+          pkgs.jdk21
+          (lib.hiPrio pkgs.jdk25)
           pkgs.micro
           pkgs.miller
           pkgs.mosh
