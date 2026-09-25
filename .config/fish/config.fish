@@ -3,3 +3,5 @@ if status is-interactive
 end
 
 set -x SSH_AUTH_SOCK /Users/nikolai/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
+
+fish_add_path --path ~/.local/bin

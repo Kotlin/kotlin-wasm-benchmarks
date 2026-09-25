@@ -22,6 +22,8 @@
 /.codex/*
 /.config/1Password/telemetry-enabled
 /.config/fish/completions/copilot.fish
+/.config/fish/fisher/
+/.config/fish/fish_variables
 /.config/gh/hosts.yml
 /.config/github-copilot/*
 /.config/jgit/*
