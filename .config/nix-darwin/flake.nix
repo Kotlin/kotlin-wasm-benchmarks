@@ -18,6 +18,7 @@
           pkgs.bat
           pkgs.bytecode-viewer
           pkgs.clang-tools
+          pkgs.fd
           pkgs.fzf
           pkgs.git
           pkgs.github-cli
