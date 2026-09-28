@@ -23,7 +23,7 @@ Benchmarks with high score/error variance on V8, routed to `volatileMicro` for e
 private val VolatileMicroBenchmarksV8 = listOf(
     "microBenchmarks.AllocationBenchmark.allocateObjects",
     "microBenchmarks.ArithmeticBenchmark.division_constant",
-    "microBenchmarks.ArithmeticBenchmark.reminder_constant",
+    "microBenchmarks.ArithmeticBenchmark.remainder_constant",
     "microBenchmarks.ArrayCopyBenchmark.copyInSameArray",
     "microBenchmarks.BoxingBenchmark.integerTypeVarClosure",
     "microBenchmarks.BoxingBenchmark.referenceTypeVarClosure",

@@ -43,7 +43,7 @@ class ArithmeticBenchmark {
     }
 
     @Benchmark
-    fun reminder(): Int {
+    fun remainder(): Int {
         var i = 1
         var j = 1
         while (i < BENCHMARK_SIZE) {
@@ -54,7 +54,7 @@ class ArithmeticBenchmark {
     }
 
     @Benchmark
-    fun reminder_constant(): Int {
+    fun remainder_constant(): Int {
         var i = 1
         var j = 1
         while (i < BENCHMARK_SIZE) {
@@ -87,7 +87,7 @@ class ArithmeticBenchmark {
     }
 
     @Benchmark
-    fun float_reminder(): Float {
+    fun float_remainder(): Float {
         var i = 1
         var j = 1f
         while (i < BENCHMARK_SIZE) {
@@ -98,7 +98,7 @@ class ArithmeticBenchmark {
     }
 
     @Benchmark
-    fun float_reminder_constant(): Float {
+    fun float_remainder_constant(): Float {
         var i = 1
         var j = 1f
         while (i < BENCHMARK_SIZE) {
@@ -131,7 +131,7 @@ class ArithmeticBenchmark {
     }
 
     @Benchmark
-    fun double_reminder(): Double {
+    fun double_remainder(): Double {
         var i = 1
         var j = 1.0
         while (i < BENCHMARK_SIZE) {
@@ -142,7 +142,7 @@ class ArithmeticBenchmark {
     }
 
     @Benchmark
-    fun double_reminder_constant(): Double {
+    fun double_remainder_constant(): Double {
         var i = 1
         var j = 1.0
         while (i < BENCHMARK_SIZE) {
