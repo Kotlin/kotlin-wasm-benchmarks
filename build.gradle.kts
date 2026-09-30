@@ -418,10 +418,16 @@ benchmark {
              *   - fastMicro: everything else
              *
              * If the VM has no entry, volatileMicro still exists as a no-op (TeamCity always invokes it).
+             *
+             * Deriving `slowOnly` must account for `BenchmarkNamePattern`'s substring matching,
+             * or a benchmark could run under both `slowMicro` and `volatileMicro` —
+             * the publisher expects each benchmark reported exactly once.
              */
             val engineVm = engine.name.substringAfterLast("_")
             val volatileMicroBenchmarks = VolatileMicroBenchmarksByVm[engineVm]
-            val slowOnlyMicroBenchmarks = SlowMicroBenchmarks - (volatileMicroBenchmarks ?: emptyList())
+            val slowOnlyMicroBenchmarks = SlowMicroBenchmarks.filterNot { slowName ->
+                (volatileMicroBenchmarks ?: emptyList()).any { volatilePattern -> volatilePattern in slowName }
+            }
             with(create("fastMicro_${engine.name}")) {
                 iterations = BENCHMARK_ITERATIONS
                 warmups = WARMUP_ITERATIONS
