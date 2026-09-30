@@ -1,8 +1,17 @@
+/**
+ * A benchmark name as it appears in [SlowMicroBenchmarks] / [VolatileMicroBenchmarksByVm].
+ *
+ * Not matched as an exact/literal name: kotlinx-benchmark treats `includes`/`excludes` entries
+ * as regex, so e.g. `"...stringConcat"` also matches `"...stringConcatNullable"`.
+ * Keep that in mind when adding entries here.
+ */
+typealias BenchmarkNamePattern = String
+
 /*
 Benchmarks that take long enough per rep to warrant running in their own tier separate from
 the bulk of `microBenchmarks` (see fastMicro/slowMicro wiring in build.gradle.kts).
  */
-val SlowMicroBenchmarks = listOf(
+val SlowMicroBenchmarks: List<BenchmarkNamePattern> = listOf(
     "microBenchmarks.StringBenchmark.summarizeSplittedCsv",
     "microBenchmarks.PrimeListBenchmark.calcEratosthenes",
     "microBenchmarks.FibonacciBenchmark.calcSquare",
@@ -20,7 +29,7 @@ val SlowMicroBenchmarks = listOf(
 /*
 Benchmarks with high score/error variance on V8, routed to `volatileMicro` for extra warmup.
  */
-private val VolatileMicroBenchmarksV8 = listOf(
+private val VolatileMicroBenchmarksV8: List<BenchmarkNamePattern> = listOf(
     "microBenchmarks.AllocationBenchmark.allocateObjects",
     "microBenchmarks.ArithmeticBenchmark.division_constant",
     "microBenchmarks.ArithmeticBenchmark.remainder_constant",
@@ -71,7 +80,7 @@ private val VolatileMicroBenchmarksV8 = listOf(
 /*
 Benchmarks with high score/error variance on SpiderMonkey (JsShell).
  */
-private val VolatileMicroBenchmarksSm = listOf(
+private val VolatileMicroBenchmarksSm: List<BenchmarkNamePattern> = listOf(
     "microBenchmarks.ClassArrayBenchmark.copyManual",
     "microBenchmarks.ClassBaselineBenchmark.consume",
     "microBenchmarks.ClassListBenchmark.copyManual",
@@ -101,7 +110,7 @@ private val VolatileMicroBenchmarksSm = listOf(
 /*
 Benchmarks with high score/error variance on JavaScriptCore (Jsc).
  */
-private val VolatileMicroBenchmarksJsc = listOf(
+private val VolatileMicroBenchmarksJsc: List<BenchmarkNamePattern> = listOf(
     "microBenchmarks.AllocationBenchmark.allocateObjects",
     "microBenchmarks.BoxingBenchmark.integerTypeBoxing",
     "microBenchmarks.ClassListBenchmark.mapWithLambda",
@@ -152,7 +161,7 @@ private val VolatileMicroBenchmarksJsc = listOf(
 /*
 Benchmarks with high score/error variance on Wasmtime.
  */
-private val VolatileMicroBenchmarksWasmtime = listOf(
+private val VolatileMicroBenchmarksWasmtime: List<BenchmarkNamePattern> = listOf(
     "microBenchmarks.ArrayCopyBenchmark.copyInSameArray",
     "microBenchmarks.ClassStreamBenchmark.filter",
     "microBenchmarks.IntListBenchmark.filterAndCount",
@@ -164,7 +173,7 @@ private val VolatileMicroBenchmarksWasmtime = listOf(
     "microBenchmarks.WithIndiciesBenchmark.withIndiciesManual",
 )
 
-val VolatileMicroBenchmarksByVm: Map<String, List<String>> = mapOf(
+val VolatileMicroBenchmarksByVm: Map<String, List<BenchmarkNamePattern>> = mapOf(
     "D8" to VolatileMicroBenchmarksV8,
     "JsShell" to VolatileMicroBenchmarksSm,
     "Jsc" to VolatileMicroBenchmarksJsc,
