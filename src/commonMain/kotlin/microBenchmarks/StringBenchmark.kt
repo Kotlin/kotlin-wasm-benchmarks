@@ -31,7 +31,6 @@ class StringBenchmark {
 
     @Setup
     fun setup() {
-
         stringsInterpolation = Array(16) { i -> "s$i" }
 
         for (i in 1 until BENCHMARK_SIZE) {
@@ -52,7 +51,7 @@ class StringBenchmark {
     }
     
     @Benchmark
-    fun stringConcat(): String? {
+    fun stringConcat(blackhole: Blackhole) {
         var string = "1"
         val add = "1"
         var i = 0
@@ -60,11 +59,11 @@ class StringBenchmark {
             string += add
             i++
         }
-        return string
+        blackhole.consume(string)
     }
     
     @Benchmark
-    fun stringConcatNullable(): String? {
+    fun stringConcatNullable(blackhole: Blackhole) {
         var string: String? = ""
         val add = "1"
         var i = 0
@@ -72,11 +71,11 @@ class StringBenchmark {
             string += add
             i++
         }
-        return string
+        blackhole.consume(string)
     }
     
     @Benchmark
-    fun stringBuilderConcat(): String {
+    fun stringBuilderConcat(blackhole: Blackhole) {
         val string = StringBuilder("")
         val add = "1"
         var i = 0
@@ -84,11 +83,12 @@ class StringBenchmark {
             string.append(add)
             i++
         }
-        return string.toString()
+        val result = string.toString()
+        blackhole.consume(result)
     }
     
     @Benchmark
-    fun stringBuilderConcatNullable(): String {
+    fun stringBuilderConcatNullable(blackhole: Blackhole) {
         var string: StringBuilder? = StringBuilder("")
         val add = "1"
         var i = 0
@@ -96,11 +96,12 @@ class StringBenchmark {
             string?.append(add)
             i++
         }
-        return string.toString()
+        val result = string.toString()
+        blackhole.consume(result)
     }
     
     @Benchmark
-    fun summarizeSplittedCsv(): Double {
+    fun summarizeSplittedCsv(blackhole: Blackhole) {
         val fields = csv.split(",").toTypedArray()
         var sum = 0.0
         var i = 0
@@ -109,30 +110,30 @@ class StringBenchmark {
             sum += fields[i].toDouble()
             i++
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun iterateCharsCsv(): Int {
+    fun iterateCharsCsv(blackhole: Blackhole) {
         var sum = 0
         for (i in 0 until BENCHMARK_SIZE) {
             sum += csv[i].code
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun subSequenceCsv(): Int {
+    fun subSequenceCsv(blackhole: Blackhole) {
         var sum = 0
         for (range in subSequenceRanges) {
             val subString = csv.subSequence(range.first, range.second)
             sum += subString[0].code
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringInterpolation(): Int {
+    fun stringInterpolation(blackhole: Blackhole) {
         var sum = 0
         var i = 0
         var j = 0
@@ -147,53 +148,53 @@ class StringBenchmark {
             sum += string.length
             i++
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringIndexOf(): Int {
+    fun stringIndexOf(blackhole: Blackhole) {
         var sum = 0
         for (subString in subSequenceStrings) {
             val idx = csv.indexOf(subString)
             sum += idx
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringRemoveRange(): Int {
+    fun stringRemoveRange(blackhole: Blackhole) {
         var sum = 0
         for (range in subSequenceRangesToRemove) {
             val subString = csv.removeRange(range.first, range.second)
             sum += subString[0].code
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringRepeat(): Int {
+    fun stringRepeat(blackhole: Blackhole) {
         var sum = 0
         for (stringToRepeat in stringToRepeat) {
             val num = BENCHMARK_SIZE / stringToRepeat.length
             val repeated = stringToRepeat.repeat(num)
             sum += repeated[0].code
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringReplace(): Int {
+    fun stringReplace(blackhole: Blackhole) {
         var sum = 0
         for ((i, subString) in subSequenceStrings.withIndex()) {
             val newSubString = subSequenceStrings[(i + 1) % subString.length]
             val newString = csv.replace(subString, newSubString)
             sum += newString[0].code
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringBuilderCompareWithInterpolation(): Int {
+    fun stringBuilderCompareWithInterpolation(blackhole: Blackhole) {
         var sum = 0
         var i = 0
         var j = 0
@@ -211,11 +212,11 @@ class StringBenchmark {
             sum += string.length
             i++
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringPlusCompareWithInterpolation(): Int {
+    fun stringPlusCompareWithInterpolation(blackhole: Blackhole) {
         var sum = 0
         var i = 0
         var j = 0
@@ -230,7 +231,6 @@ class StringBenchmark {
             sum += string.length
             i++
         }
-        return sum
+        blackhole.consume(sum)
     }
-
 }

@@ -21,30 +21,41 @@ import kotlin.math.sign
 
 @State(Scope.Benchmark)
 class IntegerSignBenchmark {
-    private var intValue = 1
-    private var longValue = 1L
+    private lateinit var intValues: IntArray
+    private lateinit var longValues: LongArray
 
-    fun nextInt(): Int {
-        val r = intValue
-        // see https://en.wikipedia.org/wiki/Linear_congruential_generator#Parameters_in_common_use
-        intValue = intValue * 1664525 + 1013904223
-        return r
-    }
+    @Setup
+    fun setup() {
+        var currentIntValue = 1
+        intValues = IntArray(BENCHMARK_SIZE) {
+            // see https://en.wikipedia.org/wiki/Linear_congruential_generator#Parameters_in_common_use
+            currentIntValue = currentIntValue * 1664525 + 1013904223
+            currentIntValue
+        }
 
-    fun nextLong(): Long {
-        val r = longValue
-        // see https://en.wikipedia.org/wiki/Linear_congruential_generator#Parameters_in_common_use
-        longValue = longValue * 6364136223846793005 + 1442695040888963407
-        return r
+        var currentLongValue = 1L
+        longValues = LongArray(BENCHMARK_SIZE) {
+            // see https://en.wikipedia.org/wiki/Linear_congruential_generator#Parameters_in_common_use
+            currentLongValue = currentLongValue * 6364136223846793005 + 1442695040888963407
+            currentLongValue
+        }
     }
 
     @Benchmark
     fun intSign(blackhole: Blackhole) {
-        blackhole.consume(nextInt().sign)
+        var result = 0
+        for (value in intValues) {
+            result += value.sign
+        }
+        blackhole.consume(result)
     }
 
     @Benchmark
     fun longSign(blackhole: Blackhole) {
-        blackhole.consume(nextLong().sign)
+        var result = 0
+        for (value in longValues) {
+            result += value.sign
+        }
+        blackhole.consume(result)
     }
 }

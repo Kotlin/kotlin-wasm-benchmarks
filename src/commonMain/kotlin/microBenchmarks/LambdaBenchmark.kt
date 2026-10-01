@@ -18,109 +18,111 @@ package microBenchmarks
 
 import kotlinx.benchmark.*
 
-var globalAddendum = 0
+private class MutableValue(var value: Int)
+
+private inline fun <T> runLambda(x: () -> T): T = x()
+private fun <T> runLambdaNoInline(x: () -> T): T = x()
 
 @State(Scope.Benchmark)
 class LambdaBenchmark {
-    private inline fun <T> runLambda(x: () -> T): T = x()
-    private fun <T> runLambdaNoInline(x: () -> T): T = x()
+    private lateinit var globalAddendum: MutableValue
 
     @Setup
     fun setup() {
-        globalAddendum = Random.nextInt(20)
+        globalAddendum = MutableValue(Random.nextInt(20))
     }
 
     @Benchmark
-    fun noncapturingLambda(): Int {
+    fun noncapturingLambda(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambda { globalAddendum }
+            x += runLambda { globalAddendum }.value
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun noncapturingLambdaNoInline(): Int {
+    fun noncapturingLambdaNoInline(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambdaNoInline { globalAddendum }
+            x += runLambdaNoInline { globalAddendum }.value
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun capturingLambda(): Int {
-        val addendum = globalAddendum + 1
+    fun capturingLambda(blackhole: Blackhole) {
+        val addendum = MutableValue(globalAddendum.value + 1)
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambda { addendum }
+            x += runLambda { addendum }.value
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun capturingLambdaNoInline(): Int {
-        val addendum = globalAddendum + 1
+    fun capturingLambdaNoInline(blackhole: Blackhole) {
+        val addendum = MutableValue(globalAddendum.value + 1)
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambdaNoInline { addendum }
+            x += runLambdaNoInline { addendum }.value
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun mutatingLambda(): Int {
+    fun mutatingLambda(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            runLambda { x += globalAddendum }
+            runLambda { x += globalAddendum.value }
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun mutatingLambdaNoInline(): Int {
+    fun mutatingLambdaNoInline(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            runLambdaNoInline { x += globalAddendum }
+            runLambdaNoInline { x += globalAddendum.value }
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun methodReference(): Int {
+    fun methodReference(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambda(::referenced)
+            x += runLambda(::referenced).value
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun methodReferenceNoInline(): Int {
+    fun methodReferenceNoInline(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambdaNoInline(::referenced)
+            x += runLambdaNoInline(::referenced).value
             i++
         }
-        return x
+        blackhole.consume(x)
     }
-}
 
-private fun referenced(): Int {
-    return globalAddendum
+    private fun referenced(): MutableValue {
+        return globalAddendum
+    }
 }

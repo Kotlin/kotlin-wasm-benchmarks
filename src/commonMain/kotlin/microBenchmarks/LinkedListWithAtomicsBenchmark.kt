@@ -18,7 +18,7 @@ package microBenchmarks
 
 import kotlinx.benchmark.*
 
-class ChunkBuffer(var readPosition: Int, var writePosition: Int = readPosition + Random.nextInt(50)) {
+private class ChunkBuffer(var readPosition: Int, var writePosition: Int = readPosition + Random.nextInt(50)) {
     private val nextRef: AtomicRef<ChunkBuffer?> = atomic(null)
 
     /*
@@ -48,7 +48,7 @@ class ChunkBuffer(var readPosition: Int, var writePosition: Int = readPosition +
     inline val readRemaining: Int get() = writePosition - readPosition
 }
 
-fun ChunkBuffer.remainingAll(): Long = remainingAll(0L)
+private fun ChunkBuffer.remainingAll(): Long = remainingAll(0L)
 
 private tailrec fun ChunkBuffer.remainingAll(n: Long): Long {
     val rem = readRemaining.toLong() + n
@@ -56,7 +56,7 @@ private tailrec fun ChunkBuffer.remainingAll(n: Long): Long {
     return next.remainingAll(rem)
 }
 
-class LinkedListOfBuffers(var head: ChunkBuffer = ChunkBuffer(0,0),
+private class LinkedListOfBuffers(var head: ChunkBuffer = ChunkBuffer(0,0),
                           var remaining: Long = head.remainingAll()) {
      var tailRemaining: Long = remaining - head.readRemaining
         set(newValue) {
@@ -76,7 +76,7 @@ class LinkedListOfBuffers(var head: ChunkBuffer = ChunkBuffer(0,0),
 
 @State(Scope.Benchmark)
 class LinkedListWithAtomicsBenchmark {
-    lateinit var list: LinkedListOfBuffers
+    private lateinit var list: LinkedListOfBuffers
 
     @Setup
     fun setup() {
@@ -92,17 +92,18 @@ class LinkedListWithAtomicsBenchmark {
     }
 
     @Benchmark
-    fun ensureNext(): ChunkBuffer? =
-        ensureNext(list.head)
-
-    private tailrec fun ensureNext(current: ChunkBuffer): ChunkBuffer? {
-        return when (val next = current.next) {
-            null -> null
-            else -> {
-                list.tailRemaining = Random.nextInt().toLong() + 1
-                ensureNext(next)
-            }
-        }
+    fun ensureNext(blackhole: Blackhole) {
+        val result = ensureNext(list.head, list)
+        blackhole.consume(result)
     }
 }
 
+private tailrec fun ensureNext(current: ChunkBuffer, list: LinkedListOfBuffers): ChunkBuffer? {
+    return when (val next = current.next) {
+        null -> null
+        else -> {
+            list.tailRemaining = Random.nextInt().toLong() + 1
+            ensureNext(next, list)
+        }
+    }
+}

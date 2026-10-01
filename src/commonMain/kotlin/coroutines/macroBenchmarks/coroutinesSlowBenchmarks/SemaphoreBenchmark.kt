@@ -13,7 +13,7 @@ import kotlin.coroutines.startCoroutine
 import kotlin.random.Random
 
 private fun doGeomDistrWork(work: Int) {
-    // We use geometric distribution here. We also checked on macbook pro 13" (2017) that the resulting work times
+    // We use geometric distribution here. We also checked on MacBook pro 13" (2017) that the resulting work times
     // are distributed geometrically, see https://github.com/Kotlin/kotlinx.coroutines/pull/1464#discussion_r355705325
     val p = 1.0 / work
 
@@ -25,22 +25,22 @@ private fun doGeomDistrWork(work: Int) {
     }
 }
 
+private const val COROUTINES_COUNT = 10_000
+private const val MAX_PERMITS = 100_000
+private const val WORK_INSIDE = 50
+private const val WORK_OUTSIDE = 50
+private const val BATCH_SIZE = 100000
 /*
  * Adapted benchmark from kotlinx.coroutines
  * https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/benchmarks/jvm/kotlin/kotlinx/coroutines/SemaphoreBenchmark.kt
  */
 @State(Scope.Benchmark)
 open class SemaphoreBenchmark: ParametrizedDispatcherBase() {
-
-    var coroutines: Int = 10_000
-
-    var maxPermits: Int = 100000
-
     private fun <T> runBenchmark(semaphore: T, block: (T) -> (suspend () -> Unit)) {
         suspend {
-            val n = BATCH_SIZE / coroutines
-            val jobs = ArrayList<Job>(coroutines)
-            repeat(coroutines) {
+            val n = BATCH_SIZE / COROUTINES_COUNT
+            val jobs = ArrayList<Job>(COROUTINES_COUNT)
+            repeat(COROUTINES_COUNT) {
                 jobs += GlobalScope.launch {
                     repeat(n) {
                         block(semaphore).invoke()
@@ -53,8 +53,9 @@ open class SemaphoreBenchmark: ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun semaphore() =
-        runBenchmark(Semaphore(maxPermits)) { semaphore ->
+    fun semaphore() {
+        // TODO: We need to consume some benchmark result
+        runBenchmark(Semaphore(MAX_PERMITS)) { semaphore ->
             suspend {
                 semaphore.withPermit {
                     doGeomDistrWork(WORK_INSIDE)
@@ -62,10 +63,12 @@ open class SemaphoreBenchmark: ParametrizedDispatcherBase() {
                 doGeomDistrWork(WORK_OUTSIDE)
             }
         }
+    }
 
     @Benchmark
-    fun channelAsSemaphore() =
-        runBenchmark(Channel<Unit>(maxPermits)) { semaphore ->
+    fun channelAsSemaphore() {
+        // TODO: We need to consume some benchmark result
+        runBenchmark(Channel<Unit>(MAX_PERMITS)) { semaphore ->
             suspend {
                 semaphore.send(Unit) // acquire
                 doGeomDistrWork(WORK_INSIDE)
@@ -73,8 +76,5 @@ open class SemaphoreBenchmark: ParametrizedDispatcherBase() {
                 doGeomDistrWork(WORK_OUTSIDE)
             }
         }
+    }
 }
-
-private const val WORK_INSIDE = 50
-private const val WORK_OUTSIDE = 50
-private const val BATCH_SIZE = 100000

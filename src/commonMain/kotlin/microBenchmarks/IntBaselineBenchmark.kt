@@ -29,32 +29,34 @@ class IntBaselineBenchmark {
     }
 
     @Benchmark
-    fun allocateList(): List<Int> =
-        ArrayList<Int>(BENCHMARK_SIZE)
+    fun allocateList(blackhole: Blackhole) {
+        blackhole.consume(ArrayList<Int>(BENCHMARK_SIZE))
+    }
 
     @Benchmark
-    fun allocateArray(): IntArray =
-        IntArray(BENCHMARK_SIZE)
+    fun allocateArray(blackhole: Blackhole) {
+        blackhole.consume(IntArray(BENCHMARK_SIZE))
+    }
 
     //@Benchmark
-    fun allocateListAndFill(): List<Int> {
+    fun allocateListAndFill(blackhole: Blackhole) {
         val list = ArrayList<Int>(BENCHMARK_SIZE)
         var item = 0
         while (item < BENCHMARK_SIZE) {
             list.add(item)
             item++
         }
-        return list
+        blackhole.consume(list)
     }
 
     @Benchmark
-    fun allocateArrayAndFill(): IntArray {
+    fun allocateArrayAndFill(blackhole: Blackhole) {
         val list = IntArray(BENCHMARK_SIZE)
         var item = 0
         while (item < BENCHMARK_SIZE) {
             list[item] = item
             item++
         }
-        return list
+        blackhole.consume(list)
     }
 }

@@ -27,7 +27,7 @@ import kotlinx.benchmark.*
 @State(Scope.Benchmark)
 class PrimeListBenchmark {
     @Benchmark
-    fun calcDirect() {
+    fun calcDirect(blackhole: Blackhole) {
         val primes = ArrayList<Int>(BENCHMARK_SIZE)
 
         primes.add(2)
@@ -46,10 +46,11 @@ class PrimeListBenchmark {
                 primes.add(i)
             i += 2
         }
+        blackhole.consume(primes)
     }
 
     @Benchmark
-    fun calcEratosthenes() {
+    fun calcEratosthenes(blackhole: Blackhole) {
         val primes = ArrayList<Int>(BENCHMARK_SIZE)
 
         primes.addAll(2..BENCHMARK_SIZE)
@@ -59,5 +60,6 @@ class PrimeListBenchmark {
             primes.removeAll { it > divisor && it % divisor == 0 }
             i++
         }
+        blackhole.consume(primes)
     }
 }

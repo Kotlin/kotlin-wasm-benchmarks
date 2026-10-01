@@ -23,7 +23,7 @@ import kotlinx.benchmark.*
 
 class BoxingBenchmark {
     @Benchmark
-    fun integerTypeBoxing(): Int {
+    fun integerTypeBoxing(blackhole: Blackhole) {
         val size = BENCHMARK_SIZE
         var box: Int? = 42
         var unbox: Int = 24
@@ -32,11 +32,12 @@ class BoxingBenchmark {
             box = unbox
             unbox = value
         }
-        return box.hashCode() + unbox.hashCode()
+        val result = box!! + unbox
+        blackhole.consume(result)
     }
 
     @Benchmark
-    fun booleanTypeBoxing(): Int {
+    fun booleanTypeBoxing(blackhole: Blackhole) {
         val size = BENCHMARK_SIZE
         var box: Boolean? = true
         var unbox: Boolean = false
@@ -45,11 +46,12 @@ class BoxingBenchmark {
             box = unbox
             unbox = value
         }
-        return box.hashCode() + unbox.hashCode()
+        val result = box!! && unbox
+        blackhole.consume(result)
     }
 
     @Benchmark
-    fun referenceTypeVarClosure(): Int {
+    fun referenceTypeVarClosure(blackhole: Blackhole) {
         val size = BENCHMARK_SIZE * 10
         var varBox1: Any = Any()
         var varBox2: Any = Any()
@@ -63,11 +65,12 @@ class BoxingBenchmark {
             closure()
         }
 
-        return varBox1.hashCode() + varBox2.hashCode()
+        blackhole.consume(varBox1)
+        blackhole.consume(varBox2)
     }
 
     @Benchmark
-    fun integerTypeVarClosure(): Int {
+    fun integerTypeVarClosure(blackhole: Blackhole) {
         val size = BENCHMARK_SIZE * 10
         var varBox1: Int = 42
         var varBox2: Int = 24
@@ -81,6 +84,7 @@ class BoxingBenchmark {
             closure()
         }
 
-        return varBox1.hashCode() + varBox2.hashCode()
+        val result = varBox1.hashCode() + varBox2.hashCode()
+        blackhole.consume(result)
     }
 }

@@ -50,7 +50,7 @@ class MultiFunctionInterfaceBenchmark {
     }
 
     @Benchmark
-    fun interfaceFunctionCall(): Int {
+    fun interfaceFunctionCall(blackhole: Blackhole) {
         val obj = iFunc
         var result = 0
         var i = 0
@@ -62,6 +62,6 @@ class MultiFunctionInterfaceBenchmark {
             result += obj(i, i, i, i, i)
             i++
         }
-        return result
+        blackhole.consume(result)
     }
 }

@@ -54,12 +54,14 @@ class DoubleUlpBenchmark {
 
     @Benchmark
     fun normal(bh: Blackhole) {
-        bh.consume(ulps(normalValues))
+        val result = ulps(normalValues)
+        bh.consume(result)
     }
 
     @Benchmark
     fun mixed(bh: Blackhole) {
-        bh.consume(ulps(mixedValues))
+        val result = ulps(mixedValues)
+        bh.consume(result)
     }
 }
 
