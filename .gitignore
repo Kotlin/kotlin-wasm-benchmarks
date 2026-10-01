@@ -2,6 +2,7 @@
 /.idea
 /build
 /.gradle
+.kotlin
 /kotlin-js-store
 /kotlin-compiler
 /.teamcity/target
@@ -9,3 +10,4 @@
 /buildSrc/build
 buildSrc/.gradle
 /tmp/
+coroutines-stack-switching/build
