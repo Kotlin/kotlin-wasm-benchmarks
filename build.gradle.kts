@@ -35,7 +35,7 @@ buildscript {
     repositories {
         gradlePluginPortal()
         maven(uri("./kotlin-compiler"))
-//        mavenLocal()
+        mavenLocal()
     }
 
     val kotlin_version: String by project
