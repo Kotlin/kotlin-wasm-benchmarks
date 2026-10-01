@@ -7,14 +7,14 @@ pluginManagement {
         gradlePluginPortal()
         maven(uri("./kotlin-compiler"))
         maven(uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap/"))
-        mavenLocal()
+//        mavenLocal()
     }
     resolutionStrategy {
         repositories {
             maven(uri("./kotlin-compiler"))
             gradlePluginPortal()
             maven(uri("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap/"))
-            mavenLocal()
+//            mavenLocal()
         }
     }
     val kotlin_version: String by settings

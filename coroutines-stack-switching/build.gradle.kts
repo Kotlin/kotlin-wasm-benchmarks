@@ -57,8 +57,6 @@ kotlin {
             // Reuse the root project's benchmark sources (shared macro infra + coroutines).
             kotlin.srcDir(rootProject.file("src/commonMain/kotlin/infra"))
             kotlin.srcDir(rootProject.file("src/commonMain/kotlin/coroutines"))
-            kotlin.srcDir(rootProject.file("src/commonMain/kotlin/macroBenchmarks"))
-            kotlin.srcDir(rootProject.file("src/commonMain/kotlin/microBenchmarks"))
             dependencies {
                 implementation(kotlin("stdlib-common"))
                 implementation(files(rootProject.file("kotlinx-benchmarks/kotlinx-benchmark-runtime-0.6.0.jar")))
