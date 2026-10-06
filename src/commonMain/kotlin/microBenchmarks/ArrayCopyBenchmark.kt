@@ -60,12 +60,10 @@ class ArrayCopyBenchmark {
         }
     }
 
-    private val end = 2 * BENCHMARK_SIZE
-
     @Benchmark
     fun copyInSameArray(blackhole: Blackhole) {
         val array = CustomArray<Int>()
-        val end = end
+        val end = 2 * BENCHMARK_SIZE
         var i = 0
         while (i < end) {
             array.add(0, i)

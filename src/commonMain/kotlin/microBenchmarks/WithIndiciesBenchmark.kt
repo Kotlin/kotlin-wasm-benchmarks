@@ -33,23 +33,27 @@ class WithIndiciesBenchmark {
 
     @Benchmark
     fun withIndicies(blackhole: Blackhole) {
+        var sum: Int = 0
         for ((index, value) in data.withIndex()) {
             if (filterLoad(value)) {
-                blackhole.consume(index)
-                blackhole.consume(value)
+                sum += index
+                sum += value.value
             }
         }
+        blackhole.consume(sum)
     }
 
     @Benchmark
     fun withIndiciesManual(blackhole: Blackhole) {
+        var sum: Int = 0
         var index = 0
         for (value in data) {
             if (filterLoad(value)) {
-                blackhole.consume(index)
-                blackhole.consume(value)
+                sum += index
+                sum += value.value
             }
             index++
         }
+        blackhole.consume(sum)
     }
 }

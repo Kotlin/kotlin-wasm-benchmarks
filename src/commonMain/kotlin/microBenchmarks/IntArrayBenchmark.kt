@@ -40,6 +40,7 @@ class IntArrayBenchmark {
 
     @Benchmark
     fun copyManual(blackhole: Blackhole) {
+        val data = data
         val list = ArrayList<Int>(data.size)
         for (item in data) {
             list.add(item)

@@ -90,7 +90,6 @@ class EulerBenchmark {
                 }
             }
         }
-        return -1
     }
 
     private val veryLongNumber = """
@@ -141,7 +140,7 @@ class EulerBenchmark {
         blackhole.consume(largest)
     }
 
-    
+
     @Benchmark
     fun problem9(blackhole: Blackhole) {
         val BENCHMARK_SIZE = BENCHMARK_SIZE // Looks awful but removes all implicit getSize() calls
@@ -162,7 +161,6 @@ class EulerBenchmark {
                 }
             }
         }
-        return -1L
     }
 
     data class Children(val left: Int, val right: Int)
@@ -188,7 +186,7 @@ class EulerBenchmark {
 
     data class Way(val length: Int, val next: Int)
 
-    
+
     @Benchmark
     fun problem14full(blackhole: Blackhole) {
         val BENCHMARK_SIZE = BENCHMARK_SIZE
