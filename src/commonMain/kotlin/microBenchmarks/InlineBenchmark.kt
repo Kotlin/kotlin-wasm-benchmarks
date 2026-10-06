@@ -18,7 +18,7 @@ package microBenchmarks
 
 import kotlinx.benchmark.*
 
-fun load(value: Int, size: Int): Int {
+private fun load(value: Int, size: Int): Int {
     var acc = 0
     for (i in 0..size) {
         acc = acc xor value.hashCode()
@@ -27,7 +27,7 @@ fun load(value: Int, size: Int): Int {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun loadInline(value: Int, size: Int): Int {
+private inline fun loadInline(value: Int, size: Int): Int {
     var acc = 0
     for (i in 0..size) {
         acc = acc xor value.hashCode()
@@ -35,7 +35,7 @@ inline fun loadInline(value: Int, size: Int): Int {
     return acc
 }
 
-fun <T: Any> loadGeneric(value: T, size: Int): Int {
+private fun <T: Any> loadGeneric(value: T, size: Int): Int {
     var acc = 0
     for (i in 0..size) {
         acc = acc xor value.hashCode()
@@ -44,7 +44,7 @@ fun <T: Any> loadGeneric(value: T, size: Int): Int {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun <T: Any> loadGenericInline(value: T, size: Int): Int {
+private inline fun <T: Any> loadGenericInline(value: T, size: Int): Int {
     var acc = 0
     for (i in 0..size) {
         acc = acc xor value.hashCode()

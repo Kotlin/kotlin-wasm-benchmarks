@@ -18,17 +18,10 @@ package microBenchmarks
 
 import kotlinx.benchmark.*
 
-var counter = 0
+private class MyClass
 
 @State(Scope.Benchmark)
 class AllocationBenchmark {
-
-    class MyClass {
-        fun inc() {
-            counter++
-        }
-    }
-
     @Benchmark
     fun allocateObjects(blackhole: Blackhole) {
         repeat(BENCHMARK_SIZE) {
@@ -36,5 +29,4 @@ class AllocationBenchmark {
             blackhole.consume(result)
         }
     }
-
 }

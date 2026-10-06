@@ -19,7 +19,7 @@ package microBenchmarks
 import kotlinx.benchmark.*
 import microBenchmarks.BENCHMARK_SIZE
 
-fun fibonacci(): Sequence<Int> {
+private fun fibonacci(): Sequence<Int> {
     var a = 0
     var b = 1
     fun next(): Int {
@@ -31,9 +31,9 @@ fun fibonacci(): Sequence<Int> {
     return generateSequence { next() }
 }
 
-fun Any.isPalindrome() = toString() == toString().reversed()
+private fun Any.isPalindrome() = toString() == toString().reversed()
 
-inline fun IntRange.sum(predicate: (Int) -> Boolean): Int {
+private inline fun IntRange.sum(predicate: (Int) -> Boolean): Int {
     var sum = 0
     for (i in this) if (predicate(i)) sum += i
     return sum

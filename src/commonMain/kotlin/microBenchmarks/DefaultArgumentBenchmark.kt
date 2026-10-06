@@ -23,6 +23,20 @@ import kotlinx.benchmark.*
  *
  * Tests performance for function calls with default parameters
  */
+
+private fun sumTwo(first: Int, second: Int = 0): Int {
+    return first + second
+}
+
+private fun sumFour(first: Int, second: Int = 0, third: Int = 1, fourth: Int = third): Int {
+    return first + second + third + fourth
+}
+
+private fun sumEight(first: Int, second: Int = 0, third: Int = 1, fourth: Int = third,
+             fifth: Int = fourth, sixth: Int = fifth, seventh: Int = second, eighth: Int = seventh): Int {
+    return first + second + third + fourth + fifth + sixth + seventh + eighth
+}
+
 @State(Scope.Benchmark)
 class DefaultArgumentBenchmark {
     private var arg = 0
@@ -32,30 +46,12 @@ class DefaultArgumentBenchmark {
         arg = Random.nextInt()
     }
 
-    
-    fun sumTwo(first: Int, second: Int = 0): Int {
-        return first + second
-    }
-
-    
-    fun sumFour(first: Int, second: Int = 0, third: Int = 1, fourth: Int = third): Int {
-        return first + second + third + fourth
-    }
-
-    
-    fun sumEight(first: Int, second: Int = 0, third: Int = 1, fourth: Int = third,
-                 fifth: Int = fourth, sixth: Int = fifth, seventh: Int = second, eighth: Int = seventh): Int {
-        return first + second + third + fourth + fifth + sixth + seventh + eighth
-    }
-
-    
     @Benchmark
     fun testOneOfTwo(blackhole: Blackhole) {
         val result = sumTwo(arg)
         blackhole.consume(result)
     }
 
-    
     @Benchmark
     fun testTwoOfTwo(blackhole: Blackhole) {
         val result = sumTwo(arg, arg)
@@ -68,21 +64,18 @@ class DefaultArgumentBenchmark {
         blackhole.consume(result)
     }
 
-    
     @Benchmark
     fun testFourOfFour(blackhole: Blackhole) {
         val result = sumFour(arg, arg, arg, arg)
         blackhole.consume(result)
     }
 
-    
     @Benchmark
     fun testOneOfEight(blackhole: Blackhole) {
         val result = sumEight(arg)
         blackhole.consume(result)
     }
 
-    
     @Benchmark
     fun testEightOfEight(blackhole: Blackhole) {
         val result = sumEight(arg, arg, arg, arg, arg, arg, arg, arg)

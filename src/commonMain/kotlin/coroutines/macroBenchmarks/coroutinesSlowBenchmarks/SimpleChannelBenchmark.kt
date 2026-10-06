@@ -11,31 +11,32 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.startCoroutine
 import kotlinx.benchmark.*
 
+private const val ITERATIONS = 200_000
+
 /*
  * Adapted benchmark from kotlinx.coroutines
  * https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/benchmarks/jvm/kotlin/kotlinx/coroutines/channels/SimpleChannelBenchmark.kt
  */
 abstract class SimpleChannelBenchmark : ParametrizedDispatcherBaseSlow() {
 
-    private val iterations = 200_000
     protected abstract fun makeChannel(): SimpleChannel
 
     @Volatile
     private var sink: Int = 0
 
     override fun verifyResult(result: Any) =
-        (result is Int) && result == iterations * (iterations - 1) / 2
+        (result is Int) && result == ITERATIONS * (ITERATIONS - 1) / 2
 
     override fun benchmark(): Any {
         var done = false
         suspend {
             val ch = makeChannel()
             launch {
-                repeat(iterations) { ch.send(it) }
+                repeat(ITERATIONS) { ch.send(it) }
             }
 
             launch {
-                repeat(iterations) { sink += ch.receive() }
+                repeat(ITERATIONS) { sink += ch.receive() }
             }
             done = true
         }.startCoroutine(Continuation(coroutineContext) { it.getOrThrow() })
