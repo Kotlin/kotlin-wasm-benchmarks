@@ -18,36 +18,35 @@ package microBenchmarks
 
 import kotlinx.benchmark.*
 
-val OBJ = Any()
+private val OBJ = Any()
+
+private fun methodWithOneNotnullParameter(p: Any): Any {
+    return p
+}
+
+private fun privateMethodWithOneNotnullParameter(p: Any): Any {
+    return p
+}
+
+fun methodWithTwoNotnullParameters(p: Any, p2: Any): Any {
+    return p
+}
+
+private fun privateMethodWithTwoNotnullParameters(p: Any, p2: Any): Any {
+    return p
+}
+
+fun methodWithEightNotnullParameters(p: Any, p2: Any, p3: Any, p4: Any, p5: Any, p6: Any, p7: Any, p8: Any): Any {
+    return p
+}
+
+private fun privateMethodWithEightNotnullParameters(p: Any, p2: Any, p3: Any, p4: Any, p5: Any, p6: Any, p7: Any, p8: Any): Any {
+    return p
+}
 
 @Suppress("UNUSED_PARAMETER")
 @State(Scope.Benchmark)
 class ParameterNotNullAssertionBenchmark {
-
-    fun methodWithOneNotnullParameter(p: Any): Any {
-        return p
-    }
-
-    private fun privateMethodWithOneNotnullParameter(p: Any): Any {
-        return p
-    }
-
-    fun methodWithTwoNotnullParameters(p: Any, p2: Any): Any {
-        return p
-    }
-
-    private fun privateMethodWithTwoNotnullParameters(p: Any, p2: Any): Any {
-        return p
-    }
-
-    fun methodWithEightNotnullParameters(p: Any, p2: Any, p3: Any, p4: Any, p5: Any, p6: Any, p7: Any, p8: Any): Any {
-        return p
-    }
-
-    private fun privateMethodWithEightNotnullParameters(p: Any, p2: Any, p3: Any, p4: Any, p5: Any, p6: Any, p7: Any, p8: Any): Any {
-        return p
-    }
-
     @Benchmark
     fun invokeOneArgWithNullCheck(blackhole: Blackhole) {
         val result = methodWithOneNotnullParameter(OBJ)

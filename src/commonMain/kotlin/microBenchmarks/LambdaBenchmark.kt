@@ -20,10 +20,11 @@ import kotlinx.benchmark.*
 
 var globalAddendum = 0
 
+private inline fun <T> runLambda(x: () -> T): T = x()
+private fun <T> runLambdaNoInline(x: () -> T): T = x()
+
 @State(Scope.Benchmark)
 class LambdaBenchmark {
-    private inline fun <T> runLambda(x: () -> T): T = x()
-    private fun <T> runLambdaNoInline(x: () -> T): T = x()
 
     @Setup
     fun setup() {

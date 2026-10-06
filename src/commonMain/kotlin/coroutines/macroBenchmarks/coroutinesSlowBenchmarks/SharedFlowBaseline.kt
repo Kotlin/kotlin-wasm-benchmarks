@@ -9,17 +9,15 @@ import kotlin.coroutines.startCoroutine
 import kotlinx.benchmark.*
 import kotlinx.coroutines.flow.*
 
+const val SIZE = 100_000
+const val RESULT_TAKE_WHILE_DIRECT = SIZE / 2
+
 /* Adapted benchmark from kotlinx.coroutines
  * https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/benchmarks/main/kotlin/SharedFlowBaseline.kt
  * Stresses out 'synchronized' codepath in MutableSharedFlow
  */
 @State(Scope.Benchmark)
 open class SharedFlowBaseline : ParametrizedDispatcherBase() {
-
-    companion object {
-        const val SIZE: Int = 100_000
-        const val RESULT_TAKE_WHILE_DIRECT = SIZE / 2
-    }
     @Benchmark
     fun baseline(blackhole: Blackhole) {
         var sum = 0
@@ -44,13 +42,12 @@ open class SharedFlowBaseline : ParametrizedDispatcherBase() {
         suspend {
             (0L..Long.MAX_VALUE).asFlow().takeWhile { it < SIZE }.consume()
         }.startCoroutine(Continuation(coroutineContext) { result = it.getOrThrow() })
-        blackhole.consume(result)
         coroutineContext.drain()
         check (result == RESULT_TAKE_WHILE_DIRECT) { "benchmark did not complete: $result" }
+        blackhole.consume(result)
     }
-
-    private suspend inline fun Flow<Long>.consume() =
-        filter { it % 2L != 0L }
-            .map { it * it }.count()
-
 }
+
+private suspend inline fun Flow<Long>.consume() =
+    filter { it % 2L != 0L }
+        .map { it * it }.count()
