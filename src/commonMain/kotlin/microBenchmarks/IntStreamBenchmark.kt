@@ -55,12 +55,14 @@ class IntStreamBenchmark {
     
     @Benchmark
     fun filterAndMapManual(blackhole: Blackhole) {
+        var sum: Int = 0
         for (it in data.asSequence()) {
             if (filterLoad(it)) {
                 val item = mapLoad(it)
-                blackhole.consume(item)
+                sum += item.length
             }
         }
+        blackhole.consume(sum)
     }
     
     @Benchmark
@@ -74,13 +76,14 @@ class IntStreamBenchmark {
     
     @Benchmark
     fun filterManual(blackhole: Blackhole) {
+        var result = 0
         for (it in data.asSequence()) {
             if (filterLoad(it)) {
                 result += it
             }
         }
-    }
         blackhole.consume(result)
+    }
     
     @Benchmark
     fun countFilteredManual(blackhole: Blackhole) {

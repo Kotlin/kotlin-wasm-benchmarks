@@ -507,6 +507,13 @@ open class G() : F() {
 
     @Benchmark
     fun baseCalls(blackhole: Blackhole) {
+        val a = a
+        val b = b
+        val c = c
+        val d = d
+        val e = e
+        val f = f
+        val g = g
         var x = 0
         var i = 0
         while (i < RUNS) {

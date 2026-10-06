@@ -65,38 +65,38 @@ class ForLoopsBenchmark {
 
     @Benchmark
     fun arrayLoop(blackhole: Blackhole) {
-        var sum = 0L
+        var sum: Int = 0
         for (e in array) {
             sum += e
         }
-        blackhole.consume(sum.toInt())
+        blackhole.consume(sum)
     }
 
     @Benchmark
     fun intArrayLoop(blackhole: Blackhole) {
-        var sum = 0L
+        var sum: Int = 0
         for (e in intArray) {
             sum += e
         }
-        blackhole.consume(sum.toInt())
+        blackhole.consume(sum)
     }
 
     @Benchmark
     fun charArrayLoop(blackhole: Blackhole) {
-        var sum = 0L
+        var sum: Int = 0
         for (e in charArray) {
-            sum += e.code.toLong()
+            sum += e.code
         }
-        blackhole.consume(sum.toInt())
+        blackhole.consume(sum)
     }
 
     @Benchmark
     fun stringLoop(blackhole: Blackhole) {
-        var sum = 0L
+        var sum: Int = 0
         for (e in string) {
-            sum += e.hashCode()
+            sum += e.code
         }
-        blackhole.consume(sum.toInt())
+        blackhole.consume(sum)
     }
 
     @Benchmark
@@ -138,42 +138,47 @@ class ForLoopsBenchmark {
     // Iterations over .indices
     @Benchmark
     fun arrayIndicesLoop(blackhole: Blackhole) {
-        var sum = 0L
+        val array = array
+        var sum: Int = 0
         for (i in array.indices) {
             sum += array[i]
         }
-        blackhole.consume(sum.toInt())
+        blackhole.consume(sum)
     }
 
     @Benchmark
     fun intArrayIndicesLoop(blackhole: Blackhole) {
-        var sum = 0L
+        val intArray = intArray
+        var sum: Int = 0
         for (i in intArray.indices) {
             sum += intArray[i]
         }
-        blackhole.consume(sum.toInt())
+        blackhole.consume(sum)
     }
 
     @Benchmark
     fun charArrayIndicesLoop(blackhole: Blackhole) {
-        var sum = 0L
+        val charArray = charArray
+        var sum: Int = 0
         for (i in charArray.indices) {
-            sum += charArray[i].code.toLong()
+            sum += charArray[i].code
         }
-        blackhole.consume(sum.toInt())
+        blackhole.consume(sum)
     }
 
     @Benchmark
     fun stringIndicesLoop(blackhole: Blackhole) {
-        var sum = 0L
+        val string = string
+        var sum: Int = 0
         for (i in string.indices) {
-            sum += string[i].hashCode()
+            sum += string[i].code
         }
-        blackhole.consume(sum.toInt())
+        blackhole.consume(sum)
     }
 
     @Benchmark
     fun floatArrayIndicesLoop(blackhole: Blackhole) {
+        val floatArray = floatArray
         var sum = 0.0
         for (i in floatArray.indices) {
             sum += floatArray[i]
@@ -183,27 +188,30 @@ class ForLoopsBenchmark {
 
     @Benchmark
     fun uIntArrayIndicesLoop(blackhole: Blackhole) {
+        val uIntArray = uIntArray!!
         var sum: ULong = 0u
-        for (i in uIntArray!!.indices) {
-            sum += uIntArray!![i]
+        for (i in uIntArray.indices) {
+            sum += uIntArray[i]
         }
         blackhole.consume(sum.toInt())
     }
 
     @Benchmark
     fun uShortArrayIndicesLoop(blackhole: Blackhole) {
+        val uShortArray = uShortArray!!
         var sum: ULong = 0u
-        for (i in uShortArray!!.indices) {
-            sum += uShortArray!![i]
+        for (i in uShortArray.indices) {
+            sum += uShortArray[i]
         }
         blackhole.consume(sum.toInt())
     }
 
     @Benchmark
     fun uLongArrayIndicesLoop(blackhole: Blackhole) {
+        val uLongArray = uLongArray!!
         var sum: ULong = 0u
-        for (i in uLongArray!!.indices) {
-            sum += uLongArray!![i]
+        for (i in uLongArray.indices) {
+            sum += uLongArray[i]
         }
         blackhole.consume(sum.toInt())
     }

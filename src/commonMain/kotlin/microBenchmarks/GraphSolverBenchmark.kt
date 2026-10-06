@@ -101,7 +101,7 @@ class Greedy(private val graph: Graph) {
         return ClosestNode(clostest.key, clostest.value)
     }
 
-    fun solve() {
+    fun solve(): Int {
         var previousNode = graph.first()
         visitedNodes.add(graph.first())
         var cost = 0
@@ -114,6 +114,8 @@ class Greedy(private val graph: Graph) {
         }
 
         cost += visitedNodes.last().neighbors[graph.first()]!!
+
+        return cost
     }
 }
 

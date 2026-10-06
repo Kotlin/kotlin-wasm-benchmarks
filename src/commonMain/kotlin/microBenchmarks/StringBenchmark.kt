@@ -33,7 +33,6 @@ class StringBenchmark {
 
     @Setup
     fun setup() {
-
         stringsInterpolation = Array(16) { i -> "s$i" }
 
         for (i in 1 until BENCHMARK_SIZE) {
@@ -117,6 +116,7 @@ class StringBenchmark {
 
     @Benchmark
     fun iterateCharsCsv(blackhole: Blackhole) {
+        val csv = csv
         var sum = 0
         for (i in 0 until BENCHMARK_SIZE) {
             sum += csv[i].code
@@ -126,6 +126,8 @@ class StringBenchmark {
 
     @Benchmark
     fun subSequenceCsv(blackhole: Blackhole) {
+        val subSequenceRanges = subSequenceRanges
+        val csv = csv
         var sum = 0
         for (range in subSequenceRanges) {
             val subString = csv.subSequence(range.first, range.second)
@@ -136,6 +138,7 @@ class StringBenchmark {
 
     @Benchmark
     fun stringInterpolation(blackhole: Blackhole) {
+        val stringsInterpolation = stringsInterpolation
         var sum = 0
         var i = 0
         var j = 0
@@ -155,6 +158,8 @@ class StringBenchmark {
 
     @Benchmark
     fun stringIndexOf(blackhole: Blackhole) {
+        val subSequenceStrings = subSequenceStrings
+        val csv = csv
         var sum = 0
         for (subString in subSequenceStrings) {
             val idx = csv.indexOf(subString)
@@ -165,6 +170,8 @@ class StringBenchmark {
 
     @Benchmark
     fun stringRemoveRange(blackhole: Blackhole) {
+        val subSequenceRanges = subSequenceRanges
+        val csvHead = csvHead
         var sum = 0
         for (range in subSequenceRanges) {
             val subString = csvHead.removeRange(range.first, range.second)
@@ -175,6 +182,8 @@ class StringBenchmark {
 
     @Benchmark
     fun stringRepeat(blackhole: Blackhole) {
+        val subSequenceStrings= subSequenceStrings
+        val substringsLength = substringsLength
         var sum = 0
         for (stringToRepeat in subSequenceStrings) {
             val num = max(substringsLength, BENCHMARK_SIZE / stringToRepeat.length)
@@ -186,6 +195,8 @@ class StringBenchmark {
 
     @Benchmark
     fun stringReplace(blackhole: Blackhole) {
+        val subSequenceStrings = subSequenceStrings
+        val csvHead = csvHead
         var sum = 0
         for ((i, subString) in subSequenceStrings.withIndex()) {
             val newSubString = subSequenceStrings[(i + 1) % subSequenceStrings.size]
@@ -197,6 +208,7 @@ class StringBenchmark {
 
     @Benchmark
     fun stringBuilderCompareWithInterpolation(blackhole: Blackhole) {
+        val stringsInterpolation = stringsInterpolation
         var sum = 0
         var i = 0
         var j = 0
@@ -219,6 +231,7 @@ class StringBenchmark {
 
     @Benchmark
     fun stringPlusCompareWithInterpolation(blackhole: Blackhole) {
+        val stringsInterpolation = stringsInterpolation
         var sum = 0
         var i = 0
         var j = 0
@@ -235,5 +248,4 @@ class StringBenchmark {
         }
         blackhole.consume(sum)
     }
-
 }

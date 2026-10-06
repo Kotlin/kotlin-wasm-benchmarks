@@ -31,9 +31,9 @@ open class SharedFlowBaseline : ParametrizedDispatcherBase() {
             done = true
         }.startCoroutine(Continuation(coroutineContext) { it.getOrThrow() })
         coroutineContext.drain()
-        blackhole.consume(sum)
         check(done) { "benchmark did not complete" }
         check(sum == SIZE * (SIZE - 1) / 2) { "benchmark did not complete $sum" }
+        blackhole.consume(sum)
     }
 
     @Benchmark
