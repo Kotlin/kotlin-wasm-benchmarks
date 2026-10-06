@@ -6,12 +6,12 @@ import macroBenchmarks.coroutinesSlowBenchmarks.Coroutines
 @State(Scope.Benchmark)
 class CoroutineMacroBenchmarks : MacroBenchmarksBase() {
     @Benchmark
-    fun coroutineIteration() {
-        runBenchmark(Coroutines.Iteration())
+    fun coroutineIteration(blackhole: Blackhole) {
+        runBenchmark(Coroutines.Iteration(), blackhole)
     }
 
     @Benchmark
-    fun coroutineRecursion() {
-        runBenchmark(Coroutines.Recursion())
+    fun coroutineRecursion(blackhole: Blackhole) {
+        runBenchmark(Coroutines.Recursion(), blackhole)
     }
 }

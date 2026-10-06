@@ -25,7 +25,7 @@ open class LaunchBenchmark : ParametrizedDispatcherBase() {
     private val stopBarrier = CyclicBarrier(submitters + 1)
 
     @Benchmark
-    fun massiveLaunch() {
+    fun massiveLaunch(blackhole: Blackhole) {
         var done = false
         suspend {
             repeat(submitters) {
@@ -48,6 +48,7 @@ open class LaunchBenchmark : ParametrizedDispatcherBase() {
         }.startCoroutine(Continuation(coroutineContext) { it.getOrThrow() })
         coroutineContext.drain()
         check(done) { "benchmark did not complete" }
+        blackhole.consume(done)
     }
 }
 

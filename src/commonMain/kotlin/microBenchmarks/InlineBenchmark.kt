@@ -57,22 +57,22 @@ class InlineBenchmark {
     private var value = 2138476523
 
     @Benchmark
-    fun calculate(): Int {
-        return load(value, BENCHMARK_SIZE)
+    fun calculate(blackhole: Blackhole) {
+        blackhole.consume(load(value, BENCHMARK_SIZE))
     }
 
     @Benchmark
-    fun calculateInline(): Int {
-        return loadInline(value, BENCHMARK_SIZE)
+    fun calculateInline(blackhole: Blackhole) {
+        blackhole.consume(loadInline(value, BENCHMARK_SIZE))
     }
 
     @Benchmark
-    fun calculateGeneric(): Int {
-        return loadGeneric(value, BENCHMARK_SIZE)
+    fun calculateGeneric(blackhole: Blackhole) {
+        blackhole.consume(loadGeneric(value, BENCHMARK_SIZE))
     }
 
     @Benchmark
-    fun calculateGenericInline(): Int {
-        return loadGenericInline(value, BENCHMARK_SIZE)
+    fun calculateGenericInline(blackhole: Blackhole) {
+        blackhole.consume(loadGenericInline(value, BENCHMARK_SIZE))
     }
 }

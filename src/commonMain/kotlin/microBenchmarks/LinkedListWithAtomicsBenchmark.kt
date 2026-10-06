@@ -92,8 +92,11 @@ class LinkedListWithAtomicsBenchmark {
     }
 
     @Benchmark
-    fun ensureNext(): ChunkBuffer? =
-        ensureNext(list.head)
+    fun ensureNext(blackhole: Blackhole) {
+        val result = ensureNext(list.head, list)
+        blackhole.consume(result)
+    }
+}
 
     private tailrec fun ensureNext(current: ChunkBuffer): ChunkBuffer? {
         return when (val next = current.next) {

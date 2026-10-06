@@ -21,8 +21,9 @@ import kotlinx.benchmark.*
 @State(Scope.Benchmark)
 class CompanionObjectBenchmark {
     @Benchmark
-    fun invokeRegularFunction() {
-        regularCompanionObjectFunction("")
+    fun invokeRegularFunction(blackhole: Blackhole) {
+        val result = regularCompanionObjectFunction("")
+        blackhole.consume(result)
     }
 
     companion object {

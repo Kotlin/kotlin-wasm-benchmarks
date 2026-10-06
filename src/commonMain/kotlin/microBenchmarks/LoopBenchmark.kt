@@ -72,11 +72,15 @@ class LoopBenchmark {
 
     @Benchmark 
     fun arrayForeachLoop(blackhole: Blackhole) {
-        array.forEach { blackhole.consume(it) }
+        array.forEach {
+            blackhole.consume(it)
+        }
     }
 
     @Benchmark 
     fun arrayListForeachLoop(blackhole: Blackhole) {
-        arrayList.forEach { blackhole.consume(it) }
+        arrayList.forEach {
+            blackhole.consume(it)
+        }
     }
 }

@@ -64,147 +64,147 @@ class ForLoopsBenchmark {
     }
 
     @Benchmark
-    fun arrayLoop(): Long {
+    fun arrayLoop(blackhole: Blackhole) {
         var sum = 0L
         for (e in array) {
             sum += e
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun intArrayLoop(): Long {
+    fun intArrayLoop(blackhole: Blackhole) {
         var sum = 0L
         for (e in intArray) {
             sum += e
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun charArrayLoop(): Long {
+    fun charArrayLoop(blackhole: Blackhole) {
         var sum = 0L
         for (e in charArray) {
             sum += e.code.toLong()
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringLoop(): Long {
+    fun stringLoop(blackhole: Blackhole) {
         var sum = 0L
         for (e in string) {
             sum += e.hashCode()
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun floatArrayLoop(): Double {
+    fun floatArrayLoop(blackhole: Blackhole) {
         var sum = 0.0
         for (e in floatArray) {
             sum += e
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun uIntArrayLoop(): ULong {
+    fun uIntArrayLoop(blackhole: Blackhole) {
         var sum: ULong = 0u
         for (e in uIntArray!!) {
             sum += e
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun uShortArrayLoop(): ULong {
+    fun uShortArrayLoop(blackhole: Blackhole) {
         var sum: ULong = 0u
         for (e in uShortArray!!) {
             sum += e
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun uLongArrayLoop(): ULong {
+    fun uLongArrayLoop(blackhole: Blackhole) {
         var sum: ULong = 0u
         for (e in uLongArray!!) {
             sum += e
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     // Iterations over .indices
     @Benchmark
-    fun arrayIndicesLoop(): Long {
+    fun arrayIndicesLoop(blackhole: Blackhole) {
         var sum = 0L
         for (i in array.indices) {
             sum += array[i]
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun intArrayIndicesLoop(): Long {
+    fun intArrayIndicesLoop(blackhole: Blackhole) {
         var sum = 0L
         for (i in intArray.indices) {
             sum += intArray[i]
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun charArrayIndicesLoop(): Long {
+    fun charArrayIndicesLoop(blackhole: Blackhole) {
         var sum = 0L
         for (i in charArray.indices) {
             sum += charArray[i].code.toLong()
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringIndicesLoop(): Long {
+    fun stringIndicesLoop(blackhole: Blackhole) {
         var sum = 0L
         for (i in string.indices) {
             sum += string[i].hashCode()
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun floatArrayIndicesLoop(): Double {
+    fun floatArrayIndicesLoop(blackhole: Blackhole) {
         var sum = 0.0
         for (i in floatArray.indices) {
             sum += floatArray[i]
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun uIntArrayIndicesLoop(): ULong {
+    fun uIntArrayIndicesLoop(blackhole: Blackhole) {
         var sum: ULong = 0u
         for (i in uIntArray!!.indices) {
             sum += uIntArray!![i]
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun uShortArrayIndicesLoop(): ULong {
+    fun uShortArrayIndicesLoop(blackhole: Blackhole) {
         var sum: ULong = 0u
         for (i in uShortArray!!.indices) {
             sum += uShortArray!![i]
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun uLongArrayIndicesLoop(): ULong {
+    fun uLongArrayIndicesLoop(blackhole: Blackhole) {
         var sum: ULong = 0u
         for (i in uLongArray!!.indices) {
             sum += uLongArray!![i]
         }
-        return sum
+        blackhole.consume(sum)
     }
 }

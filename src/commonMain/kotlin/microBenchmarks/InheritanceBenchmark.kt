@@ -506,7 +506,7 @@ open class G() : F() {
     val g = G()
 
     @Benchmark
-    fun baseCalls(): Int {
+    fun baseCalls(blackhole: Blackhole) {
         var x = 0
         var i = 0
         while (i < RUNS) {
@@ -521,6 +521,6 @@ open class G() : F() {
 
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 }

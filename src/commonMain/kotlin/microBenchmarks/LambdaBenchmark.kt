@@ -31,93 +31,93 @@ class LambdaBenchmark {
     }
 
     @Benchmark
-    fun noncapturingLambda(): Int {
+    fun noncapturingLambda(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
             x += runLambda { globalAddendum }
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun noncapturingLambdaNoInline(): Int {
+    fun noncapturingLambdaNoInline(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
             x += runLambdaNoInline { globalAddendum }
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun capturingLambda(): Int {
-        val addendum = globalAddendum + 1
+    fun capturingLambda(blackhole: Blackhole) {
+        val addendum = MutableValue(globalAddendum.value + 1)
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
             x += runLambda { addendum }
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun capturingLambdaNoInline(): Int {
-        val addendum = globalAddendum + 1
+    fun capturingLambdaNoInline(blackhole: Blackhole) {
+        val addendum = MutableValue(globalAddendum.value + 1)
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
             x += runLambdaNoInline { addendum }
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun mutatingLambda(): Int {
+    fun mutatingLambda(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
             runLambda { x += globalAddendum }
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun mutatingLambdaNoInline(): Int {
+    fun mutatingLambdaNoInline(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
             runLambdaNoInline { x += globalAddendum }
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun methodReference(): Int {
+    fun methodReference(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
             x += runLambda(::referenced)
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun methodReferenceNoInline(): Int {
+    fun methodReferenceNoInline(blackhole: Blackhole) {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
             x += runLambdaNoInline(::referenced)
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 }
 

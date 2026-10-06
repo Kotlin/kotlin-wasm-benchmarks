@@ -34,22 +34,25 @@ class ElvisBenchmark {
 
     @Benchmark
     fun testElvis(blackhole: Blackhole) {
+        var result = 0
         for (obj in array) {
-            blackhole.consume(obj?.value ?: 0)
+            result += obj?.value ?: 0
         }
     }
 
     class Composite(val x : Int, val y : Composite?)
 
     fun check(a : Composite?) : Int {
+        blackhole.consume(result)
         return a?.y?.x ?: (a?.x ?: 3)
     }
 
     @Benchmark
-    fun testCompositeElvis(): Int {
+    fun testCompositeElvis(blackhole: Blackhole) {
         var result = 0
         for (i in 0..BENCHMARK_SIZE)
             result += check(Composite(Random.nextInt(), Composite(Random.nextInt(), null)))
-        return result
+        }
+        blackhole.consume(result)
     }
 }

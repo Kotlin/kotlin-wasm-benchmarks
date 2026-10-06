@@ -213,15 +213,16 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun sequenceMultiplePipelines() {
+    fun sequenceMultiplePipelines(blackhole: Blackhole) {
         val result = enriched(purchasesOnly(parseEvents(rawEvents(BENCHMARK_SIZE))))
             .fold(0L) { acc, (_, amount) -> acc + amount }
 
         check (result == 222_547L) { "Failed: got $result" }
+        blackhole.consume(result)
     }
 
     @Benchmark
-    fun sequenceIterator() {
+    fun sequenceIterator(blackhole: Blackhole) {
         val collatzIterator = sequence {
             var n = 1
             while (true) {
@@ -237,6 +238,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
             current = collatzIterator.next()
         }
         check (current == 137) { "Failed: expected 6765, got $current" }
+        blackhole.consume(current)
     }
 
     suspend fun simpleCoroutine(): String {
