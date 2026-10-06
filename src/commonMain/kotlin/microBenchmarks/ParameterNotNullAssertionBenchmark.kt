@@ -49,33 +49,39 @@ class ParameterNotNullAssertionBenchmark {
     }
 
     @Benchmark
-    fun invokeOneArgWithNullCheck(): Any {
-        return methodWithOneNotnullParameter(OBJ)
+    fun invokeOneArgWithNullCheck(blackhole: Blackhole) {
+        val result = methodWithOneNotnullParameter(OBJ)
+        blackhole.consume(result)
     }
 
     @Benchmark
-    fun invokeOneArgWithoutNullCheck(): Any {
-        return privateMethodWithOneNotnullParameter(OBJ)
+    fun invokeOneArgWithoutNullCheck(blackhole: Blackhole) {
+        val result = privateMethodWithOneNotnullParameter(OBJ)
+        blackhole.consume(result)
     }
 
     @Benchmark
-    fun invokeTwoArgsWithNullCheck(): Any {
-        return methodWithTwoNotnullParameters(OBJ, OBJ)
+    fun invokeTwoArgsWithNullCheck(blackhole: Blackhole) {
+        val result = methodWithTwoNotnullParameters(OBJ, OBJ)
+        blackhole.consume(result)
     }
 
     @Benchmark
-    fun invokeTwoArgsWithoutNullCheck(): Any {
-        return privateMethodWithTwoNotnullParameters(OBJ, OBJ)
+    fun invokeTwoArgsWithoutNullCheck(blackhole: Blackhole) {
+        val result = privateMethodWithTwoNotnullParameters(OBJ, OBJ)
+        blackhole.consume(result)
     }
 
     @Benchmark
-    fun invokeEightArgsWithNullCheck(): Any {
-        return methodWithEightNotnullParameters(OBJ, OBJ, OBJ, OBJ, OBJ, OBJ, OBJ, OBJ)
+    fun invokeEightArgsWithNullCheck(blackhole: Blackhole) {
+        val result = methodWithEightNotnullParameters(OBJ, OBJ, OBJ, OBJ, OBJ, OBJ, OBJ, OBJ)
+        blackhole.consume(result)
     }
 
     @Benchmark
-    fun invokeEightArgsWithoutNullCheck(): Any {
-        return privateMethodWithEightNotnullParameters(OBJ, OBJ, OBJ, OBJ, OBJ, OBJ, OBJ, OBJ)
+    fun invokeEightArgsWithoutNullCheck(blackhole: Blackhole) {
+        val result = privateMethodWithEightNotnullParameters(OBJ, OBJ, OBJ, OBJ, OBJ, OBJ, OBJ, OBJ)
+        blackhole.consume(result)
     }
 }
 

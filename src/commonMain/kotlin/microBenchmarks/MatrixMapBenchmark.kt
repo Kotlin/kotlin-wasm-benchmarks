@@ -74,8 +74,16 @@ class MatrixMapBenchmark {
 
 
     @Benchmark
-    fun add(): KMatrix {
-        a += b
-        return a
+    fun add(blackhole: Blackhole) {
+        val result = KMatrix(rows = a.rows, columns = a.columns)
+
+        repeat(BENCHMARK_SIZE) {
+            result += a
+            result += b
+            result += a
+            result += b
+        }
+
+        blackhole.consume(result)
     }
 }

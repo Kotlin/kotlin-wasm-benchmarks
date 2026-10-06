@@ -22,75 +22,75 @@ import macroBenchmarks.coroutinesSlowBenchmarks.Coroutines
 @State(Scope.Benchmark)
 class MacroBenchmarksSlow : MacroBenchmarksBase() {
     @Benchmark
-    fun cd() {
-        runBenchmark(CD())
+    fun cd(blackhole: Blackhole) {
+        runBenchmark(CD(), blackhole)
     }
 
     @Benchmark
-    fun havlak() {
-        runBenchmark(Havlak())
+    fun havlak(blackhole: Blackhole) {
+        runBenchmark(Havlak(), blackhole)
     }
 
     @Benchmark
-    fun json() {
-        runBenchmark(Json())
+    fun json(blackhole: Blackhole) {
+        runBenchmark(Json(), blackhole)
     }
 
     @Benchmark
-    fun nBody() {
-        runBenchmark(NBody())
+    fun nBody(blackhole: Blackhole) {
+        runBenchmark(NBody(), blackhole)
     }
 
     @Benchmark
-    fun mandelbrot() {
-        runBenchmark(Mandelbrot())
+    fun mandelbrot(blackhole: Blackhole) {
+        runBenchmark(Mandelbrot(), blackhole)
     }
 
     @Benchmark
-    fun coroutineIteration() {
-        runBenchmark(Coroutines.Iteration())
+    fun coroutineIteration(blackhole: Blackhole) {
+        runBenchmark(Coroutines.Iteration(), blackhole)
     }
 
     @Benchmark
-    fun coroutineRecursion() {
-        runBenchmark(Coroutines.Recursion())
+    fun coroutineRecursion(blackhole: Blackhole) {
+        runBenchmark(Coroutines.Recursion(), blackhole)
     }
 }
 
 @State(Scope.Benchmark)
 class MacroBenchmarksFast : MacroBenchmarksBase() {
     @Benchmark
-    fun bounce() {
-        runBenchmark(Bounce())
+    fun bounce(blackhole: Blackhole) {
+        runBenchmark(Bounce(), blackhole)
     }
 
     @Benchmark
-    fun list() {
-        runBenchmark(List())
+    fun list(blackhole: Blackhole) {
+        runBenchmark(List(), blackhole)
     }
 
     @Benchmark
-    fun permute() {
-        runBenchmark(Permute())
+    fun permute(blackhole: Blackhole) {
+        runBenchmark(Permute(), blackhole)
     }
 
     @Benchmark
-    fun queens() {
-        runBenchmark(Queens())
+    fun queens(blackhole: Blackhole) {
+        runBenchmark(Queens(), blackhole)
     }
 
     @Benchmark
-    fun sieve() {
-        runBenchmark(Sieve())
+    fun sieve(blackhole: Blackhole) {
+        runBenchmark(Sieve(), blackhole)
     }
 
     @Benchmark
-    fun storage() {
-        runBenchmark(Storage())
+    fun storage(blackhole: Blackhole) {
+        runBenchmark(Storage(), blackhole)
     }
 
     @Benchmark
-    fun towers() {
-        runBenchmark(Towers())
+    fun towers(blackhole: Blackhole) {
+        runBenchmark(Towers(), blackhole)
     }
 }

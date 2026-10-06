@@ -21,7 +21,7 @@ import kotlinx.benchmark.*
 @State(Scope.Benchmark)
 class LocalObjectsBenchmark {
     @Benchmark
-    fun localArray(): Int {
+    fun localArray(blackhole: Blackhole) {
         val size = 48
         val array = IntArray(size)
         for (i in 1..size) {
@@ -31,9 +31,6 @@ class LocalObjectsBenchmark {
         for (i in 0 until size) {
             result += array[i]
         }
-        if (result > 10) {
-            return 1
-        }
-        return 2
+        blackhole.consume(result)
     }
 }

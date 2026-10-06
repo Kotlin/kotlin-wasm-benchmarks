@@ -23,6 +23,8 @@
 
 package macroBenchmarks
 
+import kotlinx.benchmark.Blackhole
+
 abstract class MacroBenchmark {
     open fun benchmark(): Any =
         error("Should never be reached")
@@ -30,9 +32,11 @@ abstract class MacroBenchmark {
     open fun verifyResult(result: Any): Boolean =
         error("Should never be reached")
 
-    open fun innerBenchmarkLoop(innerIterations: Int): Boolean {
+    open fun innerBenchmarkLoop(innerIterations: Int, blackhole: Blackhole): Boolean {
         for (i in 0 until innerIterations) {
-            if (!verifyResult(benchmark())) {
+            val result = benchmark()
+            blackhole.consume(result)
+            if (!verifyResult(result)) {
                 return false
             }
         }

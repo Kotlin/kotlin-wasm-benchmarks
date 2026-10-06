@@ -54,16 +54,25 @@ inline fun Sequence<Int>.sum(predicate: (Int) -> Boolean): Int {
 class EulerBenchmark {
 
     @Benchmark
-    fun problem1bySequence() = (1..BENCHMARK_SIZE).asSequence().sum( { it % 3 == 0 || it % 5 == 0} )
-    
+    fun problem1bySequence(blackhole: Blackhole) {
+        val result = (1..BENCHMARK_SIZE).asSequence().sum( { it % 3 == 0 || it % 5 == 0} )
+        blackhole.consume(result)
+    }
+
     @Benchmark
-    fun problem1() = (1..BENCHMARK_SIZE).sum( { it % 3 == 0 || it % 5 == 0} )
-    
+    fun problem1(blackhole: Blackhole) {
+        val result = (1..BENCHMARK_SIZE).sum( { it % 3 == 0 || it % 5 == 0} )
+        blackhole.consume(result)
+    }
+
     @Benchmark
-    fun problem2() = fibonacci().takeWhile { it < BENCHMARK_SIZE }.sum { it % 2 == 0 }
-    
+    fun problem2(blackhole: Blackhole) {
+        val result = fibonacci().takeWhile { it < BENCHMARK_SIZE }.sum { it % 2 == 0 }
+        blackhole.consume(result)
+    }
+
     @Benchmark
-    fun problem4(): Long {
+    fun problem4(blackhole: Blackhole) {
         val s: Long = BENCHMARK_SIZE.toLong()
         val maxLimit = (s-1)*(s-1)
         val minLimit = (s/10)*(s/10)
@@ -75,7 +84,8 @@ class EulerBenchmark {
                 if (i % j == 0L) {
                     val res = i / j
                     if (res in minDiv.toLong()..maxDiv.toLong()) {
-                        return i
+                        blackhole.consume(i)
+                        return
                     }
                 }
             }
@@ -108,7 +118,7 @@ class EulerBenchmark {
 
     
     @Benchmark
-    fun problem8(): Long {
+    fun problem8(blackhole: Blackhole) {
         val productSize = when(BENCHMARK_SIZE) {
             in 1..10 -> 4
             in 11..1000 -> 8
@@ -128,12 +138,12 @@ class EulerBenchmark {
             }
             if (product > largest) largest = product
         }
-        return largest
+        blackhole.consume(largest)
     }
 
     
     @Benchmark
-    fun problem9(): Long {
+    fun problem9(blackhole: Blackhole) {
         val BENCHMARK_SIZE = BENCHMARK_SIZE // Looks awful but removes all implicit getSize() calls
         for (c in BENCHMARK_SIZE/3..BENCHMARK_SIZE-3) {
             val c2 = c.toLong() * c.toLong()
@@ -146,7 +156,9 @@ class EulerBenchmark {
                 val b2 = b.toLong() * b.toLong()
                 val a2 = a.toLong() * a.toLong()
                 if (c2 == b2 + a2) {
-                    return a.toLong() * b.toLong() * c.toLong()
+                    val result = a.toLong() * b.toLong() * c.toLong()
+                    blackhole.consume(result)
+                    return
                 }
             }
         }
@@ -156,7 +168,7 @@ class EulerBenchmark {
     data class Children(val left: Int, val right: Int)
 
     @Benchmark
-    fun problem14(): List<Int> {
+    fun problem14(blackhole: Blackhole) {
         // Simplified problem is solved here: it's not allowed to leave the interval [0..BENCHMARK_SIZE) inside a number chain
         val BENCHMARK_SIZE = BENCHMARK_SIZE
         // Build a tree
@@ -170,14 +182,15 @@ class EulerBenchmark {
             val right = dfs(tree[begin].right)
             return listOf(begin) + if (left.size > right.size) left else right
         }
-        return dfs(1)
+        val result = dfs(1)
+        blackhole.consume(result)
     }
 
     data class Way(val length: Int, val next: Int)
 
     
     @Benchmark
-    fun problem14full(): List<Int> {
+    fun problem14full(blackhole: Blackhole) {
         val BENCHMARK_SIZE = BENCHMARK_SIZE
         // Previous achievements: map (number) -> (length, next)
         val map: MutableMap<Int, Way> = HashMap()
@@ -209,6 +222,7 @@ class EulerBenchmark {
             val next = map[begin]?.next ?: 0
             return listOf(begin) + unroll(next)
         }
-        return unroll(bestNum)
+        val result = unroll(bestNum)
+        blackhole.consume(result)
     }
 }

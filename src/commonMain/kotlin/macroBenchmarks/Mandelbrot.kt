@@ -46,10 +46,14 @@
 package macroBenchmarks
 
 import kotlin.collections.List
+import kotlinx.benchmark.Blackhole
 
 class Mandelbrot : MacroBenchmark() {
-    override fun innerBenchmarkLoop(innerIterations: Int): Boolean =
-        verifyResult(mandelbrot(innerIterations), innerIterations)
+    override fun innerBenchmarkLoop(innerIterations: Int, blackhole: Blackhole): Boolean {
+        val result = mandelbrot(innerIterations)
+        blackhole.consume(result)
+        return verifyResult(result, innerIterations)
+    }
 
     override val defaultInnerIterations: List<Int> = listOf(1, 750, 500)
 

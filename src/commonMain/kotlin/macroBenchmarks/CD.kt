@@ -25,6 +25,7 @@ package macroBenchmarks
 import macroBenchmarks.cd.CollisionDetector
 import macroBenchmarks.cd.Simulator
 import kotlin.collections.List
+import kotlinx.benchmark.Blackhole
 
 class CD : MacroBenchmark() {
     private fun benchmark(numAircrafts: Int): Int {
@@ -40,8 +41,10 @@ class CD : MacroBenchmark() {
         return actualCollisions
     }
 
-    override fun innerBenchmarkLoop(innerIterations: Int): Boolean {
-        return verifyResult(benchmark(innerIterations), innerIterations)
+    override fun innerBenchmarkLoop(innerIterations: Int, blackhole: Blackhole): Boolean {
+        val result = benchmark(innerIterations)
+        blackhole.consume(result)
+        return verifyResult(result, innerIterations)
     }
 
     private fun verifyResult(actualCollisions: Int, numAircrafts: Int): Boolean = when (numAircrafts) {

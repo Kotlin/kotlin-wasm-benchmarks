@@ -48,13 +48,16 @@ class AbstractMethodBenchmark {
     }
 
     @Benchmark
-    fun sortStrings(): Set<String> = arr.toSet()
+    fun sortStrings(blackhole: Blackhole) {
+        val result = arr.toSet()
+        blackhole.consume(result)
+    }
 
 
     @Benchmark
-    fun sortStringsWithComparator(): Set<String> {
+    fun sortStringsWithComparator(blackhole: Blackhole) {
         mutableSet.addAll(arr)
-        return mutableSet
+        blackhole.consume(mutableSet)
     }
 }
 

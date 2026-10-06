@@ -509,35 +509,35 @@ class SwitchBenchmark {
     @Benchmark 
     fun testSparseIntSwitch(blackhole: Blackhole) {
         for (i in sparseIntData) {
-            blackhole.consume(sparseIntSwitch(i))
+            x += sparseIntSwitch(i)
         }
     }
 
     @Benchmark 
     fun testDenseIntSwitch(blackhole: Blackhole) {
         for (i in denseIntData) {
-            blackhole.consume(denseIntSwitch(i))
+            x += denseIntSwitch(i)
         }
     }
 
     @Benchmark 
     fun testConstSwitch(blackhole: Blackhole) {
         for (i in denseIntData) {
-            blackhole.consume(constSwitch(i))
+            x += constSwitch(i)
         }
     }
 
     @Benchmark 
     fun testObjConstSwitch(blackhole: Blackhole) {
         for (i in denseIntData) {
-            blackhole.consume(objConstSwitch(i))
+            x += objConstSwitch(i)
         }
     }
 
     @Benchmark 
     fun testVarSwitch(blackhole: Blackhole) {
         for (i in denseIntData) {
-            blackhole.consume(varSwitch(i))
+            x += varSwitch(i)
         }
     }
 
@@ -547,9 +547,9 @@ class SwitchBenchmark {
     fun testStringsSwitch(blackhole: Blackhole) {
         @Suppress("UNUSED_VARIABLE")
         val data = data
-        blackhole.consume(data.size)
+        var x = data.size
         for (s in data) {
-            blackhole.consume(stringSwitch(s))
+            x += stringSwitch(s)
         }
     }
 
@@ -557,10 +557,9 @@ class SwitchBenchmark {
     fun testStringsDifficultSwitch(blackhole: Blackhole) {
         @Suppress("UNUSED_VARIABLE")
         val data = data
-        blackhole.consume(data.size)
+        var x = data.size
         for (s in data) {
-            blackhole.consume(stringDifficultSwitch(s))
-            blackhole.consume(stringDifficultSwitch("ARcZguv" + s))
+            x += stringDifficultSwitch(s)
         }
     }
 
@@ -628,8 +627,9 @@ class SwitchBenchmark {
         val n = enumData.size -1
         val data = enumData
         for (i in 0..n) {
-            blackhole.consume(enumSwitch(data[i]))
+            x += enumSwitch(data[i])
         }
+        blackhole.consume(x)
     }
 
     @Benchmark 
@@ -637,7 +637,8 @@ class SwitchBenchmark {
         val n = denseEnumData.size -1
         val data = denseEnumData
         for (i in 0..n) {
-            blackhole.consume(denseEnumSwitch(data[i]))
+            x += denseEnumSwitch(data[i])
+        blackhole.consume(x)
         }
     }
 
@@ -646,6 +647,7 @@ class SwitchBenchmark {
         class MySealedClass2: MySealedClass()
         class MySealedClass3: MySealedClass()
         class MySealedClass4: MySealedClass()
+        blackhole.consume(x)
         class MySealedClass5: MySealedClass()
         class MySealedClass6: MySealedClass()
         class MySealedClass7: MySealedClass()
@@ -654,6 +656,7 @@ class SwitchBenchmark {
         class MySealedClass10: MySealedClass()
     }
 
+        blackhole.consume(x)
     lateinit var sealedClassData: Array<MySealedClass>
 
     @Setup
@@ -662,6 +665,7 @@ class SwitchBenchmark {
             "ABCDEFG" + Random.nextInt(22)
         }
         enumData = Array(BENCHMARK_SIZE) {
+        blackhole.consume(x)
             MyEnum.values()[it % MyEnum.values().size]
         }
         denseEnumData = Array(BENCHMARK_SIZE) {
@@ -672,6 +676,7 @@ class SwitchBenchmark {
         sealedClassData = Array(BENCHMARK_SIZE) {
             when(Random.nextInt(10)) {
                 0 -> MySealedClass.MySealedClass1()
+        blackhole.consume(x)
                 1 -> MySealedClass.MySealedClass2()
                 2 -> MySealedClass.MySealedClass3()
                 3 -> MySealedClass.MySealedClass4()
@@ -683,6 +688,7 @@ class SwitchBenchmark {
                 9 -> MySealedClass.MySealedClass10()
                 else -> throw IllegalStateException()
             }
+        blackhole.consume(x)
         }
     }
 
@@ -693,6 +699,7 @@ class SwitchBenchmark {
             is MySealedClass.MySealedClass3 -> 3
             is MySealedClass.MySealedClass4 -> 4
             is MySealedClass.MySealedClass5 -> 5
+        blackhole.consume(x)
             is MySealedClass.MySealedClass6 -> 6
             is MySealedClass.MySealedClass7 -> 7
             is MySealedClass.MySealedClass8 -> 8
@@ -703,10 +710,12 @@ class SwitchBenchmark {
 
     @Benchmark 
     fun testSealedWhenSwitch(blackhole: Blackhole) {
+        blackhole.consume(x)
         val sealedClassData = sealedClassData
         val n = sealedClassData.size -1
         for (i in 0..n) {
-            blackhole.consume(sealedWhenSwitch(sealedClassData[i]))
+            x += sealedWhenSwitch(sealedClassData[i])
         }
     }
 }
+        blackhole.consume(x)

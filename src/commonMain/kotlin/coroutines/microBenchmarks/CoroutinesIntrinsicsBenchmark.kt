@@ -55,7 +55,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun chainSuspensions() {
+    fun chainSuspensions(blackhole: Blackhole) {
         coroutines.clear()
         coroutines2.clear()
         deepReached = 0
@@ -76,6 +76,8 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
 
         check (deepReached == 1) { "deepReached=$deepReached" }
         check (deepCompletion == SUSPENSIONS_AMOUNT) { "deepCompletion=$deepCompletion" }
+        val result = deepReached + deepCompletion
+        blackhole.consume(result)
     }
 
     suspend fun deepDeep(n: Int, deepSuspensionsNum: Int) {
@@ -99,7 +101,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun deepSuspensions() {
+    fun deepSuspensions(blackhole: Blackhole) {
         coroutines.clear()
         coroutines2.clear()
         deepCoroutine = null
@@ -127,6 +129,8 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
         check (deepSuspensionsCount == SUSPENSIONS_AMOUNT) { "deepSuspensionsCount=$deepSuspensionsCount" }
         check (deepReached == 1) { "deepReached=$deepReached" }
         check (deepCompletion == SUSPENSIONS_AMOUNT) { "deepCompletion=$deepCompletion" }
+        val result = deepSuspensionsCount + deepReached + deepCompletion
+        blackhole.consume(result)
     }
 
 
@@ -137,7 +141,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
         }
 
     @Benchmark
-    fun selfResumptions() {
+    fun selfResumptions(blackhole: Blackhole) {
 
         var result = 0
 
@@ -150,6 +154,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
         }
 
         check (result == SUSPENSIONS_AMOUNT) { "result=$result" }
+        blackhole.consume(result)
     }
 
     var resumeCoroutine: (() -> Unit)? = null
@@ -163,7 +168,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
         }
 
     @Benchmark
-    fun externalResumptions() {
+    fun externalResumptions(blackhole: Blackhole) {
         resumeCoroutine = null
         var result = 0
         var acc = 0
@@ -181,6 +186,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
         }
         resumeCoroutine = null
         check (result == BENCHMARK_SIZE) { "Failed: expected 50, got $result" }
+        blackhole.consume(result)
     }
 
     private data class Event(val userId: Int, val type: String, val amount: Int)
@@ -213,15 +219,16 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun sequenceMultiplePipelines() {
+    fun sequenceMultiplePipelines(blackhole: Blackhole) {
         val result = enriched(purchasesOnly(parseEvents(rawEvents(BENCHMARK_SIZE))))
             .fold(0L) { acc, (_, amount) -> acc + amount }
 
         check (result == 222_547L) { "Failed: got $result" }
+        blackhole.consume(result)
     }
 
     @Benchmark
-    fun sequenceIterator() {
+    fun sequenceIterator(blackhole: Blackhole) {
         val collatzIterator = sequence {
             var n = 1
             while (true) {
@@ -237,6 +244,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
             current = collatzIterator.next()
         }
         check (current == 137) { "Failed: expected 6765, got $current" }
+        blackhole.consume(current)
     }
 
     suspend fun simpleCoroutine(): String {
@@ -244,7 +252,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun startCoroutinePerformance() {
+    fun startCoroutinePerformance(blackhole: Blackhole) {
         var completionCount = 0
 
         // Start multiple coroutines to measure startCoroutine performance
@@ -258,6 +266,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
             })
         }
         check (completionCount == BENCHMARK_SIZE) { "Failed: expected $BENCHMARK_SIZE to complete, $completionCount completed." }
+        blackhole.consume(completionCount)
     }
 
     @Benchmark
@@ -274,6 +283,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
             }
         }
         check (completionCount == BENCHMARK_SIZE) { "Failed: expected $BENCHMARK_SIZE to complete, $completionCount completed." }
+        blackhole.consume(completionCount)
     }
 
 
@@ -290,7 +300,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun createAndResumeCoroutinePerformance() {
+    fun createAndResumeCoroutinePerformance(blackhole: Blackhole) {
 
         var completionCount = 0
 
@@ -307,6 +317,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
 
         coroutines.forEach { it.resume(Unit) }
         check (completionCount == BENCHMARK_SIZE) { "Failed: expected $BENCHMARK_SIZE to complete, $completionCount completed." }
+        blackhole.consume(completionCount)
     }
 
     @Benchmark
@@ -334,7 +345,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
 
     // benchmark emulating compose lazy viewers
     @Benchmark
-    fun frameClockSuspensions() {
+    fun frameClockSuspensions(blackhole: Blackhole) {
         var consumed = 0L
 
         builder {
@@ -347,6 +358,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
         repeat(BENCHMARK_SIZE) { dispatchFrame() }
 
         check(pendingFrames.isEmpty())
+        blackhole.consume(consumed)
     }
 
     var throwContinuation: Continuation<Int>? = null
@@ -356,7 +368,7 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
     }
 
     @Benchmark
-    fun externalResumptionsWithException() {
+    fun externalResumptionsWithException(blackhole: Blackhole) {
         var caught = 0
 
         builder {
@@ -374,5 +386,6 @@ open class CoroutinesIntrinsicsBenchmark : ParametrizedDispatcherBase() {
         }
 
         check(caught == BENCHMARK_SIZE)
+        blackhole.consume(caught)
     }
 }

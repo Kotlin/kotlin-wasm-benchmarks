@@ -50,36 +50,42 @@ class DefaultArgumentBenchmark {
 
     
     @Benchmark
-    fun testOneOfTwo() {
-        sumTwo(arg)
+    fun testOneOfTwo(blackhole: Blackhole) {
+        val result = sumTwo(arg)
+        blackhole.consume(result)
     }
 
     
     @Benchmark
-    fun testTwoOfTwo() {
-        sumTwo(arg, arg)
+    fun testTwoOfTwo(blackhole: Blackhole) {
+        val result = sumTwo(arg, arg)
+        blackhole.consume(result)
     }
     
     @Benchmark
-    fun testOneOfFour() {
-        sumFour(arg)
-    }
-
-    
-    @Benchmark
-    fun testFourOfFour() {
-        sumFour(arg, arg, arg, arg)
+    fun testOneOfFour(blackhole: Blackhole) {
+        val result = sumFour(arg)
+        blackhole.consume(result)
     }
 
     
     @Benchmark
-    fun testOneOfEight() {
-        sumEight(arg)
+    fun testFourOfFour(blackhole: Blackhole) {
+        val result = sumFour(arg, arg, arg, arg)
+        blackhole.consume(result)
     }
 
     
     @Benchmark
-    fun testEightOfEight() {
-        sumEight(arg, arg, arg, arg, arg, arg, arg, arg)
+    fun testOneOfEight(blackhole: Blackhole) {
+        val result = sumEight(arg)
+        blackhole.consume(result)
+    }
+
+    
+    @Benchmark
+    fun testEightOfEight(blackhole: Blackhole) {
+        val result = sumEight(arg, arg, arg, arg, arg, arg, arg, arg)
+        blackhole.consume(result)
     }
 }

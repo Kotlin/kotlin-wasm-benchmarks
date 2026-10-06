@@ -68,7 +68,7 @@ class WhenBenchmark {
     }
 
     @Benchmark
-    fun charWhenDense(): Int {
+    fun charWhenDense(blackhole: Blackhole) {
         var sum = 0
         val data = charsDataDense
         for (i in 0 until data.size) {
@@ -82,11 +82,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun charWhenSparse(): Int {
+    fun charWhenSparse(blackhole: Blackhole) {
         var sum = 0
         val data = charsDataSparse
         for (i in 0 until data.size) {
@@ -100,11 +100,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun intWhenDense(): Int {
+    fun intWhenDense(blackhole: Blackhole) {
         var sum = 0
         val data = integersDataDense
         for (i in 0 until data.size) {
@@ -116,11 +116,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun intWhenSparse(): Int {
+    fun intWhenSparse(blackhole: Blackhole) {
         var sum = 0
         val data = integersDataSparse
         for (i in 0 until data.size) {
@@ -132,11 +132,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun shortWhenDense(): Int {
+    fun shortWhenDense(blackhole: Blackhole) {
         var sum = 0
         val data = shortsDataDense
         for (i in 0 until data.size) {
@@ -148,11 +148,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun shortWhenSparse(): Int {
+    fun shortWhenSparse(blackhole: Blackhole) {
         var sum = 0
         val data = shortsDataSparse
         for (i in 0 until data.size) {
@@ -164,11 +164,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun byteWhenDense(): Int {
+    fun byteWhenDense(blackhole: Blackhole) {
         var sum = 0
         val data = bytesDataDense
         for (i in 0 until data.size) {
@@ -180,11 +180,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun byteWhenSparse(): Int {
+    fun byteWhenSparse(blackhole: Blackhole) {
         var sum = 0
         val data = bytesDataSparse
         for (i in 0 until data.size) {
@@ -196,11 +196,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun stringWhen(): Int {
+    fun stringWhen(blackhole: Blackhole) {
         var sum = 0
         val data = stringsData
         for (i in 0 until data.size) {
@@ -212,11 +212,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun floatWhen(): Int {
+    fun floatWhen(blackhole: Blackhole) {
         var sum = 0
         val data = floatsData
         for (i in 0 until data.size) {
@@ -228,11 +228,11 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 
     @Benchmark
-    fun doubleWhen(): Int {
+    fun doubleWhen(blackhole: Blackhole) {
         var sum = 0
         val data = doublesData
         for (i in 0 until data.size) {
@@ -244,6 +244,6 @@ class WhenBenchmark {
                 else -> 29
             }
         }
-        return sum
+        blackhole.consume(sum)
     }
 }

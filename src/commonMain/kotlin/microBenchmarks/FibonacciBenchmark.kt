@@ -32,7 +32,7 @@ import kotlinx.benchmark.*
 class FibonacciBenchmark {
 
     @Benchmark
-    fun calcClassic(): Long {
+    fun calcClassic(blackhole: Blackhole) {
         var a = 1L
         var b = 2L
         val size = BENCHMARK_SIZE
@@ -41,11 +41,11 @@ class FibonacciBenchmark {
             a = b
             b = next
         }
-        return b
+        blackhole.consume(b)
     }
 
     @Benchmark
-    fun calc(): Long {
+    fun calc(blackhole: Blackhole) {
         // This test works CRITICALLY slower compared with java equivalent (05.03.2015)
         var a = 1L
         var b = 2L
@@ -55,11 +55,11 @@ class FibonacciBenchmark {
             a = b
             b = next
         }
-        return b
+        blackhole.consume(b)
     }
 
     @Benchmark
-    fun calcWithProgression(): Long {
+    fun calcWithProgression(blackhole: Blackhole) {
         // This test works CRITICALLY slower compared with java equivalent (05.03.2015)
         var a = 1L
         var b = 2L
@@ -69,11 +69,11 @@ class FibonacciBenchmark {
             a = b
             b = next
         }
-        return b
+        blackhole.consume(b)
     }
 
     @Benchmark
-    fun calcSquare(): Long {
+    fun calcSquare(blackhole: Blackhole) {
         // This test works CRITICALLY slower compared with java equivalent (05.03.2015)
         var a = 1L
         var b = 2L
@@ -85,6 +85,6 @@ class FibonacciBenchmark {
             a = b
             b = next
         }
-        return b
+        blackhole.consume(b)
     }
 }

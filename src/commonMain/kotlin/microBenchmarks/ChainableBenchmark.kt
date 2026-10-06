@@ -54,7 +54,7 @@ class ChainableBenchmark {
     val size = BENCHMARK_SIZE * 100
 
     @Benchmark
-    fun testChainable() {
+    fun testChainable(blackhole: Blackhole) {
         val list = IntArrayList()
         for (i in 0..size) {
             list.addChainable(i)
@@ -66,5 +66,6 @@ class ChainableBenchmark {
         for (i in 0..size) {
             sum += list[i]
         }
+        blackhole.consume(sum)
     }
 }

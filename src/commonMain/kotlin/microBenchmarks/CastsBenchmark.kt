@@ -99,7 +99,7 @@ class CastsBenchmark {
     }
 
     @Benchmark
-    fun classCast(): Int {
+    fun classCast(blackhole: Blackhole) {
         val c0 = c0
         val c1 = c1
         val c2 = c2
@@ -126,11 +126,11 @@ class CastsBenchmark {
             x += foo_class(c9, x, i)
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun interfaceCast(): Int {
+    fun interfaceCast(blackhole: Blackhole) {
         val c0 = c0
         val c1 = c1
         val c2 = c2
@@ -157,6 +157,6 @@ class CastsBenchmark {
             x += foo_iface(c9, x, i)
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 }
