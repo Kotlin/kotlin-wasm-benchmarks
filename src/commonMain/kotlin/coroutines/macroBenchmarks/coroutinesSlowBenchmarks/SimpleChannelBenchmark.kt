@@ -50,7 +50,10 @@ class CancellableChannelBenchmark: SimpleChannelBenchmark() {
     override fun makeChannel() = CancellableChannel()
 
     @Benchmark
-    fun cancellable() = benchmark()
+    fun cancellable(blackhole: Blackhole) {
+        val result = benchmark()
+        blackhole.consume(result)
+    }
 }
 
 @State(Scope.Benchmark)
@@ -58,7 +61,10 @@ class CancellableReusableChannelBenchmark: SimpleChannelBenchmark() {
     override fun makeChannel() = CancellableReusableChannel()
 
     @Benchmark
-    fun cancellableReusable() = benchmark()
+    fun cancellableReusable(blackhole: Blackhole) {
+        val result = benchmark()
+        blackhole.consume(result)
+    }
 }
 
 @State(Scope.Benchmark)
@@ -66,5 +72,8 @@ class NonCancellableChannelBenchmark: SimpleChannelBenchmark() {
     override fun makeChannel() = NonCancellableChannel()
 
     @Benchmark
-    fun nonCancellable() = benchmark()
+    fun nonCancellable(blackhole: Blackhole) {
+        val result = benchmark()
+        blackhole.consume(result)
+    }
 }

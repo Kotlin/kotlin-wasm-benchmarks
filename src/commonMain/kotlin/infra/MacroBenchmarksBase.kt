@@ -1,9 +1,11 @@
 package macroBenchmarks
 
+import kotlinx.benchmark.Blackhole
+
 open class MacroBenchmarksBase {
-    protected fun runBenchmark(macroBenchmark: MacroBenchmark) {
-        check(macroBenchmark.innerBenchmarkLoop(macroBenchmark.defaultInnerIterations.max())) {
-            "Failed bencmark ${macroBenchmark::class.simpleName}"
+    protected fun runBenchmark(macroBenchmark: MacroBenchmark, blackhole: Blackhole) {
+        check(macroBenchmark.innerBenchmarkLoop(macroBenchmark.defaultInnerIterations.max(), blackhole)) {
+            "Failed benchmark ${macroBenchmark::class.simpleName}"
         }
     }
 }

@@ -1139,7 +1139,8 @@ class GraphSolverBenchmark {
     }
 
     @Benchmark
-    fun solve() {
-        Greedy(graph).solve()
+    fun solve(blackhole: Blackhole) {
+        val result = Greedy(graph).solve()
+        blackhole.consume(result)
     }
 }

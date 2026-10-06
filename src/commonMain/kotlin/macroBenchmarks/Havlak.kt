@@ -24,9 +24,18 @@ package macroBenchmarks
 
 import macroBenchmarks.havlak.LoopTesterApp
 import kotlin.collections.List
+import kotlinx.benchmark.Blackhole
 
 class Havlak : MacroBenchmark() {
-    override fun innerBenchmarkLoop(innerIterations: Int): Boolean {
+    override fun innerBenchmarkLoop(innerIterations: Int, blackhole: Blackhole): Boolean {
+        val result = LoopTesterApp().main(
+            numDummyLoops = innerIterations,
+            findLoopIterations = 50,
+            parLoops = 10 /* was 100 */,
+            pparLoops = 10,
+            ppparLoops = 5
+        )
+        blackhole.consume(result)
         return verifyResult(
             result = LoopTesterApp().main(
                 numDummyLoops = innerIterations,

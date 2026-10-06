@@ -33,17 +33,18 @@ class IntStreamBenchmark {
     }
     
     @Benchmark
-    fun copyManual(): List<Int> {
+    fun copyManual(blackhole: Blackhole) {
         val list = ArrayList<Int>()
         for (item in data.asSequence()) {
             list.add(item)
         }
-        return list
+        blackhole.consume(list)
     }
     
     @Benchmark
-    fun filterAndCount(): Int {
-        return data.asSequence().filter { filterLoad(it) }.count()
+    fun filterAndCount(blackhole: Blackhole) {
+        val result = data.asSequence().filter { filterLoad(it) }.count()
+        blackhole.consume(result)
     }
     
     @Benchmark
@@ -64,40 +65,48 @@ class IntStreamBenchmark {
     
     @Benchmark
     fun filter(blackhole: Blackhole) {
-        for (item in data.asSequence().filter { filterLoad(it) })
-            blackhole.consume(item)
+        var result = 0
+        for (item in data.asSequence().filter { filterLoad(it) }) {
+            result += item
+        }
+        blackhole.consume(result)
     }
     
     @Benchmark
     fun filterManual(blackhole: Blackhole) {
         for (it in data.asSequence()) {
-            if (filterLoad(it))
-                blackhole.consume(it)
+            if (filterLoad(it)) {
+                result += it
+            }
         }
     }
+        blackhole.consume(result)
     
     @Benchmark
-    fun countFilteredManual(): Int {
+    fun countFilteredManual(blackhole: Blackhole) {
         var count = 0
         for (it in data.asSequence()) {
             if (filterLoad(it))
                 count++
         }
-        return count
+        blackhole.consume(count)
     }
     
     @Benchmark
-    fun countFiltered(): Int {
-        return data.asSequence().count { filterLoad(it) }
+    fun countFiltered(blackhole: Blackhole) {
+        val result = data.asSequence().count { filterLoad(it) }
+        blackhole.consume(result)
     }
     
     @Benchmark
-    fun countFilteredLocal(): Int {
-        return data.asSequence().cnt { filterLoad(it) }
+    fun countFilteredLocal(blackhole: Blackhole) {
+        val result = data.asSequence().cnt { filterLoad(it) }
+        blackhole.consume(result)
     }
     
     @Benchmark
-    fun reduce(): Int {
-        return data.asSequence().fold(0) {acc, it -> if (filterLoad(it)) acc + 1 else acc }
+    fun reduce(blackhole: Blackhole) {
+        val result = data.asSequence().fold(0) {acc, it -> if (filterLoad(it)) acc + 1 else acc }
+        blackhole.consume(result)
     }
 }

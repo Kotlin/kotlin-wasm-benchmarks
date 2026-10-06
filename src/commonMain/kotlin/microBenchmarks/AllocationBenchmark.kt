@@ -30,9 +30,10 @@ class AllocationBenchmark {
     }
 
     @Benchmark
-    fun allocateObjects() {
+    fun allocateObjects(blackhole: Blackhole) {
         repeat(BENCHMARK_SIZE) {
-            MyClass().inc()
+            val result = MyClass()
+            blackhole.consume(result)
         }
     }
 

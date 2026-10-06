@@ -122,7 +122,8 @@ class JsInteropNullableBenchmark {
         var i = 0
         val size = BENCHMARK_SIZE
         while (i < size) {
-            blackhole.consume(stringInteropOutNotNull())
+            val result = stringInteropOutNotNull()
+            blackhole.consume(result)
             i++
         }
     }
@@ -132,7 +133,8 @@ class JsInteropNullableBenchmark {
         var i = 0
         val size = BENCHMARK_SIZE
         while (i < size) {
-            blackhole.consume(stringInteropOutNull())
+            val result = stringInteropOutNull()
+            blackhole.consume(result)
             i++
         }
     }
@@ -176,7 +178,8 @@ class JsInteropNullableBenchmark {
         var i = 0
         val size = BENCHMARK_SIZE
         while (i < size) {
-            blackhole.consume(intInteropOutNotNull())
+            val result = intInteropOutNotNull()
+            blackhole.consume(result)
             i++
         }
     }
@@ -186,7 +189,8 @@ class JsInteropNullableBenchmark {
         var i = 0
         val size = BENCHMARK_SIZE
         while (i < size) {
-            blackhole.consume(intInteropOutNull())
+            val result = intInteropOutNull()
+            blackhole.consume(result)
             i++
         }
     }
@@ -226,21 +230,21 @@ class JsInteropNullableBenchmark {
     }
 
     @Benchmark
-    fun externInteropOutNotNull(blackhole: Blackhole) {
+    fun externInteropOutNotNull() {
         var i = 0
         val size = BENCHMARK_SIZE
         while (i < size) {
-            blackhole.consume(iFaceInteropOutNotNull())
+            iFaceInteropOutNotNull()
             i++
         }
     }
 
     @Benchmark
-    fun externInteropOutNull(blackhole: Blackhole) {
+    fun externInteropOutNull() {
         var i = 0
         val size = BENCHMARK_SIZE
         while (i < size) {
-            blackhole.consume(iFaceInteropOutNull())
+            iFaceInteropOutNull()
             i++
         }
     }

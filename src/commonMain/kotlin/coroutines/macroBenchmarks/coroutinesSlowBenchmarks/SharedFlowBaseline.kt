@@ -21,7 +21,7 @@ open class SharedFlowBaseline : ParametrizedDispatcherBase() {
         const val RESULT_TAKE_WHILE_DIRECT = SIZE / 2
     }
     @Benchmark
-    fun baseline() {
+    fun baseline(blackhole: Blackhole) {
         var sum = 0
         var done = false
         suspend {
@@ -33,16 +33,18 @@ open class SharedFlowBaseline : ParametrizedDispatcherBase() {
             done = true
         }.startCoroutine(Continuation(coroutineContext) { it.getOrThrow() })
         coroutineContext.drain()
+        blackhole.consume(sum)
         check(done) { "benchmark did not complete" }
         check(sum == SIZE * (SIZE - 1) / 2) { "benchmark did not complete $sum" }
     }
 
     @Benchmark
-    fun takeWhileDirect() {
+    fun takeWhileDirect(blackhole: Blackhole) {
         var result: Int = 0
         suspend {
             (0L..Long.MAX_VALUE).asFlow().takeWhile { it < SIZE }.consume()
         }.startCoroutine(Continuation(coroutineContext) { result = it.getOrThrow() })
+        blackhole.consume(result)
         coroutineContext.drain()
         check (result == RESULT_TAKE_WHILE_DIRECT) { "benchmark did not complete: $result" }
     }

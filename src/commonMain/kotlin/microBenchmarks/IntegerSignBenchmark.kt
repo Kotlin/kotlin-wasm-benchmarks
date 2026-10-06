@@ -40,11 +40,19 @@ class IntegerSignBenchmark {
 
     @Benchmark
     fun intSign(blackhole: Blackhole) {
-        blackhole.consume(nextInt().sign)
+        var result = 0
+        for (value in intValues) {
+            result += value.sign
+        }
+        blackhole.consume(result)
     }
 
     @Benchmark
     fun longSign(blackhole: Blackhole) {
-        blackhole.consume(nextLong().sign)
+        var result = 0
+        for (value in longValues) {
+            result += value.sign
+        }
+        blackhole.consume(result)
     }
 }

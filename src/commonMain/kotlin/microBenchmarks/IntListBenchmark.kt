@@ -32,30 +32,32 @@ class IntListBenchmark {
     }
 
     @Benchmark
-    fun copy(): List<Int> = data.toList()
+    fun copy(blackhole: Blackhole) {
+        blackhole.consume(data.toList())
+    }
 
     @Benchmark
-    fun copyManual(): List<Int> {
+    fun copyManual(blackhole: Blackhole) {
         val data = data
         val list = ArrayList<Int>(data.size)
         for (item in data) {
             list.add(item)
         }
-        return list
+        blackhole.consume(list)
     }
 
     @Benchmark
-    fun filterAndCount(): Int {
-        return data.filter { filterLoad(it) }.count()
+    fun filterAndCount(blackhole: Blackhole) {
+        blackhole.consume(data.filter { filterLoad(it) }.count())
     }
 
     @Benchmark
-    fun filterAndMap(): List<String> {
-        return data.filter { filterLoad(it) }.map { mapLoad(it) }
+    fun filterAndMap(blackhole: Blackhole) {
+        blackhole.consume(data.filter { filterLoad(it) }.map { mapLoad(it) })
     }
 
     @Benchmark
-    fun filterAndMapManual(): ArrayList<String> {
+    fun filterAndMapManual(blackhole: Blackhole) {
         val list = ArrayList<String>()
         for (it in data) {
             if (filterLoad(it)) {
@@ -63,45 +65,51 @@ class IntListBenchmark {
                 list.add(value)
             }
         }
-        return list
+        blackhole.consume(list)
     }
 
     @Benchmark
-    fun filter(): List<Int> {
-        return data.filter { filterLoad(it) }
+    fun filter(blackhole: Blackhole) {
+        blackhole.consume(data.filter { filterLoad(it) })
     }
 
     @Benchmark
-    fun filterManual(): List<Int> {
+    fun filterManual(blackhole: Blackhole) {
         val list = ArrayList<Int>()
         for (it in data) {
             if (filterLoad(it)) {
                 list.add(it)
             }
         }
-        return list
+        blackhole.consume(list)
     }
 
     @Benchmark
-    fun countFilteredManual(): Int {
+    fun countFilteredManual(blackhole: Blackhole) {
         var count = 0
         for (it in data) {
             if (filterLoad(it)) {
                 count++
             }
         }
-        return count
+        blackhole.consume(count)
     }
 
     @Benchmark
-    fun countFiltered(): Int =
-        data.count { filterLoad(it) }
+    fun countFiltered(blackhole: Blackhole) {
+        val result = data.count { filterLoad(it) }
+        blackhole.consume(result)
+    }
 
     @Benchmark
-    fun countFilteredLocal(): Int =
-        data.cnt { filterLoad(it) }
+    fun countFilteredLocal(blackhole: Blackhole) {
+        val result = data.cnt { filterLoad(it) }
+        blackhole.consume(result)
+    }
 
     @Benchmark
-    fun reduce(): Int =
-        data.fold(0) { acc, it -> if (filterLoad(it)) acc + 1 else acc }
+    fun reduce(blackhole: Blackhole) {
+        val result = data.fold(0) { acc, it -> if (filterLoad(it)) acc + 1 else acc }
+        blackhole.consume(result)
+    }
 }

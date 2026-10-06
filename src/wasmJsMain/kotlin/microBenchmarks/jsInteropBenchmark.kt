@@ -83,13 +83,14 @@ class JsInteropBenchmark {
         var i = 0
         val size = BENCHMARK_SIZE
         while (i < size) {
-            blackhole.consume(stringInteropOut())
+            val result = stringInteropOut()
+            blackhole.consume(result)
             i++
         }
     }
 
     @Benchmark
-    fun intInteropIn() {
+    fun intInteropIn(blackhole: Blackhole) {
         val someInt = someInt
         var i = 0
         val size = BENCHMARK_SIZE
@@ -104,7 +105,8 @@ class JsInteropBenchmark {
         var i = 0
         val size = BENCHMARK_SIZE
         while (i < size) {
-            blackhole.consume(intInteropOut())
+            val result = intInteropOut()
+            blackhole.consume(result)
             i++
         }
     }
@@ -121,11 +123,11 @@ class JsInteropBenchmark {
     }
 
     @Benchmark
-    fun externInteropOut(blackhole: Blackhole) {
+    fun externInteropOut() {
         var i = 0
         val size = BENCHMARK_SIZE
         while (i < size) {
-            blackhole.consume(iFaceInteropOut())
+            iFaceInteropOut()
             i++
         }
     }

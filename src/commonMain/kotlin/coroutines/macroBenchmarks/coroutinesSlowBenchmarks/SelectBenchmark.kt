@@ -22,7 +22,7 @@ open class SelectBenchmark: ParametrizedDispatcherBase() {
     private var sink: Int = 0
 
     @Benchmark
-    fun stressSelect()  {
+    fun stressSelect(blackhole: Blackhole)  {
         sink = 0
         var done = false
         suspend {
@@ -45,6 +45,8 @@ open class SelectBenchmark: ParametrizedDispatcherBase() {
             done = true
         }.startCoroutine(Continuation(coroutineContext) { it.getOrThrow() })
         coroutineContext.drain()
-        check(done && sink == iterations * (iterations - 1) / 2) { "benchmark did not complete $sink" }
+        val isValid = done && sink == iterations * (iterations - 1) / 2
+        check(isValid) { "benchmark did not complete $sink" }
+        blackhole.consume(isValid)
     }
 }

@@ -25,7 +25,8 @@ class ClassBaselineBenchmark {
     fun consume(blackhole: Blackhole) {
         var item = 1
         while (item <= BENCHMARK_SIZE) {
-            blackhole.consume(Value(item))
+            val result = Value(item)
+            blackhole.consume(result)
             item++
         }
     }
@@ -42,26 +43,30 @@ class ClassBaselineBenchmark {
     }
 
     @Benchmark 
-    fun allocateList(): List<Value> =
-        ArrayList(BENCHMARK_SIZE)
+    fun allocateList(blackhole: Blackhole) {
+        val result = ArrayList<Value>(BENCHMARK_SIZE)
+        blackhole.consume(result)
+    }
 
     @Benchmark 
-    fun allocateArray(): Array<Value?> =
-        arrayOfNulls(BENCHMARK_SIZE)
+    fun allocateArray(blackhole: Blackhole) {
+        val result = arrayOfNulls<Value?>(BENCHMARK_SIZE)
+        blackhole.consume(result)
+    }
 
     @Benchmark 
-    fun allocateListAndFill(): List<Value> {
+    fun allocateListAndFill(blackhole: Blackhole) {
         val list = ArrayList<Value>(BENCHMARK_SIZE)
         var item = 1
         while (item <= BENCHMARK_SIZE) {
             list.add(Value(item))
             item++
         }
-        return list
+        blackhole.consume(list)
     }
 
     @Benchmark 
-    fun allocateListAndWrite(): List<Value> {
+    fun allocateListAndWrite(blackhole: Blackhole) {
         val value = Value(0)
         val list = ArrayList<Value>(BENCHMARK_SIZE)
         var item = 1
@@ -69,11 +74,11 @@ class ClassBaselineBenchmark {
             list.add(value)
             item++
         }
-        return list
+        blackhole.consume(list)
     }
 
     @Benchmark 
-    fun allocateArrayAndFill(): Array<Value?> {
+    fun allocateArrayAndFill(blackhole: Blackhole) {
         val list = arrayOfNulls<Value>(BENCHMARK_SIZE)
         var index = 0
         var item = 1
@@ -81,6 +86,6 @@ class ClassBaselineBenchmark {
             list[index++] = Value(item)
             item++
         }
-        return list
+        blackhole.consume(list)
     }
 }
