@@ -74,13 +74,14 @@ class IntStreamBenchmark {
     
     @Benchmark
     fun filterManual(blackhole: Blackhole) {
+        var result = 0
         for (it in data.asSequence()) {
             if (filterLoad(it)) {
                 result += it
             }
         }
-    }
         blackhole.consume(result)
+    }
     
     @Benchmark
     fun countFilteredManual(blackhole: Blackhole) {

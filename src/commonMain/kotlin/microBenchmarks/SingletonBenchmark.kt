@@ -32,10 +32,11 @@ class SingletonBenchmark {
     @Benchmark
     fun access(blackhole: Blackhole) {
         var i = 0
+        var result = 0
         while (i <  BENCHMARK_SIZE) {
             result += A.a
             i++
         }
-    }
         blackhole.consume(result)
+    }
 }

@@ -18,17 +18,18 @@ package microBenchmarks
 
 import kotlinx.benchmark.*
 
-var globalAddendum = 0
+private class MutableValue(var value: Int)
 
 private inline fun <T> runLambda(x: () -> T): T = x()
 private fun <T> runLambdaNoInline(x: () -> T): T = x()
 
 @State(Scope.Benchmark)
 class LambdaBenchmark {
+    private lateinit var globalAddendum: MutableValue
 
     @Setup
     fun setup() {
-        globalAddendum = Random.nextInt(20)
+        globalAddendum = MutableValue(Random.nextInt(20))
     }
 
     @Benchmark
@@ -36,7 +37,7 @@ class LambdaBenchmark {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambda { globalAddendum }
+            x += runLambda { globalAddendum }.value
             i++
         }
         blackhole.consume(x)
@@ -47,7 +48,7 @@ class LambdaBenchmark {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambdaNoInline { globalAddendum }
+            x += runLambdaNoInline { globalAddendum }.value
             i++
         }
         blackhole.consume(x)
@@ -59,7 +60,7 @@ class LambdaBenchmark {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambda { addendum }
+            x += runLambda { addendum }.value
             i++
         }
         blackhole.consume(x)
@@ -71,7 +72,7 @@ class LambdaBenchmark {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambdaNoInline { addendum }
+            x += runLambdaNoInline { addendum }.value
             i++
         }
         blackhole.consume(x)
@@ -82,7 +83,7 @@ class LambdaBenchmark {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            runLambda { x += globalAddendum }
+            runLambda { x += globalAddendum.value }
             i++
         }
         blackhole.consume(x)
@@ -93,7 +94,7 @@ class LambdaBenchmark {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            runLambdaNoInline { x += globalAddendum }
+            runLambdaNoInline { x += globalAddendum.value }
             i++
         }
         blackhole.consume(x)
@@ -104,7 +105,7 @@ class LambdaBenchmark {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambda(::referenced)
+            x += runLambda(::referenced).value
             i++
         }
         blackhole.consume(x)
@@ -115,13 +116,13 @@ class LambdaBenchmark {
         var x: Int = 0
         var i = 0
         while (i < BENCHMARK_SIZE) {
-            x += runLambdaNoInline(::referenced)
+            x += runLambdaNoInline(::referenced).value
             i++
         }
         blackhole.consume(x)
     }
-}
 
-private fun referenced(): Int {
-    return globalAddendum
+    private fun referenced(): MutableValue {
+        return globalAddendum
+    }
 }

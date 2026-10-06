@@ -21,13 +21,13 @@ import kotlinx.benchmark.*
 /*
  * This class emulates matrix behaviour using a hash map as its implementation
  */
-class KMatrix internal constructor(val rows: Int, val columns: Int) {
+private class KMatrix(val rows: Int, val columns: Int) {
     private val matrix: MutableMap<Pair<Int, Int>, Double> = HashMap()
 
     init {
-        for (row in 0..rows-1) {
-            for (col in 0..columns-1) {
-                matrix.put(Pair(row, col), Random.nextDouble())
+        for (row in 0..< rows) {
+            for (col in 0..< columns) {
+                matrix[Pair(row, col)] = Random.nextDouble()
             }
         }
     }
@@ -41,7 +41,7 @@ class KMatrix internal constructor(val rows: Int, val columns: Int) {
     }
 
     fun put(pair: Pair<Int, Int>, elem: Double) {
-        matrix.put(pair, elem)
+        matrix[pair] = elem
     }
 
     operator fun plusAssign(other: KMatrix) {
@@ -75,11 +75,11 @@ class MatrixMapBenchmark {
 
     @Benchmark
     fun add(blackhole: Blackhole) {
+        val a = a
+        val b = b
         val result = KMatrix(rows = a.rows, columns = a.columns)
 
-        repeat(BENCHMARK_SIZE) {
-            result += a
-            result += b
+        repeat(10) {
             result += a
             result += b
         }

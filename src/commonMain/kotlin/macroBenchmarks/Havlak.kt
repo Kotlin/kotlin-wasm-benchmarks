@@ -37,13 +37,7 @@ class Havlak : MacroBenchmark() {
         )
         blackhole.consume(result)
         return verifyResult(
-            result = LoopTesterApp().main(
-                numDummyLoops = innerIterations,
-                findLoopIterations = 50,
-                parLoops = 10 /* was 100 */,
-                pparLoops = 10,
-                ppparLoops = 5
-            ),
+            result = result,
             innerIterations = innerIterations
         )
     }

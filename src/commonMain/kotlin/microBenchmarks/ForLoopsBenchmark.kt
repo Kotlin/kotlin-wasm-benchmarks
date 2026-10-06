@@ -138,6 +138,7 @@ class ForLoopsBenchmark {
     // Iterations over .indices
     @Benchmark
     fun arrayIndicesLoop(blackhole: Blackhole) {
+        val array = array
         var sum = 0L
         for (i in array.indices) {
             sum += array[i]
@@ -147,6 +148,7 @@ class ForLoopsBenchmark {
 
     @Benchmark
     fun intArrayIndicesLoop(blackhole: Blackhole) {
+        val intArray = intArray
         var sum = 0L
         for (i in intArray.indices) {
             sum += intArray[i]
@@ -156,6 +158,7 @@ class ForLoopsBenchmark {
 
     @Benchmark
     fun charArrayIndicesLoop(blackhole: Blackhole) {
+        val charArray = charArray
         var sum = 0L
         for (i in charArray.indices) {
             sum += charArray[i].code.toLong()
@@ -165,6 +168,7 @@ class ForLoopsBenchmark {
 
     @Benchmark
     fun stringIndicesLoop(blackhole: Blackhole) {
+        val string = string
         var sum = 0L
         for (i in string.indices) {
             sum += string[i].hashCode()
@@ -174,6 +178,7 @@ class ForLoopsBenchmark {
 
     @Benchmark
     fun floatArrayIndicesLoop(blackhole: Blackhole) {
+        val floatArray = floatArray
         var sum = 0.0
         for (i in floatArray.indices) {
             sum += floatArray[i]
@@ -183,27 +188,30 @@ class ForLoopsBenchmark {
 
     @Benchmark
     fun uIntArrayIndicesLoop(blackhole: Blackhole) {
+        val uIntArray = uIntArray!!
         var sum: ULong = 0u
-        for (i in uIntArray!!.indices) {
-            sum += uIntArray!![i]
+        for (i in uIntArray.indices) {
+            sum += uIntArray[i]
         }
         blackhole.consume(sum)
     }
 
     @Benchmark
     fun uShortArrayIndicesLoop(blackhole: Blackhole) {
+        val uShortArray = uShortArray!!
         var sum: ULong = 0u
-        for (i in uShortArray!!.indices) {
-            sum += uShortArray!![i]
+        for (i in uShortArray.indices) {
+            sum += uShortArray[i]
         }
         blackhole.consume(sum)
     }
 
     @Benchmark
     fun uLongArrayIndicesLoop(blackhole: Blackhole) {
+        val uLongArray = uLongArray!!
         var sum: ULong = 0u
-        for (i in uLongArray!!.indices) {
-            sum += uLongArray!![i]
+        for (i in uLongArray.indices) {
+            sum += uLongArray[i]
         }
         blackhole.consume(sum)
     }
