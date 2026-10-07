@@ -29,6 +29,7 @@
 /.config/jgit/*
 /.config/micro/buffers/*
 /.copilot/*
+/.cups/*
 /.gradle/*
 /dead.letter
 /java_error_*
@@ -37,8 +38,9 @@
 /.jupyter_kotlin/*
 /.konan/*
 /.kotlin/*
+/IdeaProjects/IdeaHome/*
 /.lesshst
-/.lldb/lldb-widehistory
+/.lldb/*-widehistory
 /.local/*
 !/.local/bin
 /.local/bin/*
@@ -48,6 +50,7 @@
 /.nix-profile
 /.npm/
 /.pdfbox.cache
+/.python_history
 /.ssh/*
 !/.ssh/config
 /.swiftpm/*
