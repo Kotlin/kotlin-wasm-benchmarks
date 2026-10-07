@@ -17,22 +17,24 @@ These benchmarks are based on [are-we-fast-yet](https://github.com/smarr/are-we-
 To perform benchmarks it uses [kotlinx-benchmarks](https://github.com/Kotlin/kotlinx-benchmark) library.
 
 # Build and Run
-Specify Kotlin version in `gradle.properties` file or use additional gradle argument `-Pkotlin_version=1.8.0`.
+Specify Kotlin version in `gradle.properties` file or use additional gradle argument `-Pkotlin_version=2.4.20`.
 
-### To run All benchmarks in V8:
-`./gradlew benchmark`
+### Run benchmark
+The benchmarks can be run with the following parameters:
 
-### To run All Kotlin/Wasm benchmarks in V8:
+- Name: `FastMacro`, `FastMicro`, `SlowMacro`, `SlowMicro`, `VolatileMicro`
+- Binaries: `Js`, `Wasm`
+- Build: `Prod`, `Dev`
+- Engine: `D8`, `Jsc`, `JsShell`, `Wasmtime`, `WasmEdge` 
 
-`./gradlew wasmBenchmark`
+To run the benchmarks you need to specify those parameters in the following command and run it:
 
-### To run All Kotlin/Wasm benchmarks with binaries optimized by [Binaryen](https://github.com/WebAssembly/binaryen) in V8:
+`./gradlew wasmJs[Name]_[Binaries]_[Build]_[Engine]Benchmark`
 
-`./gradlew wasmOptBenchmark`
 
-### To run All Kotlin/JS benchmarks in V8:
+For example to have `FastMicro` benchmarks compiled to `Wasm` in `Prod` mode with `Wasmtime` one need to run:
 
-`./gradlew jsBenchmark`
+`./gradlew wasmJsFastMicro_Wasm_Prod_WasmtimeBenchmark`
 
 ### To see all tasks:
 
