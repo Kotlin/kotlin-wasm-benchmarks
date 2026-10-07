@@ -14,7 +14,6 @@ val SlowMicroBenchmarks = listOf(
     "microBenchmarks.ArrayCopyBenchmark.copyInSameArray",
     "microBenchmarks.BunnymarkBenchmark.testBunnymark",
     "microBenchmarks.CoordinatesSolverBenchmark.solve",
-    "microBenchmarks.StringBenchmark.subSequenceCsv",
 )
 
 /*

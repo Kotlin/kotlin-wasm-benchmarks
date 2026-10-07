@@ -17,17 +17,19 @@
 package microBenchmarks
 
 import kotlinx.benchmark.*
+import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 @State(Scope.Benchmark)
 class StringBenchmark {
     private var csv: String = ""
+    // lightweight prefix of csv to avoid heavy allocations in Replace/Remove benchmarks
+    private lateinit var csvHead: String
     private val subSequenceRanges = mutableListOf<Pair<Int, Int>>()
-    private val subSequenceRangesToRemove = mutableListOf<Pair<Int, Int>>()
     private val subSequenceStrings = mutableListOf<String>()
-    private val stringToRepeat = mutableListOf<String>()
     private lateinit var stringsInterpolation: Array<String>
+    private val substringsLength = sqrt(BENCHMARK_SIZE.toDouble()).roundToInt()
 
     @Setup
     fun setup() {
@@ -41,14 +43,13 @@ class StringBenchmark {
         }
         csv += 0.0
 
-        for (i in 1..sqrt(BENCHMARK_SIZE.toDouble()).roundToInt()) {
-            stringToRepeat.add(csv.substring(0, i))
-            subSequenceStrings.add(csv.substring(i - 1, 2 * i - 1))
-            subSequenceRangesToRemove.add(Pair(i - 1, 2 * i - 1))
-            for (j in 0..csv.length - i) {
-                subSequenceRanges.add(Pair(j, j + i))
-            }
+        for (i in 1..substringsLength) {
+            val substringBegin = substringsLength * (i - 1)
+            val substringEnd = substringBegin + i
+            subSequenceStrings.add(csv.substring(substringBegin, substringEnd))
+            subSequenceRanges.add(Pair(substringBegin, substringEnd))
         }
+        csvHead = csv.substring(0, BENCHMARK_SIZE)
     }
     
     @Benchmark
@@ -163,8 +164,8 @@ class StringBenchmark {
     @Benchmark
     fun stringRemoveRange(): Int {
         var sum = 0
-        for (range in subSequenceRangesToRemove) {
-            val subString = csv.removeRange(range.first, range.second)
+        for (range in subSequenceRanges) {
+            val subString = csvHead.removeRange(range.first, range.second)
             sum += subString[0].code
         }
         return sum
@@ -173,8 +174,8 @@ class StringBenchmark {
     @Benchmark
     fun stringRepeat(): Int {
         var sum = 0
-        for (stringToRepeat in stringToRepeat) {
-            val num = BENCHMARK_SIZE / stringToRepeat.length
+        for (stringToRepeat in subSequenceStrings) {
+            val num = max(substringsLength, BENCHMARK_SIZE / stringToRepeat.length)
             val repeated = stringToRepeat.repeat(num)
             sum += repeated[0].code
         }
@@ -185,8 +186,8 @@ class StringBenchmark {
     fun stringReplace(): Int {
         var sum = 0
         for ((i, subString) in subSequenceStrings.withIndex()) {
-            val newSubString = subSequenceStrings[(i + 1) % subString.length]
-            val newString = csv.replace(subString, newSubString)
+            val newSubString = subSequenceStrings[(i + 1) % subSequenceStrings.size]
+            val newString = csvHead.replace(subString, newSubString)
             sum += newString[0].code
         }
         return sum
