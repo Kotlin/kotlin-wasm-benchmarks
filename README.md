@@ -17,22 +17,24 @@ These benchmarks are based on [are-we-fast-yet](https://github.com/smarr/are-we-
 To perform benchmarks it uses [kotlinx-benchmarks](https://github.com/Kotlin/kotlinx-benchmark) library.
 
 # Build and Run
-Specify Kotlin version in `gradle.properties` file or use additional gradle argument `-Pkotlin_version=1.8.0`.
+Specify Kotlin version in `gradle.properties` file or use additional gradle argument `-Pkotlin_version=2.4.20`.
 
-### To run All benchmarks in V8:
-`./gradlew benchmark`
+### Run benchmark
+The benchmarks can be run with the following parameters:
 
-### To run All Kotlin/Wasm benchmarks in V8:
+- Name: `FastMacro`, `FastMicro`, `SlowMacro`, `SlowMicro`, `VolatileMicro`
+- Binaries: `Js`, `Wasm`
+- Build: `Prod`, `Dev`
+- Engine: `D8`, `Jsc`, `JsShell`, `Wasmtime`, `WasmEdge` 
 
-`./gradlew wasmBenchmark`
+To run the benchmarks you need to specify those parameters in the following command and run it:
 
-### To run All Kotlin/Wasm benchmarks with binaries optimized by [Binaryen](https://github.com/WebAssembly/binaryen) in V8:
+`./gradlew wasmJs[Name]_[Binaries]_[Build]_[Engine]Benchmark`
 
-`./gradlew wasmOptBenchmark`
 
-### To run All Kotlin/JS benchmarks in V8:
+For example to have `FastMicro` benchmarks compiled to `Wasm` in `Prod` mode with `Wasmtime` one need to run:
 
-`./gradlew jsBenchmark`
+`./gradlew wasmJsFastMicro_Wasm_Prod_WasmtimeBenchmark`
 
 ### To see all tasks:
 
@@ -42,3 +44,18 @@ Specify Kotlin version in `gradle.properties` file or use additional gradle argu
 
 # License
 See LICENSE.md file for details.
+
+# Generic rules writing the benchmarks
+### Some rules considering a benchmark writing: 
+1. Whenever is possible, consume some benchmark result into `Blackhole` parameter.
+2. Do not use function return value as a blackhole consumer.
+3. Always prepare benchmark data in `@Setup` method.
+4. Never mutate shared data in the benchmark.
+5. If the benchmark uses other functions, make them top-level.
+6. Prefer `const val`'s when possible.
+7. Consume into blackhole as less data as possible but as consumed value should cover as much data-flow as possible.
+8. If you write a micro benchmark, write as less code as possible.
+9. Do not use `kotlinx.benchmakrs` annotations to tune your benchmark, use gradle file.
+10. Benchmark iterations could be also tuned with a loop on the `BENCHMARK_SIZE` value.
+11. Do not consume into blackhole instances of `external` classes or `external` interfaces.
+12. Do not have multiple access to non-local properties in the benchmark. Read it once into a local variable and use that variable instead.
