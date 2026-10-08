@@ -41,6 +41,7 @@ class LoopBenchmark {
 
     @Benchmark 
     fun arrayIndexLoop(blackhole: Blackhole) {
+        val array = array
         for (i in array.indices) {
             blackhole.consume(array[i])
         }
@@ -62,6 +63,7 @@ class LoopBenchmark {
 
     @Benchmark 
     fun arrayWhileLoop(blackhole: Blackhole) {
+        val array = array
         var i = 0
         val s = array.size
         while (i < s) {
@@ -72,11 +74,15 @@ class LoopBenchmark {
 
     @Benchmark 
     fun arrayForeachLoop(blackhole: Blackhole) {
-        array.forEach { blackhole.consume(it) }
+        array.forEach {
+            blackhole.consume(it)
+        }
     }
 
     @Benchmark 
     fun arrayListForeachLoop(blackhole: Blackhole) {
-        arrayList.forEach { blackhole.consume(it) }
+        arrayList.forEach {
+            blackhole.consume(it)
+        }
     }
 }

@@ -185,7 +185,7 @@ class C : A() {
 
 
     @Benchmark
-    fun finalMethodCall(): Int {
+    fun finalMethodCall(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val d = d
@@ -194,11 +194,11 @@ class C : A() {
             x += d.foo()
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun classOpenMethodCall_MonomorphicCallsite(): Int {
+    fun classOpenMethodCall_MonomorphicCallsite(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val a1 = a1
@@ -207,11 +207,11 @@ class C : A() {
             x += a1.foo()
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun classOpenMethodCall_BimorphicCallsite(): Int {
+    fun classOpenMethodCall_BimorphicCallsite(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val a1 = a1
@@ -221,11 +221,11 @@ class C : A() {
             x += (if (i and 1 == 0) a1 else a2).foo()
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun classOpenMethodCall_TrimorphicCallsite(): Int {
+    fun classOpenMethodCall_TrimorphicCallsite(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val a1 = a1
@@ -240,11 +240,11 @@ class C : A() {
             }).foo()
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun interfaceMethodCall_MonomorphicCallsite(): Int {
+    fun interfaceMethodCall_MonomorphicCallsite(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val i1 = i1
@@ -253,11 +253,11 @@ class C : A() {
             x += i1.foo()
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun interfaceMethodCall_BimorphicCallsite(): Int {
+    fun interfaceMethodCall_BimorphicCallsite(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val i1 = i1
@@ -267,11 +267,11 @@ class C : A() {
             x += (if (i and 1 == 0) i1 else i2).foo()
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun interfaceMethodCall_TrimorphicCallsite(): Int {
+    fun interfaceMethodCall_TrimorphicCallsite(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val i1 = i1
@@ -286,11 +286,11 @@ class C : A() {
             }).foo()
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     @Benchmark
-    fun interfaceMethodCall_HexamorphicCallsite(): Int {
+    fun interfaceMethodCall_HexamorphicCallsite(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val i1 = i1
@@ -311,7 +311,7 @@ class C : A() {
             }).foo()
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     abstract class E {
@@ -323,7 +323,7 @@ class C : A() {
     }
 
     @Benchmark
-    fun returnBoxUnboxFolding(): Int {
+    fun returnBoxUnboxFolding(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val e = e
@@ -332,7 +332,7 @@ class C : A() {
             x += e.foo() as Int
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 
     abstract class G<in T> {
@@ -346,7 +346,7 @@ class C : A() {
     }
 
     @Benchmark
-    fun parameterBoxUnboxFolding(): Int {
+    fun parameterBoxUnboxFolding(blackhole: Blackhole) {
         var x = 0
         // TODO: optimize fields accesses
         val g = g
@@ -355,6 +355,6 @@ class C : A() {
             x += g.foo(i)
             i++
         }
-        return x
+        blackhole.consume(x)
     }
 }

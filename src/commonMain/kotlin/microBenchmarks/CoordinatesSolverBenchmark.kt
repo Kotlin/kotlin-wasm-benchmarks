@@ -356,7 +356,7 @@ class CoordinatesSolverBenchmark {
     }
 
     @Benchmark
-    fun solve(bh: Blackhole) {
+    fun solve(blackhole: Blackhole) {
         val output = solver.solve()
 
         for (c in output.steps) {
@@ -365,7 +365,7 @@ class CoordinatesSolverBenchmark {
             } else {
                 "${c.x} ${c.y}"
             }
-            bh.consume(value)
+            blackhole.consume(value)
         }
     }
 }

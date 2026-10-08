@@ -21,134 +21,134 @@ import kotlinx.benchmark.*
 @State(Scope.Benchmark)
 class ArithmeticBenchmark {
     @Benchmark
-    fun division(): Int {
+    fun division(blackhole: Blackhole) {
         var i = 1
         var j = 1
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234) / i / j / i / j / i / j
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun division_constant(): Int {
+    fun division_constant(blackhole: Blackhole) {
         var i = 1
         var j = 1
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234) / 42 / i / 42 / j / 42 / i
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun remainder(): Int {
+    fun remainder(blackhole: Blackhole) {
         var i = 1
         var j = 1
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234) % i % j % i % j % i % j
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun remainder_constant(): Int {
+    fun remainder_constant(blackhole: Blackhole) {
         var i = 1
         var j = 1
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234) % 42 % i % 42 % j % 42 % i
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun float_division(): Float {
+    fun float_division(blackhole: Blackhole) {
         var i = 1
         var j = 1f
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234).toFloat() / i / j / i / j / i / j
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun float_division_constant(): Float {
+    fun float_division_constant(blackhole: Blackhole) {
         var i = 1
         var j = 1f
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234).toFloat() / 42 / i / 42 / j / 42 / i
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun float_remainder(): Float {
+    fun float_remainder(blackhole: Blackhole) {
         var i = 1
         var j = 1f
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234).toFloat() % i % j % i % j % i % j
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun float_remainder_constant(): Float {
+    fun float_remainder_constant(blackhole: Blackhole) {
         var i = 1
         var j = 1f
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234).toFloat() % 42 % i % 42 % j % 42 % i
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun double_division(): Double {
+    fun double_division(blackhole: Blackhole) {
         var i = 1
         var j = 1.0
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234).toFloat() / i / j / i / j / i / j
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun double_division_constant(): Double {
+    fun double_division_constant(blackhole: Blackhole) {
         var i = 1
         var j = 1.0
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234).toDouble() / 42 / i / 42 / j / 42 / i
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun double_remainder(): Double {
+    fun double_remainder(blackhole: Blackhole) {
         var i = 1
         var j = 1.0
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234).toDouble() % i % j % i % j % i % j
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 
     @Benchmark
-    fun double_remainder_constant(): Double {
+    fun double_remainder_constant(blackhole: Blackhole) {
         var i = 1
         var j = 1.0
         while (i < BENCHMARK_SIZE) {
             j += (i shl 1234).toDouble() % 42 % i % 42 % j % 42 % i
             i++
         }
-        return j
+        blackhole.consume(j)
     }
 }
