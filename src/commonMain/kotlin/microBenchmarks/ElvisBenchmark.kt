@@ -29,11 +29,17 @@ private class SomeValue(var value: Int)
 @State(Scope.Benchmark)
 class ElvisBenchmark {
     private lateinit var array : Array<SomeValue?>
+    private lateinit var compositeArray : Array<Composite?>
 
     @Setup
     fun setup() {
+        val random = Random()
         array = Array(BENCHMARK_SIZE) {
-            if (Random.nextInt(BENCHMARK_SIZE) < BENCHMARK_SIZE / 10) null else SomeValue(Random.nextInt())
+            if (random.nextInt(BENCHMARK_SIZE) < BENCHMARK_SIZE / 10) null else SomeValue(random.nextInt())
+        }
+
+        compositeArray = Array(BENCHMARK_SIZE) {
+            Composite(random.nextInt(), Composite(random.nextInt(), null))
         }
     }
 
@@ -49,8 +55,9 @@ class ElvisBenchmark {
     @Benchmark
     fun testCompositeElvis(blackhole: Blackhole) {
         var result = 0
+        val compositeArray = compositeArray
         repeat(BENCHMARK_SIZE) {
-            result += check(Composite(Random.nextInt(), Composite(Random.nextInt(), null)))
+            result += check(compositeArray[it])
         }
         blackhole.consume(result)
     }

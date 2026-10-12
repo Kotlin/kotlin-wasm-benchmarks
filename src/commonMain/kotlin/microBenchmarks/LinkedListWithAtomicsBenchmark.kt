@@ -18,7 +18,7 @@ package microBenchmarks
 
 import kotlinx.benchmark.*
 
-private class ChunkBuffer(var readPosition: Int, var writePosition: Int = readPosition + Random.nextInt(50)) {
+private class ChunkBuffer(var readPosition: Int, var writePosition: Int = readPosition + Random().nextInt(50)) {
     private val nextRef: AtomicRef<ChunkBuffer?> = atomic(null)
 
     /*
@@ -82,8 +82,9 @@ class LinkedListWithAtomicsBenchmark {
     fun setup() {
         val chunks: MutableList<ChunkBuffer> = ArrayList()
         @Suppress("UNUSED_ANONYMOUS_PARAMETER")
+        val random = Random()
         (0..BENCHMARK_SIZE/2).forEachIndexed { index, i ->
-            val chunk = ChunkBuffer(Random.nextInt())
+            val chunk = ChunkBuffer(random.nextInt())
             chunks.add(chunk)
             if (i > 0)
                 chunks[i - 1].next = chunk
@@ -93,17 +94,19 @@ class LinkedListWithAtomicsBenchmark {
 
     @Benchmark
     fun ensureNext(blackhole: Blackhole) {
-        val result = ensureNext(list.head, list)
+        val random = Random()
+        val list = list
+        val result = ensureNext(list.head, list, random)
         blackhole.consume(result)
     }
 }
 
-private tailrec fun ensureNext(current: ChunkBuffer, list: LinkedListOfBuffers): ChunkBuffer? {
+private tailrec fun ensureNext(current: ChunkBuffer, list: LinkedListOfBuffers, random: Random): ChunkBuffer? {
     return when (val next = current.next) {
         null -> null
         else -> {
-            list.tailRemaining = Random.nextInt().toLong() + 1
-            ensureNext(next, list)
+            list.tailRemaining = random.nextInt().toLong() + 1
+            ensureNext(next, list, random)
         }
     }
 }

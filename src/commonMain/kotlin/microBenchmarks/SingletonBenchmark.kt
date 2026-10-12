@@ -19,7 +19,7 @@ package microBenchmarks
 import kotlinx.benchmark.*
 
 private object A {
-    val a = Random.nextInt(100)
+    val a = Random().nextInt(100)
 }
 
 @State(Scope.Benchmark)

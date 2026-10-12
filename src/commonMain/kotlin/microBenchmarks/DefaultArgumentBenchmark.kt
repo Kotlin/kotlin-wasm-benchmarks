@@ -43,7 +43,7 @@ class DefaultArgumentBenchmark {
 
     @Setup
     fun setup() {
-        arg = Random.nextInt()
+        arg = Random().nextInt()
     }
 
     @Benchmark

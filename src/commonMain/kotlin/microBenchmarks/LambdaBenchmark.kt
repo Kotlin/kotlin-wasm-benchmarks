@@ -23,14 +23,16 @@ private class MutableValue(var value: Int)
 private inline fun <T> runLambda(x: () -> T): T = x()
 private fun <T> runLambdaNoInline(x: () -> T): T = x()
 
+private val globalAddendum: MutableValue =
+    MutableValue(Random().nextInt(20))
+
+private fun referenced(): MutableValue {
+    return globalAddendum
+}
+
 @State(Scope.Benchmark)
 class LambdaBenchmark {
     private lateinit var globalAddendum: MutableValue
-
-    @Setup
-    fun setup() {
-        globalAddendum = MutableValue(Random.nextInt(20))
-    }
 
     @Benchmark
     fun noncapturingLambda(blackhole: Blackhole) {
@@ -120,9 +122,5 @@ class LambdaBenchmark {
             i++
         }
         blackhole.consume(x)
-    }
-
-    private fun referenced(): MutableValue {
-        return globalAddendum
     }
 }

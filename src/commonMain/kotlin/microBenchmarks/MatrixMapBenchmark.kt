@@ -25,9 +25,10 @@ private class KMatrix(val rows: Int, val columns: Int) {
     private val matrix: MutableMap<Pair<Int, Int>, Double> = HashMap()
 
     init {
+        val random = Random()
         for (row in 0..< rows) {
             for (col in 0..< columns) {
-                matrix[Pair(row, col)] = Random.nextDouble()
+                matrix[Pair(row, col)] = random.nextDouble()
             }
         }
     }
