@@ -53,17 +53,18 @@ class AtomicRef<T>(public var value: T) {
 public fun <T> atomic(initial: T): AtomicRef<T> = AtomicRef(initial)
 
 class Random {
-    companion object {
-        var seedInt = 0
-        fun nextInt(boundary: Int = 100): Int {
-            seedInt = (3 * seedInt + 11) % boundary
-            return seedInt
-        }
-
-        var seedDouble: Double = 0.1
-        fun nextDouble(boundary: Double = 100.0): Double {
-            seedDouble = (7.0 * seedDouble + 7.0) % boundary
-            return seedDouble
-        }
+    var seedInt = 0
+    fun nextInt(boundary: Int = 100): Int {
+        seedInt = (3 * seedInt + 11) % boundary
+        return seedInt
     }
+
+    var seedDouble: Double = 0.1
+    fun nextDouble(boundary: Double = 100.0): Double {
+        seedDouble = (7.0 * seedDouble + 7.0) % boundary
+        return seedDouble
+    }
+
+    fun nextFloat(boundary: Float = 100.0f): Float =
+        nextDouble(boundary.toDouble()).toFloat()
 }

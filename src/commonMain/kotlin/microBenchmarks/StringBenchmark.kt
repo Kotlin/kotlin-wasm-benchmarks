@@ -35,8 +35,9 @@ class StringBenchmark {
     fun setup() {
         stringsInterpolation = Array(16) { i -> "s$i" }
 
+        val random = Random()
         for (i in 1 until BENCHMARK_SIZE) {
-            val elem = Random.nextDouble()
+            val elem = random.nextDouble()
             csv += elem
             csv += ","
         }

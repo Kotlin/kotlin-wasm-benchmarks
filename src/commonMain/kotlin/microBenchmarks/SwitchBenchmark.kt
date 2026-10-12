@@ -17,7 +17,6 @@
 package microBenchmarks
 
 import kotlinx.benchmark.*
-import kotlin.random.Random
 
 private val SPARSE_SWITCH_CASES = intArrayOf(11, 29, 47, 71, 103,
                                      149, 175, 227, 263, 307,
@@ -596,8 +595,9 @@ class SwitchBenchmark {
 
     @Setup
     fun setup() {
+        val random = Random()
         data = Array(BENCHMARK_SIZE) {
-            "ABCDEFG" + Random.nextInt(22)
+            "ABCDEFG" + random.nextInt(22)
         }
         enumData = Array(BENCHMARK_SIZE) {
             MyEnum.entries[it % MyEnum.entries.size]
@@ -605,10 +605,10 @@ class SwitchBenchmark {
         denseEnumData = Array(BENCHMARK_SIZE) {
             MyEnum.entries[it % 20]
         }
-        denseIntData = IntArray(BENCHMARK_SIZE) { Random.nextInt(25) - 1 }
-        sparseIntData = IntArray(BENCHMARK_SIZE) { SPARSE_SWITCH_CASES[Random.nextInt(20)] }
+        denseIntData = IntArray(BENCHMARK_SIZE) { random.nextInt(25) - 1 }
+        sparseIntData = IntArray(BENCHMARK_SIZE) { SPARSE_SWITCH_CASES[random.nextInt(20)] }
         sealedClassData = Array(BENCHMARK_SIZE) {
-            when(Random.nextInt(10)) {
+            when(random.nextInt(10)) {
                 0 -> MySealedClass.MySealedClass1()
                 1 -> MySealedClass.MySealedClass2()
                 2 -> MySealedClass.MySealedClass3()

@@ -17,27 +17,32 @@
 package microBenchmarks
 
 import kotlinx.benchmark.*
-import kotlin.random.Random
+
+private const val maxX = 640f
+private const val minX = 0f
+private const val maxY = 480f
+private const val minY = 0f
+private const val gravity = 0.5f
+private const val framesCount = 60 /* TODO: Wasm perf */ / 5
+private const val containerSize = 800_000
 
 // Benchmark for KT-46425.
 @State(Scope.Benchmark)
 class BunnymarkBenchmark {
 
-    val maxX = 640f
-    val minX = 0f
-    val maxY = 480f
-    val minY = 0f
-    val gravity = 0.5f
-    val framesCount = 60 /* TODO: Wasm perf */ / 5
-    val containerSize = 800_000
+    private lateinit var random: Random
+    @Setup
+    fun setup() {
+        random = Random()
+    }
 
     @Benchmark
     fun testBunnymark() {
+        val random = random
+
         val bunnys = BunnyContainer(containerSize)
 
         for (n in 0 until bunnys.maxSize) bunnys.alloc()
-
-        val random = Random(0)
 
         fun executeFrame() {
             bunnys.fastForEach { bunny ->

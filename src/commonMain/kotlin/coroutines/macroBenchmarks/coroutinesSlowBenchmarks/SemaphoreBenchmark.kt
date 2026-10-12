@@ -8,9 +8,9 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.benchmark.*
 import macroBenchmarks.coroutines.ParametrizedDispatcherBase
+import microBenchmarks.Random
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.startCoroutine
-import kotlin.random.Random
 
 private fun doGeomDistrWork(work: Int) {
     // We use geometric distribution here. We also checked on macbook pro 13" (2017) that the resulting work times
@@ -19,7 +19,7 @@ private fun doGeomDistrWork(work: Int) {
 
 //    Used to have ThreadLocal to avoid contention, but there is no multithreading in K/Wasm?
 //    val r = ThreadLocalRandom.current()
-    val r = Random
+    val r = Random()
     while (true) {
         if (r.nextDouble() < p) break
     }
