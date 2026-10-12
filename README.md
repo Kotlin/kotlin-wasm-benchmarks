@@ -51,11 +51,12 @@ See LICENSE.md file for details.
 2. Do not use function return value as a blackhole consumer.
 3. Always prepare benchmark data in `@Setup` method.
 4. Never mutate shared data in the benchmark.
-5. If the benchmark uses other functions, make them top-level.
+5. If the benchmark uses other functions, try make them top-level to be sure that function call does not use VTable.
 6. Prefer `const val`'s when possible.
-7. Consume into blackhole as less data as possible but as consumed value should cover as much data-flow as possible.
-8. If you write a micro benchmark, write as less code as possible.
+7. Call blackhole `consume` as rarely as possible but consumed value should cover as much data-flow as possible.
+8. If you write a `micro` benchmark, write as less code as possible to be sure that this benchmark is still being `micro`.
 9. Do not use `kotlinx.benchmark` annotations to tune your benchmark, use gradle file.
-10. Benchmark iterations could be also tuned with a loop on the `BENCHMARK_SIZE` value.
+10. Benchmark iterations could be also tuned with a loop on the `BENCHMARK_SIZE` value. If you need to use small value, it is also fine.
 11. Do not consume into blackhole instances of `external` classes or `external` interfaces.
 12. Do not have multiple access to non-local properties in the benchmark. Read it once into a local variable and use that variable instead.
+13. Use `microBenchmarks.Random` random generator to generate random data.
