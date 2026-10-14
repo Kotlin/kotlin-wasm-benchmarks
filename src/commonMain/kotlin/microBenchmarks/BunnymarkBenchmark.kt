@@ -30,15 +30,10 @@ private const val containerSize = 800_000
 @State(Scope.Benchmark)
 class BunnymarkBenchmark {
 
-    private lateinit var random: Random
-    @Setup
-    fun setup() {
-        random = Random()
-    }
 
     @Benchmark
     fun testBunnymark() {
-        val random = random
+        val random = Random()
 
         val bunnys = BunnyContainer(containerSize)
 
