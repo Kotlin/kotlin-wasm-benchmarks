@@ -7,7 +7,10 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.startCoroutine
 import kotlinx.benchmark.*
 import macroBenchmarks.coroutines.ParametrizedDispatcherBase
-import kotlin.concurrent.Volatile
+
+// 450
+private const val ITERATIONS = 100_000
+private const val EXPECTED_SUM = ITERATIONS.toLong() * (ITERATIONS - 1) / 2
 
 /*
  * Adapted benchmark from kotlinx.coroutines
@@ -15,20 +18,16 @@ import kotlin.concurrent.Volatile
  */
 @State(Scope.Benchmark)
 open class SelectBenchmark: ParametrizedDispatcherBase() {
-    // 450
-    private val iterations = 100_000
-
-    @Volatile
-    private var sink: Int = 0
 
     @Benchmark
     fun stressSelect(blackhole: Blackhole)  {
-        sink = 0
+        val dispatcher = coroutineContext
+        var sum = 0L
         var done = false
         suspend {
             val pingPong = Channel<Int>()
             launch {
-                repeat(iterations) {
+                repeat(ITERATIONS) {
                     select {
                         pingPong.onSend(it) {}
                     }
@@ -36,17 +35,17 @@ open class SelectBenchmark: ParametrizedDispatcherBase() {
             }
 
             launch {
-                repeat(iterations) {
+                repeat(ITERATIONS) {
                     select {
-                        pingPong.onReceive() { sink += it }
+                        pingPong.onReceive() { sum += it }
                     }
                 }
+                done = true
             }
-            done = true
-        }.startCoroutine(Continuation(coroutineContext) { it.getOrThrow() })
-        coroutineContext.drain()
-        val isValid = done && sink == iterations * (iterations - 1) / 2
-        check(isValid) { "benchmark did not complete $sink" }
-        blackhole.consume(isValid)
+        }.startCoroutine(Continuation(dispatcher) { it.getOrThrow() })
+        dispatcher.drain()
+        check(done) { "benchmark did not complete" }
+        check(sum == EXPECTED_SUM) { "Failed: expected $EXPECTED_SUM, got $sum" }
+        blackhole.consume(sum)
     }
 }

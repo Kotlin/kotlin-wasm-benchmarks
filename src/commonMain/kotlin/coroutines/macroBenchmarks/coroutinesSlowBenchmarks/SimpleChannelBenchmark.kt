@@ -6,12 +6,12 @@ import macroBenchmarks.coroutines.CancellableReusableChannel
 import macroBenchmarks.coroutines.NonCancellableChannel
 import macroBenchmarks.coroutines.ParametrizedDispatcherBaseSlow
 import macroBenchmarks.coroutines.SimpleChannel
-import kotlin.concurrent.Volatile
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.startCoroutine
 import kotlinx.benchmark.*
 
 private const val ITERATIONS = 200_000
+private const val EXPECTED_SUM = ITERATIONS.toLong() * (ITERATIONS - 1) / 2
 
 /*
  * Adapted benchmark from kotlinx.coroutines
@@ -21,13 +21,12 @@ abstract class SimpleChannelBenchmark : ParametrizedDispatcherBaseSlow() {
 
     protected abstract fun makeChannel(): SimpleChannel
 
-    @Volatile
-    private var sink: Int = 0
-
     override fun verifyResult(result: Any) =
-        (result is Int) && result == ITERATIONS * (ITERATIONS - 1) / 2
+        (result is Long) && result == EXPECTED_SUM
 
     override fun benchmark(): Any {
+        val dispatcher = coroutineContext
+        var sum = 0L
         var done = false
         suspend {
             val ch = makeChannel()
@@ -36,13 +35,19 @@ abstract class SimpleChannelBenchmark : ParametrizedDispatcherBaseSlow() {
             }
 
             launch {
-                repeat(ITERATIONS) { sink += ch.receive() }
+                repeat(ITERATIONS) { sum += ch.receive() }
+                done = true
             }
-            done = true
-        }.startCoroutine(Continuation(coroutineContext) { it.getOrThrow() })
-        coroutineContext.drain()
+        }.startCoroutine(Continuation(dispatcher) { it.getOrThrow() })
+        dispatcher.drain()
         check(done) { "benchmark did not complete" }
-        return sink
+        return sum
+    }
+
+    protected fun runAndVerify(blackhole: Blackhole) {
+        val result = benchmark()
+        check(verifyResult(result)) { "Failed: expected $EXPECTED_SUM, got $result" }
+        blackhole.consume(result)
     }
 }
 
@@ -52,8 +57,7 @@ class CancellableChannelBenchmark: SimpleChannelBenchmark() {
 
     @Benchmark
     fun cancellable(blackhole: Blackhole) {
-        val result = benchmark()
-        blackhole.consume(result)
+        runAndVerify(blackhole)
     }
 }
 
@@ -63,8 +67,7 @@ class CancellableReusableChannelBenchmark: SimpleChannelBenchmark() {
 
     @Benchmark
     fun cancellableReusable(blackhole: Blackhole) {
-        val result = benchmark()
-        blackhole.consume(result)
+        runAndVerify(blackhole)
     }
 }
 
@@ -74,7 +77,6 @@ class NonCancellableChannelBenchmark: SimpleChannelBenchmark() {
 
     @Benchmark
     fun nonCancellable(blackhole: Blackhole) {
-        val result = benchmark()
-        blackhole.consume(result)
+        runAndVerify(blackhole)
     }
 }
