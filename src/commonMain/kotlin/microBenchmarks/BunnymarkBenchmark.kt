@@ -61,9 +61,9 @@ class BunnymarkBenchmark {
                 if (bunny.y > maxY) {
                     bunny.speedYf *= -0.85f
                     bunny.y = maxY
-                    bunny.radiansf = (random.nextFloat() - 0.5f) * 0.2f
-                    if (random.nextFloat() > 0.5) {
-                        bunny.speedYf -= random.nextFloat() * 6
+                    bunny.radiansf = (random.nextFloat(1.0) - 0.5f) * 0.2f
+                    if (random.nextFloat(1.0) > 0.5) {
+                        bunny.speedYf -= random.nextFloat(1.0) * 6
                     }
                 } else if (bunny.y < minY) {
                     bunny.speedYf = 0f
