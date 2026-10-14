@@ -8,6 +8,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.startCoroutine
 import kotlin.coroutines.suspendCoroutine
 
+private const val JOBS_TO_LAUNCH = 1000
+private const val SUBMITTERS = 40
+
 /*
  * Adapted benchmark from kotlinx.coroutines
  * https://github.com/Kotlin/kotlinx.coroutines/blob/master/benchmarks/src/jmh/kotlin/benchmarks/scheduler/LaunchBenchmark.kt
@@ -18,22 +21,19 @@ import kotlin.coroutines.suspendCoroutine
 @State(Scope.Benchmark)
 open class LaunchBenchmark : ParametrizedDispatcherBase() {
 
-    private val jobsToLaunch = 1000
-    private val submitters = 40
-
-    private val allLaunched = CyclicBarrier(submitters)
-    private val stopBarrier = CyclicBarrier(submitters + 1)
-
     @Benchmark
     fun massiveLaunch(blackhole: Blackhole) {
+        val dispatcher = coroutineContext
+        val allLaunched = CyclicBarrier(SUBMITTERS)
+        val stopBarrier = CyclicBarrier(SUBMITTERS + 1)
         var done = false
         suspend {
-            repeat(submitters) {
+            repeat(SUBMITTERS) {
                 launch {
                     // Wait until all cores are occupied
                     allLaunched.await()
 
-                    (1..jobsToLaunch).map {
+                    (1..JOBS_TO_LAUNCH).map {
                         launch {
                             // do nothing
                         }
@@ -45,8 +45,8 @@ open class LaunchBenchmark : ParametrizedDispatcherBase() {
 
             stopBarrier.await()
             done = true
-        }.startCoroutine(Continuation(coroutineContext) { it.getOrThrow() })
-        coroutineContext.drain()
+        }.startCoroutine(Continuation(dispatcher) { it.getOrThrow() })
+        dispatcher.drain()
         check(done) { "benchmark did not complete" }
         blackhole.consume(done)
     }
