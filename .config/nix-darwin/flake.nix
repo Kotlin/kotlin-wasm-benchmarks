@@ -16,6 +16,7 @@
         [
           (pkgs.callPackage ./packages/xcodes/package.nix {})
           pkgs.bat
+          pkgs.btop
           pkgs.bytecode-viewer
           pkgs.clang-tools
           pkgs.fd
