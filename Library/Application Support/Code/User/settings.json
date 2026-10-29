@@ -1,0 +1,9 @@
+{
+    "editor.fontSize": 14,
+    "window.autoDetectColorScheme": true,
+    "chat.titleBar.signIn.enabled": false,
+    "kotlin.languageServer.enabled": false,
+    "kotlin.debugAdapter.enabled": false,
+    "git.openRepositoryInParentFolders": "never",
+    "update.mode": "none"
+}

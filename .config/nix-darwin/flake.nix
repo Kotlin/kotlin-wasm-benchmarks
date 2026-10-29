@@ -31,6 +31,7 @@
           pkgs.miller
           pkgs.mosh
           pkgs.ripgrep
+          pkgs.vscode
         ];
 
       environment.variables = {
@@ -144,7 +145,12 @@
     # Build darwin flake using:
     # $ darwin-rebuild build --flake .#DE-UNIT-2458
     darwinConfigurations."DE-UNIT-2458" = nix-darwin.lib.darwinSystem {
-      modules = [ configuration ];
+      modules = [
+        {
+          nixpkgs.config.allowUnfree = true;
+        }
+        configuration
+      ];
     };
   };
 }
